@@ -1,7 +1,7 @@
 const express = request("express");
 const app = express();
 
-port = process.env.port | 3000
+port = process.env.port | 80
 
 app.use(express.static(__dirname + "/public"))
 
