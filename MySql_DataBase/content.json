@@ -1,0 +1,51 @@
+{
+    "user": {
+        "name": "",
+        "email": "",
+        "id": "",
+        "frames": [
+            {"id": "", "title": ""},
+            {"id": "", "title": ""}
+        ]
+    },
+    "frame": {
+        "id": "",
+        "title": "",
+        "discription": "",
+        "author": "",
+        "members": [
+            {"id": "", "name": "", "profileImgLink": ""},
+            {"id": "", "name": "", "profileImgLink": ""}
+        ],
+        "boxes": [
+            {
+                "id": "", 
+                "name": "", 
+                "color": "",
+                "cards": [
+                    {
+                        "id": "", 
+                        "title": "", 
+                        "description": "", 
+                        "members": [], 
+                        "subtasks": [
+                            {
+                                "id": "",
+                                "text": "",
+                                "members": []
+                            },
+                            {
+                                "id": "",
+                                "text": "", 
+                                "members": []
+                            }
+                        ], 
+                        "labels": [], 
+                        "color": "", 
+                        "date": ""
+                    }
+                ]
+            }
+        ]
+    }
+}
