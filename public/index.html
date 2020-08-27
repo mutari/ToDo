@@ -1,1 +1,28 @@
-<DOCTYPE></DOCTYPE><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ToDo</title><link rel="stylesheet" href="css/style.css"><link rel="shortcut icon" href="" type="image/x-icon"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald"><script src="https://kit.fontawesome.com/749a40b32a.js" crossorigin="anonymous"></script></head><body><!-- include includes/_navbar.pug--><main></main><!-- include includes/_footer.pug--></body><script src="js/main.js"></script></html>
+<DOCTYPE></DOCTYPE><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ToDo</title><link rel="stylesheet" href="css/style.css"><link rel="shortcut icon" href="" type="image/x-icon"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald"><script src="https://kit.fontawesome.com/749a40b32a.js" crossorigin="anonymous"></script></head><body><!-- include includes/_navbar.pug--><main></main><!-- include includes/_footer.pug--><form class="" id="form" action="/login" method="POST"> 
+<div>
+<label for="male">Namn <span>(För- och efternamn)</span> *</label>
+<input type="text" name="Namn/företag" id="name">
+<p id="nameFeedback"></p>
+</div>
+<div>
+<label for="male">Ämne</label>
+<input type="text" name="Ämne" id="subject">
+<p id="subjectFeedback"></p>
+</div>
+<div>
+<label for="male">E-post <span>(info@exempel.se)</span> *</label>
+<input type="text" name="E-post" id="email">
+<p id="emailFeedback"></p>
+</div>
+<div>
+<label for="male">Telefonnummer</label>
+<input type="text" name="Telefonnummer" id="phone">
+<p id="phoneFeedback"></p>
+</div>
+<div>
+<label for="male">Meddelande *</label>
+<textarea name="Meddelande" id="message" style="height: 43px"></textarea>
+<p id="messageFeedback"></p>
+</div>
+<button>SKICKA<i class="fas fa-check"></i><i class="fas fa-times"></i></button>
+</form></body><script src="js/main.js"></script></html>
