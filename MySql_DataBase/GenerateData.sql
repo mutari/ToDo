@@ -1,0 +1,1 @@
+INSERT INTO frames (NAME, USER_ID)
