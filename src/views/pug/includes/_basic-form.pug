@@ -1,28 +1,39 @@
-<form class="" id="form" action="/login" method="POST"> 
+<form class="" id="signUp" action="/signUp" method="POST"> 
     <div>
-        <label for="male">Namn <span>(För- och efternamn)</span> *</label>
-        <input type="text" name="Namn/företag" id="name">
+        <label>Name <span>(First and lastname)</span> *</label>
+        <input type="text" name="name" id="name">
         <p id="nameFeedback"></p>
     </div>
     <div>
-        <label for="male">Ämne</label>
-        <input type="text" name="Ämne" id="subject">
-        <p id="subjectFeedback"></p>
-    </div>
-    <div>
-        <label for="male">E-post <span>(info@exempel.se)</span> *</label>
-        <input type="text" name="E-post" id="email">
+        <label>E-post <span>(info@exempel.se)</span> *</label>
+        <input type="text" name="email" id="email">
         <p id="emailFeedback"></p>
     </div>
     <div>
-        <label for="male">Telefonnummer</label>
-        <input type="text" name="Telefonnummer" id="phone">
-        <p id="phoneFeedback"></p>
+        <label>Password *</label>
+        <input type="text" name="password" id="password">
+        <p id="passwordFeedback"></p>
     </div>
     <div>
-        <label for="male">Meddelande *</label>
-        <textarea name="Meddelande" id="message" style="height: 43px"></textarea>
-        <p id="messageFeedback"></p>
+        <label>Comfirm password *</label>
+        <input type="text" name="password" id="comfirmPw">
+        <p id="comfirmPwFeedback"></p>
     </div>
-    <button>SKICKA<i class="fas fa-check"></i><i class="fas fa-times"></i></button>
+    <button>Sign up</button>
+</form>
+<br>
+<br>
+<br>
+<form class="" id="login" action="/login" method="POST"> 
+    <div>
+        <label>Email <span>(info@example.se)</span> *</label>
+        <input type="text" name="email" id="email">
+        <p id="emailFeedback"></p>
+    </div>
+    <div>
+        <label>Password *</label>
+        <input type="text" name="password" id="password">
+        <p id="passwordFeedback"></p>
+    </div>
+    <button>Login</button>
 </form>
