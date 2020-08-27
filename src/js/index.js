@@ -9,7 +9,7 @@ const server = new Server()
 const validate = new Validate()
 const announce = new Announce()
 const form = new Form()
-server.initFetch().then(() => console.log(server.data))
+// server.postFetch('login', {"hej": 'hejdå'})
 
 
 document.addEventListener( "submit", e => {

@@ -9,7 +9,7 @@ const server = new Server()
 const validate = new Validate()
 const announce = new Announce()
 const form = new Form()
-server.initFetch().then(() => console.log(server.data))
+// server.postFetch('login', {"hej": 'hejdå'})
 
 
 document.addEventListener( "submit", e => {
@@ -73,7 +73,7 @@ function Form() {
             password: el.password.value.trim() 
         }
         const errorMessages = this.errorMessages.login
-        validate.isFormValid(e, inputs, errorMessages) ? console.log('frontend-login-valid') : '' //server.postFetch(dest, inputs)
+        validate.isFormValid(e, inputs, errorMessages) ? server.postFetch('login', inputs) : ''
     }
     this.reset = e => {
 		queryTarget(`${targetId(e)}`).reset()
@@ -96,11 +96,12 @@ function Server() {
 	const url = {
 		init: "",
 		signUp: "",
+		login: "/login",
 	}
 	const postOption = data => ({
 		method: 'POST',
 		headers: {
-		  'Content-Type': 'application/json;charset=utf-8'
+		  'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(data)
 	})
@@ -112,6 +113,7 @@ function Server() {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
 			if(!data) throw 'no data given on postFetch'
+			console.log(url[dest], dest)
 			return (await fetch(url[dest], postOption(data))).json()
 		} catch (error) {
 			console.log(error)

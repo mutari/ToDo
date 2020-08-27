@@ -3,11 +3,12 @@ function Server() {
 	const url = {
 		init: "",
 		signUp: "",
+		login: "/login",
 	}
 	const postOption = data => ({
 		method: 'POST',
 		headers: {
-		  'Content-Type': 'application/json;charset=utf-8'
+		  'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(data)
 	})
@@ -19,6 +20,7 @@ function Server() {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
 			if(!data) throw 'no data given on postFetch'
+			console.log(url[dest], dest)
 			return (await fetch(url[dest], postOption(data))).json()
 		} catch (error) {
 			console.log(error)

@@ -17,7 +17,7 @@ function Form() {
             password: el.password.value.trim() 
         }
         const errorMessages = this.errorMessages.login
-        validate.isFormValid(e, inputs, errorMessages) ? console.log('frontend-login-valid') : '' //server.postFetch(dest, inputs)
+        validate.isFormValid(e, inputs, errorMessages) ? server.postFetch('login', inputs) : ''
     }
     this.reset = e => {
 		queryTarget(`${targetId(e)}`).reset()

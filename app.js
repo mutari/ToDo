@@ -6,6 +6,7 @@ let userRoutes = require('./routes/User_routes.js')
 port = process.env.port | 80
 
 app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.json())
 app.use(express.static(__dirname + "/public"))
 app.use('/ToDo', userRoutes)
 
