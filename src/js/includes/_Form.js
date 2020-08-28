@@ -23,6 +23,10 @@ function Form() {
 
         requestHandler(e, inputs, errorMessages, 'login')
     }
+
+    this.reset = e => {
+		queryTarget(`${targetId(e)}`).reset()
+    }
     requestHandler = async (e, inputs, errorMessages, type) => {
         try {
             const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch(type, inputs) : ''
@@ -30,9 +34,6 @@ function Form() {
         } catch (error) {
             console.log(error)
         }
-    }
-    this.reset = e => {
-		queryTarget(`${targetId(e)}`).reset()
     }
     this.errorMessages = {
         signUp: {
