@@ -1,0 +1,51 @@
+{
+    "user": {
+        "name": "Philip",
+        "email": "Pjohansson01@yahoo.com",
+        "id": "1",
+        "frames": [
+            {"id": "1", "title": "testFrame"},
+            {"id": "2", "title": "test2"}
+        ]
+    },
+    "frame": {
+        "id": "1",
+        "title": "testFrame",
+        "discription": "this is a test frame",
+        "author": "1",
+        "members": [
+            {"id": "2", "name": "emil", "profileImgLink": "null"},
+            {"id": "3", "name": "per", "profileImgLink": "null"}
+        ],
+        "boxes": [
+            {
+                "id": "1", 
+                "name": "box1", 
+                "color": "255, 0, 0",
+                "cards": [
+                    {
+                        "id": "1", 
+                        "title": "create a loop", 
+                        "description": "you need too create a loop", 
+                        "members": [], 
+                        "subtasks": [
+                            {
+                                "id": "1",
+                                "text": "start lop",
+                                "members": []
+                            },
+                            {
+                                "id": "2",
+                                "text": "end loop", 
+                                "members": []
+                            }
+                        ], 
+                        "labels": [], 
+                        "color": "0, 255, 0", 
+                        "date": "02/02/02"
+                    }
+                ]
+            }
+        ]
+    }
+}

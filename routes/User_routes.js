@@ -6,7 +6,7 @@ router.post("/signUp", (req, res) => {
     userControllers.postSignUp(req, res)
 })
 
-router.get("/login", (req, res) => {
+router.post("/login", (req, res) => {
     userControllers.postLogin(req, res);
 })
 
