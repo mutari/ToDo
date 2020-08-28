@@ -1,1 +1,1 @@
-this is a prodjekt
+this is a project
