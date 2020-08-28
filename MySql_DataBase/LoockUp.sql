@@ -1,4 +1,5 @@
-SELECT boxs.BOX_ID AS boxs_BOX_ID, 
+SELECT 
+boxs.BOX_ID AS boxs_BOX_ID, 
 boxs.TITLE AS boxs_TITLE, 
 boxs.FRAME_ID AS boxs_FRAME_ID, 
 boxs.COLOR AS boxs_COLOR, 
@@ -22,7 +23,7 @@ frames.CREATED_TIME AS frames_CREATED_TIME,
 labels.CARD_ID AS labels_CARD_ID, 
 labels.TITLE AS labels_TITLE, 
 members.USER_ID AS members_USER_ID, 
-members.FRAME_ID AS members_FRAME_ID, 
+members.FRAME_ID AS members_FRAME_ID,
 members.CREATED_TIME AS members_CREATED_TIME, 
 members.RANK, task.TASK_ID AS task_TASK_ID, 
 task.CARD_ID AS task_CARD_ID, 
@@ -36,8 +37,7 @@ task_question.STATE,
 users.USER_ID AS users_USER_ID, 
 users.NAME AS users_NAME, 
 users.PASSWORD, users.EMAIL, 
-users.PROFILE_IMG_LINK, 
-users.CREATE_TIME
+users.PROFILE_IMG_LINK, users.CREATE_TIME
 FROM 
 (
     (
@@ -51,25 +51,30 @@ FROM
             (
                 (
                     (
-                        boxs INNER JOIN (
-                            labels INNER JOIN cards 
-                            ON labels.[CARD_ID] = cards.[CARD_ID]
+                        (
+                            boxs INNER JOIN cards 
+                            ON boxs.[BOX_ID] = cards.[BOX_ID]
                         ) 
-                        ON boxs.[BOX_ID] = cards.[BOX_ID]
+                        INNER JOIN card_member 
+                        ON cards.[CARD_ID] = card_member.[CARD_ID]
                     ) 
-                    INNER JOIN (
+                    INNER JOIN 
+                    (
                         task INNER JOIN task_question 
                         ON task.[TASK_ID] = task_question.[TASK_ID]
-                    ) ON cards.[CARD_ID] = task.[CARD_ID]
+                    ) 
+                    ON cards.[CARD_ID] = task.[CARD_ID]
                 ) 
-                INNER JOIN card_member 
-                ON cards.[CARD_ID] = card_member.[CARD_ID]
-            ) ON frames.[FRAME_ID] = boxs.[FRAME_ID]) 
-            INNER JOIN members 
-            ON frames.[FRAME_ID] = members.[FRAME_ID]
-    ) ON users.[USER_ID] = frames.[USER_ID]
+                INNER JOIN labels 
+                ON cards.[CARD_ID] = labels.[CARD_ID]
+            ) 
+            ON frames.[FRAME_ID] = boxs.[FRAME_ID]
+        ) 
+        INNER JOIN members 
+        ON frames.[FRAME_ID] = members.[FRAME_ID]
+    ) 
+    ON users.[USER_ID] = frames.[USER_ID]
 ) 
 INNER JOIN color 
 ON frames.[FRAME_ID] = color.[FRAME_ID]
-
-WHERE users.USER_ID="1";
+WHERE (((users.USER_ID)=1));
