@@ -97,7 +97,7 @@ function Server() {
 	const url = {
 		init: "",
 		signUp: "",
-		login: "/login",
+		login: "/ToDo/login",
 	}
 	const postOption = data => ({
 		method: 'POST',
