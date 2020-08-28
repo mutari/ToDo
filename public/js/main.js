@@ -3,23 +3,22 @@ const parentId = e => e.target.parentElement.id
 const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
+Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 
 const testData = new TestData()
 const server = new Server()
+const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
-const form = new Form()
-
+let login
+let frame
 
 document.addEventListener( "submit", e => {
     const id = targetId(e)
 	e.preventDefault()
-    if(id === 'signUp') form.signUp(e)
-    if(id === 'login') form.login(e)
+    if(['signUp', 'login'].contains(id)) form.submit(e)
 })
-document.addEventListener("input", e => { 
-	validate.isFormValid(e)
-})
+document.addEventListener("input", e => validate.input(e))
 function TestData() {
     this.login = {
         email: 'test123@test123.se',
@@ -47,49 +46,45 @@ function TestData() {
 }
 function Announce() {
     this.formFeedback = errorMessages => {
-		for(let key in errorMessages)
-			errorMessages[key] ? inputError(errorMessages[key], key) : inputSuccess(key)
+      for(let key in errorMessages)
+        errorMessages[key] ? inputError(errorMessages[key], key) : inputSuccess(key)
     }
     inputSuccess = id => console.log('success', id)
     inputError = (message, id) => console.log(message, id)
 }
 function Form() {
-    this.signUp = e => {
-        const el = e.target.elements
-        let inputs = {  
-            name: el.name.value.trim(), 
-            email: el.email.value.trim(), 
-            password: el.password.value.trim(), 
-            comfirmPw: el.comfirmPw.value.trim()
-        }
-        inputs = testData.signUp1
-        const errorMessages = this.errorMessages.signUp
 
-        requestHandler(e, inputs, errorMessages, 'signUp')
-    }
-    this.login = e => {
-        const el = e.target.elements
-        let inputs = {
-            email: el.email.value.trim(), 
-            password: el.password.value.trim() 
-        }
-        inputs = testData.login
-        const errorMessages = this.errorMessages.login
-
-        requestHandler(e, inputs, errorMessages, 'login')
-    }
-    requestHandler = async (e, inputs, errorMessages, type) => {
+    this.submit = async e => {
+        const id = targetId(e)
+        const inputs = testData.signUp1 //getInputs[id](e.target.elements)
+        const errorMessages = this.errorMessages[id]
         try {
-            const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch(type, inputs) : ''
-            console.log(status)
+            const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
+            if(!response) throw 'attempt failed'
+            if(['login', 'signUp'].contains(id)) {
+                if(response.user) login = new Login(response.user)
+                if(response.frame) frame = new Frame(response.frame)
+            }
+                
         } catch (error) {
             console.log(error)
         }
     }
-    this.reset = e => {
-		queryTarget(`${targetId(e)}`).reset()
+
+    const getInputs = {
+        login: el => ({
+            email: el.email.value.trim(), 
+            password: el.password.value.trim(),
+        }),
+        signUp: el => ({
+            name: el.name.value.trim(), 
+            email: el.email.value.trim(), 
+            password: el.password.value.trim(), 
+            comfirmPw: el.comfirmPw.value.trim(),
+        }),
     }
-    this.errorMessages = {
+    
+    this.errorMessages = ({
         signUp: {
             name: `First and lastname`,
             email: `Must conatin a "@" and a "."`,
@@ -100,30 +95,62 @@ function Form() {
             email: `Must conatin a "@" and a "."`,
             password: `Your email or password is incorrect`,
         }
-    }
+    })
+}
+function Frame(frame) {
+	if(!frame) return
+	this.getData = () => data
+	this.getBoxes = () => boxes
+	this.logOut = () => login = new Login()
+
+	const data = {
+		id: frame.id,
+		title: frame.title,
+		description: frame.description,
+		author: frame.author,
+		members: frame.members.map(member => ({
+			id: member.id,
+			name: member.name,
+			profileImgLink: member.profileImgLink,
+		})),
+	}
+	const boxes = frame.boxes.map(box => ({
+		id: box.id,
+		title: box.title,
+		color: box.color,
+		cards: box.cards.map(card => ({
+			id: card.id,
+			title: card.title,
+			description: card.description,
+			color: card.color,
+			date: card.date,
+			labels: card.labels,
+			members: card.members.map(member => member.id),
+			subtasks: card.subtasks.map(subtask => ({
+				id: subtask.id,
+				text: subtask.text,
+				member: subtask.member,
+			})),
+		}))
+	}))
+}
+function Login(user) {
+	if(!user) return
+	this.getData = () => data
+	this.getFrames = () => frames
+	this.logOut = () => login = new Login()
+
+	const data = {
+		id: user.id,
+		name: user.name,
+		email: user.email,
+	}
+	const frames = user.frames.map(frame => ({
+		id: frame.id,
+		title: frame.id,
+	}))
 }
 function Server() {
-	this.data
-	const action = {
-		init: "",
-		signUp: "/signUp",
-		login: "/login",
-	}
-	const postOption = data => ({
-		method: 'POST',
-		headers: {
-		  'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(data)
-	})
-	getUrl = dest => {
-		let string = action[dest]
-		if(string) return `ToDo${action[dest]}`
-	}
-	this.initFetch = async logedInUser => {
-		if(this.data) return
-		this.postFetch(url.init, postOption(logedInUser))
-	}
     this.postFetch = async (dest, data) => {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
@@ -135,34 +162,48 @@ function Server() {
 		}
 	}
 
+	const action = {
+		init: "",
+		signUp: "/signUp",
+		login: "/login",
+	}
+	getUrl = dest => `ToDo${action[dest]}`
+
+	const postOption = data => ({
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(data)
+	})
 }
 function Validate() {
     let password
-    this.isFormValid = (e, inputs, error) => {
+
+    this.form = (inputs, errorMessages) => {
+        for(let key in inputs) {
+            if(isInputValid(inputs[key], key)) errorMessages[key] = ''
+            announce.formFeedback({[key]: errorMessages[key]})
+        }
+        password = ''
+
+        for(let key in inputs)
+            if(errorMessages[key]) return false
+        return true
+    }
+
+    this.input = e => {
         const id = targetId(e)
-        let errorMessages = error
+        if(id === 'comfirmPw') return
+        const input = e.target.value.trim()
+        errorMessages = form.errorMessages[grandParentId(e)]
+        
+        if(isInputValid(input, id)) 
+            errorMessages[id] = ''
+        announce.formFeedback({[id]: errorMessages[id]})
+    }
 
-		if(e.type !== 'submit') {
-            errorMessages = form.errorMessages[grandParentId(e)]
-            const input = e.target.value.trim()
-            
-			if(this.isInputValid(input, id)) (errorMessages[id] = '')
-            announce.formFeedback({[id]: errorMessages[id]})
-            
-		} else if(e.type === 'submit') {
-
-			for(let key in inputs) {
-				if(this.isInputValid(inputs[key], key)) errorMessages[key] = ''
-				announce.formFeedback({[key]: errorMessages[key]})
-            }
-            password = ''
-
-			for(let key in inputs)
-                if(errorMessages[key]) return false
-            return true
-		}
-	}
-	this.isInputValid = (input, id) => {
+	isInputValid = (input, id) => {
 		if(id === 'name')
             if(input.split(' ').length < 2) return false
             

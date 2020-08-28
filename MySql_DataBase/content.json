@@ -11,7 +11,7 @@
     "frame": {
         "id": "",
         "title": "",
-        "discription": "",
+        "description": "",
         "author": "",
         "members": [
             {"id": "", "name": "", "profileImgLink": ""},
@@ -33,13 +33,13 @@
                                 "id": "",
                                 "text": "",
                                 "state": "",
-                                "members": []
+                                "member": ""
                             },
                             {
                                 "id": "",
                                 "text": "", 
                                 "state": "",
-                                "members": []
+                                "member": ""
                             }
                         ], 
                         "labels": [], 

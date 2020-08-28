@@ -11,7 +11,7 @@
     "frame": {
         "id": "1",
         "title": "testFrame",
-        "discription": "this is a test frame",
+        "description": "this is a test frame",
         "author": "1",
         "members": [
             {"id": "2", "name": "emil", "profileImgLink": "null"},
@@ -21,7 +21,7 @@
             {
                 "id": "1", 
                 "name": "box1", 
-                "color": "255, 0, 0",
+                "color": "#fff",
                 "cards": [
                     {
                         "id": "1", 
@@ -32,17 +32,17 @@
                             {
                                 "id": "1",
                                 "text": "start lop",
-                                "members": []
+                                "member": ""
                             },
                             {
                                 "id": "2",
                                 "text": "end loop", 
-                                "members": []
+                                "member": ""
                             }
                         ], 
                         "labels": [], 
-                        "color": "0, 255, 0", 
-                        "date": "02/02/02"
+                        "color": "#fff", 
+                        "date": "2020-08-28"
                     }
                 ]
             }

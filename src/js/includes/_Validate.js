@@ -1,30 +1,30 @@
 function Validate() {
     let password
-    this.isFormValid = (e, inputs, error) => {
+
+    this.form = (inputs, errorMessages) => {
+        for(let key in inputs) {
+            if(isInputValid(inputs[key], key)) errorMessages[key] = ''
+            announce.formFeedback({[key]: errorMessages[key]})
+        }
+        password = ''
+
+        for(let key in inputs)
+            if(errorMessages[key]) return false
+        return true
+    }
+
+    this.input = e => {
         const id = targetId(e)
-        let errorMessages = error
+        if(id === 'comfirmPw') return
+        const input = e.target.value.trim()
+        errorMessages = form.errorMessages[grandParentId(e)]
+        
+        if(isInputValid(input, id)) 
+            errorMessages[id] = ''
+        announce.formFeedback({[id]: errorMessages[id]})
+    }
 
-		if(e.type !== 'submit') {
-            errorMessages = form.errorMessages[grandParentId(e)]
-            const input = e.target.value.trim()
-            
-			if(this.isInputValid(input, id)) (errorMessages[id] = '')
-            announce.formFeedback({[id]: errorMessages[id]})
-            
-		} else if(e.type === 'submit') {
-
-			for(let key in inputs) {
-				if(this.isInputValid(inputs[key], key)) errorMessages[key] = ''
-				announce.formFeedback({[key]: errorMessages[key]})
-            }
-            password = ''
-
-			for(let key in inputs)
-                if(errorMessages[key]) return false
-            return true
-		}
-	}
-	this.isInputValid = (input, id) => {
+	isInputValid = (input, id) => {
 		if(id === 'name')
             if(input.split(' ').length < 2) return false
             

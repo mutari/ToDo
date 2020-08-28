@@ -1,41 +1,36 @@
 function Form() {
-    this.signUp = e => {
-        const el = e.target.elements
-        let inputs = {  
-            name: el.name.value.trim(), 
-            email: el.email.value.trim(), 
-            password: el.password.value.trim(), 
-            comfirmPw: el.comfirmPw.value.trim()
-        }
-        inputs = testData.signUp1
-        const errorMessages = this.errorMessages.signUp
 
-        requestHandler(e, inputs, errorMessages, 'signUp')
-    }
-    this.login = e => {
-        const el = e.target.elements
-        let inputs = {
-            email: el.email.value.trim(), 
-            password: el.password.value.trim() 
-        }
-        inputs = testData.login
-        const errorMessages = this.errorMessages.login
-
-        requestHandler(e, inputs, errorMessages, 'login')
-    }
-
-    this.reset = e => {
-		queryTarget(`${targetId(e)}`).reset()
-    }
-    requestHandler = async (e, inputs, errorMessages, type) => {
+    this.submit = async e => {
+        const id = targetId(e)
+        const inputs = testData.signUp1 //getInputs[id](e.target.elements)
+        const errorMessages = this.errorMessages[id]
         try {
-            const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch(type, inputs) : ''
-            console.log(status)
+            const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
+            if(!response) throw 'attempt failed'
+            if(['login', 'signUp'].contains(id)) {
+                if(response.user) login = new Login(response.user)
+                if(response.frame) frame = new Frame(response.frame)
+            }
+                
         } catch (error) {
             console.log(error)
         }
     }
-    this.errorMessages = {
+
+    const getInputs = {
+        login: el => ({
+            email: el.email.value.trim(), 
+            password: el.password.value.trim(),
+        }),
+        signUp: el => ({
+            name: el.name.value.trim(), 
+            email: el.email.value.trim(), 
+            password: el.password.value.trim(), 
+            comfirmPw: el.comfirmPw.value.trim(),
+        }),
+    }
+    
+    this.errorMessages = ({
         signUp: {
             name: `First and lastname`,
             email: `Must conatin a "@" and a "."`,
@@ -46,5 +41,5 @@ function Form() {
             email: `Must conatin a "@" and a "."`,
             password: `Your email or password is incorrect`,
         }
-    }
+    })
 }

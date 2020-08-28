@@ -1,25 +1,4 @@
 function Server() {
-	this.data
-	const action = {
-		init: "",
-		signUp: "/signUp",
-		login: "/login",
-	}
-	const postOption = data => ({
-		method: 'POST',
-		headers: {
-		  'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(data)
-	})
-	getUrl = dest => {
-		let string = action[dest]
-		if(string) return `ToDo${action[dest]}`
-	}
-	this.initFetch = async logedInUser => {
-		if(this.data) return
-		this.postFetch(url.init, postOption(logedInUser))
-	}
     this.postFetch = async (dest, data) => {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
@@ -31,4 +10,18 @@ function Server() {
 		}
 	}
 
+	const action = {
+		init: "",
+		signUp: "/signUp",
+		login: "/login",
+	}
+	getUrl = dest => `ToDo${action[dest]}`
+
+	const postOption = data => ({
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(data)
+	})
 }
