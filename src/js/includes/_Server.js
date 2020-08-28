@@ -20,8 +20,8 @@ function Server() {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
 			if(!data) throw 'no data given on postFetch'
-			console.log(url[dest], dest)
-			return (await fetch(url[dest], postOption(data))).json()
+			let response = await fetch(url[dest], postOption(data))
+			return await response.json()
 		} catch (error) {
 			console.log(error)
 		}

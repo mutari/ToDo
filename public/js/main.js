@@ -9,7 +9,6 @@ const server = new Server()
 const validate = new Validate()
 const announce = new Announce()
 const form = new Form()
-// server.postFetch('login', {"hej": 'hejdå'})
 
 
 document.addEventListener( "submit", e => {
@@ -66,14 +65,16 @@ function Form() {
         const errorMessages = this.errorMessages.signUp
         validate.isFormValid(e, input, errorMessages) ? console.log('frontend-signUp-valid') : '' //server.postFetch(dest, inputs)
     }
-    this.login = e => {
+    this.login = async e => {
         const el = e.target.elements
-        const inputs = {
+        let inputs = {
             email: el.email.value.trim(), 
             password: el.password.value.trim() 
         }
+        inputs = testData.login
         const errorMessages = this.errorMessages.login
-        validate.isFormValid(e, inputs, errorMessages) ? server.postFetch('login', inputs) : ''
+        const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch('login', inputs) : ''
+        console.log(status)
     }
     this.reset = e => {
 		queryTarget(`${targetId(e)}`).reset()
@@ -113,8 +114,8 @@ function Server() {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
 			if(!data) throw 'no data given on postFetch'
-			console.log(url[dest], dest)
-			return (await fetch(url[dest], postOption(data))).json()
+			let response = await fetch(url[dest], postOption(data))
+			return await response.json()
 		} catch (error) {
 			console.log(error)
 		}

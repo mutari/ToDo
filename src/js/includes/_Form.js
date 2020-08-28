@@ -10,14 +10,16 @@ function Form() {
         const errorMessages = this.errorMessages.signUp
         validate.isFormValid(e, input, errorMessages) ? console.log('frontend-signUp-valid') : '' //server.postFetch(dest, inputs)
     }
-    this.login = e => {
+    this.login = async e => {
         const el = e.target.elements
-        const inputs = {
+        let inputs = {
             email: el.email.value.trim(), 
             password: el.password.value.trim() 
         }
+        inputs = testData.login
         const errorMessages = this.errorMessages.login
-        validate.isFormValid(e, inputs, errorMessages) ? server.postFetch('login', inputs) : ''
+        const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch('login', inputs) : ''
+        console.log(status)
     }
     this.reset = e => {
 		queryTarget(`${targetId(e)}`).reset()
