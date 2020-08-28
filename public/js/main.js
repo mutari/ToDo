@@ -56,16 +56,18 @@ function Announce() {
 function Form() {
     this.signUp = e => {
         const el = e.target.elements
-        const inputs = {  
+        let inputs = {  
             name: el.name.value.trim(), 
             email: el.email.value.trim(), 
             password: el.password.value.trim(), 
             comfirmPw: el.comfirmPw.value.trim()
         }
+        inputs = testData.signUp1
         const errorMessages = this.errorMessages.signUp
-        validate.isFormValid(e, input, errorMessages) ? console.log('frontend-signUp-valid') : '' //server.postFetch(dest, inputs)
+
+        requestHandler(e, inputs, errorMessages, 'signUp')
     }
-    this.login = async e => {
+    this.login = e => {
         const el = e.target.elements
         let inputs = {
             email: el.email.value.trim(), 
@@ -73,8 +75,16 @@ function Form() {
         }
         inputs = testData.login
         const errorMessages = this.errorMessages.login
-        const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch('login', inputs) : ''
-        console.log(status)
+
+        requestHandler(e, inputs, errorMessages, 'login')
+    }
+    requestHandler = async (e, inputs, errorMessages, type) => {
+        try {
+            const status = validate.isFormValid(e, inputs, errorMessages) ? await server.postFetch(type, inputs) : ''
+            console.log(status)
+        } catch (error) {
+            console.log(error)
+        }
     }
     this.reset = e => {
 		queryTarget(`${targetId(e)}`).reset()
@@ -94,10 +104,10 @@ function Form() {
 }
 function Server() {
 	this.data
-	const url = {
+	const action = {
 		init: "",
-		signUp: "",
-		login: "/ToDo/login",
+		signUp: "/signUp",
+		login: "/login",
 	}
 	const postOption = data => ({
 		method: 'POST',
@@ -106,6 +116,10 @@ function Server() {
 		},
 		body: JSON.stringify(data)
 	})
+	getUrl = dest => {
+		let string = action[dest]
+		if(string) return `ToDo${action[dest]}`
+	}
 	this.initFetch = async logedInUser => {
 		if(this.data) return
 		this.postFetch(url.init, postOption(logedInUser))
@@ -114,7 +128,7 @@ function Server() {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
 			if(!data) throw 'no data given on postFetch'
-			let response = await fetch(url[dest], postOption(data))
+			let response = await fetch(getUrl(dest), postOption(data))
 			return await response.json()
 		} catch (error) {
 			console.log(error)

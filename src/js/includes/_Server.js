@@ -1,9 +1,9 @@
 function Server() {
 	this.data
-	const url = {
+	const action = {
 		init: "",
-		signUp: "",
-		login: "/ToDo/login",
+		signUp: "/signUp",
+		login: "/login",
 	}
 	const postOption = data => ({
 		method: 'POST',
@@ -12,6 +12,10 @@ function Server() {
 		},
 		body: JSON.stringify(data)
 	})
+	getUrl = dest => {
+		let string = action[dest]
+		if(string) return `ToDo${action[dest]}`
+	}
 	this.initFetch = async logedInUser => {
 		if(this.data) return
 		this.postFetch(url.init, postOption(logedInUser))
@@ -20,7 +24,7 @@ function Server() {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
 			if(!data) throw 'no data given on postFetch'
-			let response = await fetch(url[dest], postOption(data))
+			let response = await fetch(getUrl(dest), postOption(data))
 			return await response.json()
 		} catch (error) {
 			console.log(error)
