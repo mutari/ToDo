@@ -22,4 +22,11 @@ function TestData() {
         password: 'aaaaaaaa',
         comfirmPw: 'aaaaaaa',
     }
+    this.cookie = () => { // true; hej; false;
+        cookie.create('name', 'hej', 5)
+        console.log(cookie.check('name'))
+        console.log(cookie.get('name'))
+        cookie.destroy('name')
+        console.log(cookie.check('name'))
+    }
 }

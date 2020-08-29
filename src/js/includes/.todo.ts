@@ -11,7 +11,7 @@
  * TODO: Display frames user is a member of, order as recently choosen
  *       ? if user is author should it be displayed in the frame selction
  * 
- * TODO:
+ * ? 	 Rename Login.js to User.js, it doesn't realy handle login anymore, it handles whatb comes after a succesfull login
  * 
  * TODO:
 */

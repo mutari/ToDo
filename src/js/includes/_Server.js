@@ -1,4 +1,13 @@
 function Server() {
+	this.fetch = async dest => {
+		try {
+			if(!dest) throw 'no destination given on fetch'
+			let response = await fetch(getUrl(dest))
+			return await response.json()
+		} catch (error) {
+			console.log(error)
+		}
+	}
     this.postFetch = async (dest, data) => {
 		try {
 			if(!dest) throw 'no destination given on postFetch'

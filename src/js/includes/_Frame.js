@@ -2,7 +2,7 @@ function Frame(frame) {
 	if(!frame) return
 	this.getData = () => data
 	this.getBoxes = () => boxes
-	this.logOut = () => login = new Login()
+	this.eject = () => queryTarget('#frame').innerHTML = ''
 
 	const data = {
 		id: frame.id,
@@ -34,4 +34,6 @@ function Frame(frame) {
 			})),
 		}))
 	}))
+	const inject = () => queryTarget('#frame').innerHTML = render.frame()
+	inject()
 }

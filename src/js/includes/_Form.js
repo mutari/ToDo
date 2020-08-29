@@ -2,16 +2,14 @@ function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
-        const inputs = testData.signUp1 //getInputs[id](e.target.elements)
+        const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
             if(!response) throw 'attempt failed'
-            if(['login', 'signUp'].contains(id)) {
-                if(response.user) login = new Login(response.user)
-                if(response.frame) frame = new Frame(response.frame)
-            }
-                
+            if(!['login', 'signUp'].contains(id)) return
+            if(!response.user) return
+            login = new Login(response)
         } catch (error) {
             console.log(error)
         }

@@ -6,12 +6,13 @@ const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 
 const testData = new TestData()
+let login = new Login()
+let frame
 const server = new Server()
+const cookie = new Cookie()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
-let login
-let frame
 
 document.addEventListener( "submit", e => {
     const id = targetId(e)
@@ -43,6 +44,13 @@ function TestData() {
         password: 'aaaaaaaa',
         comfirmPw: 'aaaaaaa',
     }
+    this.cookie = () => { // true; hej; false;
+        cookie.create('name', 'hej', 5)
+        console.log(cookie.check('name'))
+        console.log(cookie.get('name'))
+        cookie.destroy('name')
+        console.log(cookie.check('name'))
+    }
 }
 function Announce() {
     this.formFeedback = errorMessages => {
@@ -52,20 +60,44 @@ function Announce() {
     inputSuccess = id => console.log('success', id)
     inputError = (message, id) => console.log(message, id)
 }
+function Cookie() {
+	this.destroy = key => this.create(key,"",-1)
+	this.check = key => this.get(key) ? true : false
+	this.create = async (key, value, days) => {
+		let expires = days ? experationDate(days) : ''
+		document.cookie = `${key}=${value}; ${expires}; path=/`
+	}
+	this.get = key => {
+		var key = key + "=";
+		var ca = document.cookie.split(';')
+		for(var i = 0; i < ca.length; i++) {
+			var c = ca[i]
+			while (c.charAt(0) == ' ')
+				c = c.substring(1)
+			if (c.indexOf(key) == 0)
+				return c.substring(key.length, c.length)
+		}
+		return ''
+	}
+	
+	const experationDate = days => {
+		const date = new Date()
+		date.setTime(date.getTime()+(days*24*60*60*1000))
+		return`; expires=${date.toGMTString()}`
+	}
+}
 function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
-        const inputs = testData.signUp1 //getInputs[id](e.target.elements)
+        const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
             if(!response) throw 'attempt failed'
-            if(['login', 'signUp'].contains(id)) {
-                if(response.user) login = new Login(response.user)
-                if(response.frame) frame = new Frame(response.frame)
-            }
-                
+            if(!['login', 'signUp'].contains(id)) return
+            if(!response.user) return
+            login = new Login(response)
         } catch (error) {
             console.log(error)
         }
@@ -101,7 +133,7 @@ function Frame(frame) {
 	if(!frame) return
 	this.getData = () => data
 	this.getBoxes = () => boxes
-	this.logOut = () => login = new Login()
+	this.eject = () => queryTarget('#frame').innerHTML = ''
 
 	const data = {
 		id: frame.id,
@@ -133,24 +165,53 @@ function Frame(frame) {
 			})),
 		}))
 	}))
+	const inject = () => queryTarget('#frame').innerHTML = render.frame()
+	inject()
 }
-function Login(user) {
-	if(!user) return
-	this.getData = () => data
+function Login(data) {
+	let user
+	let frames
+	this.getUser = () => user
 	this.getFrames = () => frames
-	this.logOut = () => login = new Login()
-
-	const data = {
-		id: user.id,
-		name: user.name,
-		email: user.email,
+	this.logOut = () => {
+		cookie.destroy('login')
+		login = new Login()
+		frame = new Frame()
+		frame.eject()
 	}
-	const frames = user.frames.map(frame => ({
-		id: frame.id,
-		title: frame.id,
-	}))
+	if(data) {
+		if(data.frame) frame = new Frame(data.frame)
+		if(data.hash) cookie.create('login', data.hash, 365)
+		user = {
+			id: data.user.id,
+			name: data.user.name,
+			email: data.user.email,
+		}
+		frames = data.user.frames.map(frame => ({
+			id: frame.id,
+			title: frame.id,
+		}))
+	} else {
+		async () => {
+			const response = cookie.check('login') ? await server.postFetch('login', cookie.get('login')) : ''
+			if(!response.user) return
+			login = new Login(response)
+		}
+	}
+}
+function Render() {
+	this.frame = data => themplate.frame(data)
 }
 function Server() {
+	this.fetch = async dest => {
+		try {
+			if(!dest) throw 'no destination given on fetch'
+			let response = await fetch(getUrl(dest))
+			return await response.json()
+		} catch (error) {
+			console.log(error)
+		}
+	}
     this.postFetch = async (dest, data) => {
 		try {
 			if(!dest) throw 'no destination given on postFetch'
@@ -176,6 +237,20 @@ function Server() {
 		},
 		body: JSON.stringify(data)
 	})
+}
+function Themplates() {
+	this.frame = () => `
+	
+	`
+	this.box = () => `
+	
+	`
+	this.card = () => `
+	
+	`
+	this.subtask = () => `
+	
+	`
 }
 function Validate() {
     let password
