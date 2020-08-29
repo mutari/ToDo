@@ -3,13 +3,15 @@ const parentId = e => e.target.parentElement.id
 const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
-Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+Array.prototype.match = function(arr) { return arr.map( obj => this.indexOf(obj) > -1) }
 
 const testData = new TestData()
-let login = new Login()
+const editor = new Editor()
+let user = new User()
 let frame
 const server = new Server()
 const cookie = new Cookie()
+testData.cookie()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -17,6 +19,19 @@ const announce = new Announce()
 document.addEventListener( "submit", e => {
     const id = targetId(e)
 	e.preventDefault()
-    if(['signUp', 'login'].contains(id)) form.submit(e)
+    if(['signUp', 'login'].match([id])) form.submit(e)
 })
-document.addEventListener("input", e => validate.input(e))
+document.addEventListener("input", e => ['signUp', 'login'].match(grandParentId(e)) ? validate.input(e) : '')
+
+document.addEventListener("click", e => {
+    const id = targetId(e)
+    editor.deactivate(e)
+})
+;[...queryTargetAll('#editor-container')].map(container => {
+    container.addEventListener('click', e => {
+        e.stopPropagation()
+        if(e.target !== document) {
+            parentId(e) === 'editor-container' ? editor.activate(e) : ''
+        }
+    })
+})

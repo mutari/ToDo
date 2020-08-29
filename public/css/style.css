@@ -1,3 +1,53 @@
+.editor-container {
+  margin: 20px;
+  width: 500px;
+  background-color: #fff; }
+  .editor-container > .toolbar {
+    display: none; }
+  .editor-container > textarea.editor {
+    background-color: transparent;
+    width: 100%;
+    padding: 20px; }
+  .editor-container > .optionbar {
+    display: none; }
+  .editor-container.active-editor {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 30px auto 60px;
+    grid-template-areas: "tool-bar" "editor" "optionbar";
+    padding: 10px; }
+    .editor-container.active-editor > .toolbar {
+      grid-area: tool-bar;
+      display: grid;
+      justify-content: space-between;
+      align-items: center;
+      grid-template-areas: "one two";
+      border-bottom: 2px solid #696969;
+      padding: 0 10px; }
+      .editor-container.active-editor > .toolbar > div:first-child {
+        grid-area: one; }
+      .editor-container.active-editor > .toolbar > div:last-child {
+        grid-area: two;
+        color: blue; }
+        .editor-container.active-editor > .toolbar > div:last-child > a:hover {
+          color: red; }
+    .editor-container.active-editor > textarea.editor {
+      grid-area: editor;
+      min-height: 120px; }
+    .editor-container.active-editor > .optionbar {
+      display: grid;
+      justify-content: center;
+      align-content: center;
+      border-top: 2px solid #696969; }
+      .editor-container.active-editor > .optionbar > button {
+        height: 25px;
+        width: 200px; }
+      .editor-container.active-editor > .optionbar > button:first-child {
+        background-color: #696969;
+        color: #fff; }
+      .editor-container.active-editor > .optionbar > button:last-child {
+        background-color: transparent; }
+
 * {
   margin: 0;
   padding: 0;
@@ -5,6 +55,9 @@
   outline: 0;
   box-sizing: border-box;
   font-family: sans-serif; }
+
+body {
+  background-color: #aaa; }
 
 body, html {
   height: auto;
@@ -26,10 +79,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-body {
-  background-color: #f8f9fa; }
-
-.inactive-link {
+.inactive-link, .editor-container.active-editor > .toolbar > div:last-child > a > span {
   pointer-events: none; }
 
 .active-link {
@@ -39,35 +89,14 @@ body {
   position: fixed;
   padding-right: 17px; }
 
-.thumbnail, .thumbnail-colorshift, .gallery div img, .gallery-colorshift div img {
-  transition: all .2s ease; }
-  .thumbnail:hover, .thumbnail-colorshift:hover, .gallery div img:hover, .gallery-colorshift div img:hover {
-    transform: scale(1.025); }
-
-.thumbnail-colorshift {
-  filter: grayscale(30%); }
-  .thumbnail-colorshift:hover {
-    filter: grayscale(10%); }
-
-.gallery, .gallery-colorshift {
-  display: inline-block;
-  width: 100%;
-  padding: 50px 5px 5px 5px; }
-  .gallery div, .gallery-colorshift div {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly; }
-    .gallery div img, .gallery-colorshift div img {
-      margin: 5px;
-      height: 120px; }
-
-.gallery-colorshift div img {
-  filter: grayscale(50%); }
-  .gallery-colorshift div img:hover {
-    filter: grayscale(20%); }
-
-.pointer, .thumbnail, .thumbnail-colorshift, .gallery div img, .gallery-colorshift div img {
+.pointer, .editor-container > textarea.editor, .editor-container.active-editor > .toolbar > div:last-child > a:hover, .editor-container.active-editor > .optionbar > button {
   cursor: pointer; }
+
+.cursor-text, .editor-container.active-editor > textarea.editor {
+  cursor: text; }
+
+.no-pointer-event {
+  pointer-events: none; }
 
 .disable-higlight {
   user-select: none;
@@ -75,13 +104,6 @@ body {
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none; }
-
-.frame {
-  padding: 5px;
-  border-radius: 2px; }
-
-.indent {
-  margin: 0 0 0 25px; }
 
 .no-wrap {
   white-space: nowrap; }

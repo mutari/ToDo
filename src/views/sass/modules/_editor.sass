@@ -1,0 +1,66 @@
+.editor-container
+	margin: 20px
+	width: 500px
+	background-color: #fff
+
+	& > .toolbar
+		display: none
+
+	& > textarea.editor
+		background-color: transparent
+		width: 100%
+		padding: 20px
+		@extend .pointer
+
+	& > .optionbar
+		display: none
+
+	&.active-editor
+		display: grid
+		grid-template-columns: auto
+		grid-template-rows: 30px auto 60px
+		grid-template-areas: "tool-bar" "editor" "optionbar"
+		padding: 10px
+		& > .toolbar
+			grid-area: tool-bar
+			display: grid
+			justify-content: space-between
+			align-items: center
+			grid-template-areas: "one two"
+			border-bottom: 2px solid #696969
+			padding: 0 10px
+			& > div:first-child
+				grid-area: one
+				& > a
+
+			& > div:last-child
+				grid-area: two
+				color: blue
+				& > a
+					& > span
+						@extend .inactive-link
+				& > a:hover
+					@extend .pointer
+					color: red
+
+		& > textarea.editor
+			@extend .cursor-text
+			grid-area: editor
+			min-height: 120px
+			&:focus
+
+		& > .optionbar
+			display: grid
+			justify-content: center
+			align-content: center
+			border-top: 2px solid #696969
+			& > button
+				@extend .pointer
+				height: 25px
+				width: 200px
+			& > button:first-child
+				background-color: #696969
+				color: #fff
+			& > button:last-child
+				background-color: transparent
+				

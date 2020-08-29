@@ -13,5 +13,5 @@
  * 
  * ? 	 Rename Login.js to User.js, it doesn't realy handle login anymore, it handles whatb comes after a succesfull login
  * 
- * TODO:
+ * ? 	 Rename cards to tasks, more logical considering child tasks are called subtasks
 */

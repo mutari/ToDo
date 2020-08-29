@@ -3,13 +3,15 @@ const parentId = e => e.target.parentElement.id
 const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
-Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+Array.prototype.match = function(arr) { return arr.map( obj => this.indexOf(obj) > -1) }
 
 const testData = new TestData()
-let login = new Login()
+const editor = new Editor()
+let user = new User()
 let frame
 const server = new Server()
 const cookie = new Cookie()
+testData.cookie()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -17,9 +19,22 @@ const announce = new Announce()
 document.addEventListener( "submit", e => {
     const id = targetId(e)
 	e.preventDefault()
-    if(['signUp', 'login'].contains(id)) form.submit(e)
+    if(['signUp', 'login'].match([id])) form.submit(e)
 })
-document.addEventListener("input", e => validate.input(e))
+document.addEventListener("input", e => ['signUp', 'login'].match(grandParentId(e)) ? validate.input(e) : '')
+
+document.addEventListener("click", e => {
+    const id = targetId(e)
+    editor.deactivate(e)
+})
+;[...queryTargetAll('#editor-container')].map(container => {
+    container.addEventListener('click', e => {
+        e.stopPropagation()
+        if(e.target !== document) {
+            parentId(e) === 'editor-container' ? editor.activate(e) : ''
+        }
+    })
+})
 function TestData() {
     this.login = {
         email: 'test123@test123.se',
@@ -65,17 +80,16 @@ function Cookie() {
 	this.check = key => this.get(key) ? true : false
 	this.create = async (key, value, days) => {
 		let expires = days ? experationDate(days) : ''
-		document.cookie = `${key}=${value}; ${expires}; path=/`
+		document.cookie = `${key}=${value}${expires}; path=/`
 	}
 	this.get = key => {
-		var key = key + "=";
-		var ca = document.cookie.split(';')
-		for(var i = 0; i < ca.length; i++) {
-			var c = ca[i]
-			while (c.charAt(0) == ' ')
-				c = c.substring(1)
-			if (c.indexOf(key) == 0)
-				return c.substring(key.length, c.length)
+		key = `${key}=`
+		var content = document.cookie.split(';')
+		for(info of content) {
+			while (info.charAt(0) == ' ')
+				info = info.substring(1)
+			if (info.indexOf(key) == 0)
+				return info.substring(key.length, info.length)
 		}
 		return ''
 	}
@@ -86,18 +100,28 @@ function Cookie() {
 		return`; expires=${date.toGMTString()}`
 	}
 }
+function Editor() {
+	this.activate = e => e.target.parentElement.classList.add('active-editor')
+	this.deactivate = () => {
+		const editor = queryTarget('.active-editor')
+		console.log(editor.classList)
+		if(editor) queryTarget('.active-editor').classList.remove('active-editor')
+	}
+	this.format = () => ''
+	this.url = () => ''
+}
 function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
-        const inputs = getInputs[id](e.target.elements)
+        const inputs = testData.login //getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
             if(!response) throw 'attempt failed'
             if(!['login', 'signUp'].contains(id)) return
             if(!response.user) return
-            login = new Login(response)
+            user = new User(response)
         } catch (error) {
             console.log(error)
         }
@@ -166,38 +190,7 @@ function Frame(frame) {
 		}))
 	}))
 	const inject = () => queryTarget('#frame').innerHTML = render.frame()
-	inject()
-}
-function Login(data) {
-	let user
-	let frames
-	this.getUser = () => user
-	this.getFrames = () => frames
-	this.logOut = () => {
-		cookie.destroy('login')
-		login = new Login()
-		frame = new Frame()
-		frame.eject()
-	}
-	if(data) {
-		if(data.frame) frame = new Frame(data.frame)
-		if(data.hash) cookie.create('login', data.hash, 365)
-		user = {
-			id: data.user.id,
-			name: data.user.name,
-			email: data.user.email,
-		}
-		frames = data.user.frames.map(frame => ({
-			id: frame.id,
-			title: frame.id,
-		}))
-	} else {
-		async () => {
-			const response = cookie.check('login') ? await server.postFetch('login', cookie.get('login')) : ''
-			if(!response.user) return
-			login = new Login(response)
-		}
-	}
+	//inject()
 }
 function Render() {
 	this.frame = data => themplate.frame(data)
@@ -251,6 +244,37 @@ function Themplates() {
 	this.subtask = () => `
 	
 	`
+}
+function User(datas) {
+	let data
+	let frames
+	this.getUser = () => data
+	this.getFrames = () => frames
+	this.logOut = () => {
+		cookie.destroy('login')
+		user = new User()
+		frame = new Frame()
+		frame.eject()
+	}
+	if(datas) {
+		if(datas.frame) frame = new Frame(datas.frame)
+		if(datas.hash) cookie.create('login', datas.hash, 365)
+		data = {
+			id: datas.user.id,
+			name: datas.user.name,
+			email: datas.user.email,
+		}
+		frames = datas.user.frames.map(frame => ({
+			id: frame.id,
+			title: frame.id,
+		}))
+	} else {
+		async () => {
+			const response = cookie.check('login') ? await server.postFetch('login', cookie.get('login')) : ''
+			if(!response.user) return
+			user = new User(response)
+		}
+	}
 }
 function Validate() {
     let password

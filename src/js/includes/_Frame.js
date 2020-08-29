@@ -35,5 +35,5 @@ function Frame(frame) {
 		}))
 	}))
 	const inject = () => queryTarget('#frame').innerHTML = render.frame()
-	inject()
+	//inject()
 }
