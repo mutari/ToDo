@@ -1,16 +1,31 @@
+require('dotenv').config()
 const express = require("express")
 const bodyParser = require('body-parser')
-const app = express()
-let userRoutes = require('./routes/User_routes.js')
+const mongo = require('mongodb').MongoClient;
 
-port = process.env.PORT | 80
+(async () => {
+    const con = await mongo.connect(process.env.CONSTRING, {useNewUrlParser: true, useUnifiedTopology: true});
+    const port = process.env.PORT | 3000
 
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
-app.use(express.static(__dirname + "/public"))
-app.use('/ToDo', userRoutes)
+    const db = await con.db('ToDo')
 
-app.listen(port, err => {
-    if(err) throw err
-    console.log(`Server started and runing on port: ${port}`)
-})
+    const userCol = await db.collection('User_profile')
+    const frameCol = await db.collection('Frame_profile')
+
+    const app = express()
+    
+    app.use(bodyParser.urlencoded({extended: false}))
+    app.use(bodyParser.json())
+    app.use(express.static(__dirname + "/public"))
+    app.use((req, res, next) => {
+        req.db = {userCol: userCol, frameCol: frameCol} 
+        next();
+    })
+
+    app.use('/ToDo',  require('./routes/User_routes.js'))
+    
+    app.listen(port, err => {
+        if(err) throw err
+        console.log(`Server started and runing on port: ${port}`)
+    });
+})();

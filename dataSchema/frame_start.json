@@ -1,0 +1,59 @@
+{
+    "title": "My first board",
+    "description": "My first board",
+    "author": "",
+    "members": [],
+    "boxes": [
+        {
+            "name": "To-do", 
+            "color": "#000",
+            "tasks": [
+                { 
+                    "text": "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                    "description": "", 
+                    "members": [], 
+                    "color": "#00f", 
+                    "date": "",
+                    "subtasks": [], 
+                    "labels": ["New-task"]
+                },
+                { 
+                    "text": "To edit a task simply click on it", 
+                    "description": "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                    "members": [], 
+                    "color": "#0ff", 
+                    "date": "",
+                    "subtasks": [
+                        {
+                            "text": "Create a subtask",
+                            "state": "true",
+                            "member": []
+                        },
+                        {
+                            "text": "Deleat a subtask",
+                            "state": "false",
+                            "member": []
+                        }
+                    ], 
+                    "labels": ["New-task"]
+                }
+            ]
+        },
+        {
+            "name": "Do today", 
+            "color": "#000",
+            "tasks": []
+        },
+        {
+            "name": "In progress", 
+            "color": "#000",
+            "tasks": [],
+            "max-tasks": 3
+        },
+        {
+            "name": "Done", 
+            "color": "#000",
+            "tasks": []
+        }
+    ]
+}
