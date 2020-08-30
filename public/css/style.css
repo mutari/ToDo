@@ -4,10 +4,11 @@
   background-color: #fff; }
   .editor-container > .toolbar {
     display: none; }
-  .editor-container > textarea.editor {
+  .editor-container > .editor {
     background-color: transparent;
     width: 100%;
-    padding: 20px; }
+    padding: 20px;
+    resize: none; }
   .editor-container > .optionbar {
     display: none; }
   .editor-container.active-editor {
@@ -31,7 +32,7 @@
         color: blue; }
         .editor-container.active-editor > .toolbar > div:last-child > a:hover {
           color: red; }
-    .editor-container.active-editor > textarea.editor {
+    .editor-container.active-editor > .editor {
       grid-area: editor;
       min-height: 120px; }
     .editor-container.active-editor > .optionbar {
@@ -79,7 +80,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container.active-editor > .toolbar > div:last-child > a > span {
+.inactive-link {
   pointer-events: none; }
 
 .active-link {
@@ -89,10 +90,10 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container > textarea.editor, .editor-container.active-editor > .toolbar > div:last-child > a:hover, .editor-container.active-editor > .optionbar > button {
+.pointer, .editor-container > .editor, .editor-container.active-editor > .toolbar > div:last-child > a:hover, .editor-container.active-editor > .optionbar > button {
   cursor: pointer; }
 
-.cursor-text, .editor-container.active-editor > textarea.editor {
+.cursor-text, .editor-container.active-editor > .editor {
   cursor: text; }
 
 .no-pointer-event {

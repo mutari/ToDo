@@ -6,6 +6,7 @@ const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.match = function(arr) { return arr.map( obj => this.indexOf(obj) > -1) }
 
 const testData = new TestData()
+const tools = new Tools()
 const editor = new Editor()
 let user = new User()
 let frame
@@ -21,7 +22,11 @@ document.addEventListener( "submit", e => {
 	e.preventDefault()
     if(['signUp', 'login'].match([id])) form.submit(e)
 })
-document.addEventListener("input", e => ['signUp', 'login'].match(grandParentId(e)) ? validate.input(e) : '')
+document.addEventListener("input", e => {
+    console.log(e, e.target.type)
+    e.target.type === 'textarea' ? editor.resizeTextareaToFitContent(e) : ''
+    // ['signUp', 'login'].match([grandParentId(e)]) ? validate.input(e) : ''
+})
 
 document.addEventListener("click", e => {
     const id = targetId(e)
@@ -109,6 +114,19 @@ function Editor() {
 	}
 	this.format = () => ''
 	this.url = () => ''
+
+
+
+	
+	this.resizeTextareaToFitContent = e => {
+		const resizeTextarea = () => {
+			if(!e.target.value) setTextareaHeight('40px')
+			else setTextareaHeight('')
+			setTextareaHeight(`${e.target.scrollHeight}px`)
+		}
+		const setTextareaHeight = valueInPx => e.target.style.height = valueInPx
+		tools.keepPositionY(resizeTextarea)
+	}
 }
 function Form() {
 
@@ -244,6 +262,15 @@ function Themplates() {
 	this.subtask = () => `
 	
 	`
+}
+function Tools() {
+	this.getPositionY = () => window.scrollY
+	this.keepPositionY = func => {
+		y = this.getPositionY()
+		func()
+		this.scrollToInstantly({top: y})
+	}
+	this.scrollToInstantly = param => window.scrollTo(param)
 }
 function User(datas) {
 	let data
