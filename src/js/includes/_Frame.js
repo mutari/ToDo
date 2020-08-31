@@ -19,15 +19,15 @@ function Frame(frame) {
 		id: box.id,
 		title: box.title,
 		color: box.color,
-		cards: box.cards.map(card => ({
-			id: card.id,
-			title: card.title,
-			description: card.description,
-			color: card.color,
-			date: card.date,
-			labels: card.labels,
-			members: card.members.map(member => member.id),
-			subtasks: card.subtasks.map(subtask => ({
+		tasks: box.tasks.map(task => ({
+			id: task.id,
+			title: task.title,
+			description: task.description,
+			color: task.color,
+			date: task.date,
+			labels: task.labels,
+			members: task.members.map(member => member.id),
+			subtasks: task.subtasks.map(subtask => ({
 				id: subtask.id,
 				text: subtask.text,
 				member: subtask.member,

@@ -219,15 +219,15 @@ function Frame(frame) {
 		id: box.id,
 		title: box.title,
 		color: box.color,
-		cards: box.cards.map(card => ({
-			id: card.id,
-			title: card.title,
-			description: card.description,
-			color: card.color,
-			date: card.date,
-			labels: card.labels,
-			members: card.members.map(member => member.id),
-			subtasks: card.subtasks.map(subtask => ({
+		tasks: box.tasks.map(task => ({
+			id: task.id,
+			title: task.title,
+			description: task.description,
+			color: task.color,
+			date: task.date,
+			labels: task.labels,
+			members: task.members.map(member => member.id),
+			subtasks: task.subtasks.map(subtask => ({
 				id: subtask.id,
 				text: subtask.text,
 				member: subtask.member,
@@ -318,26 +318,30 @@ function User(datas) {
 		frame = new Frame()
 		frame.eject()
 	}
-	if(datas) {
-		if(datas.frame) frame = new Frame(datas.frame)
-		if(datas.token) cookie.create('token', datas.token, 365)
-		data = {
-			id: datas.user.id,
-			name: datas.user.name,
-			email: datas.user.email,
-		}
-		frames = datas.user.frames.map(frame => ({
-			id: frame.id,
-			title: frame.id,
-		}))
-	} else {
-		(async () => {
-			console.log('hej')
+
+	this.changeFrame = () => {
+		
+	}
+	this.init = async () => {
+		if(datas) {
+			if(datas.frame) frame = new Frame(datas.frame)
+			if(datas.token) cookie.create('token', datas.token, 365)
+			data = {
+				id: datas.user.id,
+				name: datas.user.name,
+				email: datas.user.email,
+			}
+			frames = datas.user.frames.map(frame => ({
+				id: frame.id,
+				title: frame.id,
+			}))
+		} else {
 			const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : ''
 			if(!response.user) return
 			user = new User(response)
-		})()
+		}
 	}
+	this.init()
 }
 function Validate() {
     let password
