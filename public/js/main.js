@@ -8,10 +8,10 @@ Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 const testData = new TestData()
 const tools = new Tools()
 const editor = new Editor()
-let user = new User()
-let frame
 const server = new Server()
 const cookie = new Cookie()
+let user = new User()
+let frame
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -27,6 +27,7 @@ document.addEventListener( "submit", e => {
 })
 
 document.addEventListener("click", e => {
+    console.log(e)
     if(!queryTarget('.active-editor')) return
     editor.format()
     editor.deactivate()
@@ -312,14 +313,14 @@ function User(datas) {
 	this.getUser = () => data
 	this.getFrames = () => frames
 	this.logOut = () => {
-		cookie.destroy('login')
+		cookie.destroy('token')
 		user = new User()
 		frame = new Frame()
 		frame.eject()
 	}
 	if(datas) {
 		if(datas.frame) frame = new Frame(datas.frame)
-		if(datas.hash) cookie.create('login', datas.hash, 365)
+		if(datas.token) cookie.create('token', datas.token, 365)
 		data = {
 			id: datas.user.id,
 			name: datas.user.name,
@@ -330,11 +331,12 @@ function User(datas) {
 			title: frame.id,
 		}))
 	} else {
-		async () => {
-			const response = cookie.check('login') ? await server.postFetch('login', cookie.get('login')) : ''
+		(async () => {
+			console.log('hej')
+			const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : ''
 			if(!response.user) return
 			user = new User(response)
-		}
+		})()
 	}
 }
 function Validate() {

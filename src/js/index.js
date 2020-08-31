@@ -8,10 +8,10 @@ Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 const testData = new TestData()
 const tools = new Tools()
 const editor = new Editor()
-let user = new User()
-let frame
 const server = new Server()
 const cookie = new Cookie()
+let user = new User()
+let frame
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -27,6 +27,7 @@ document.addEventListener( "submit", e => {
 })
 
 document.addEventListener("click", e => {
+    console.log(e)
     if(!queryTarget('.active-editor')) return
     editor.format()
     editor.deactivate()
