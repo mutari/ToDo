@@ -3,7 +3,7 @@ const parentId = e => e.target.parentElement.id
 const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
-Array.prototype.match = function(arr) { return arr.map( obj => this.indexOf(obj) > -1) }
+Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 
 const testData = new TestData()
 const tools = new Tools()
@@ -12,34 +12,43 @@ let user = new User()
 let frame
 const server = new Server()
 const cookie = new Cookie()
-testData.cookie()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
 
+document.addEventListener("input", e => {
+    if(e.target.type === 'textarea') editor.resizeTextareaToFitContent(e)
+    if(['signUp', 'login'].contains(grandParentId(e))) validate.input(e)
+})
 document.addEventListener( "submit", e => {
     const id = targetId(e)
 	e.preventDefault()
-    if(['signUp', 'login'].match([id])) form.submit(e)
-})
-document.addEventListener("input", e => {
-    console.log(e, e.target.type)
-    e.target.type === 'textarea' ? editor.resizeTextareaToFitContent(e) : ''
-    // ['signUp', 'login'].match([grandParentId(e)]) ? validate.input(e) : ''
+    if(['signUp', 'login'].contains(id)) form.submit(e)
 })
 
 document.addEventListener("click", e => {
-    const id = targetId(e)
-    editor.deactivate(e)
+    if(!queryTarget('.active-editor')) return
+    editor.format()
+    editor.deactivate()
 })
 ;[...queryTargetAll('#editor-container')].map(container => {
     container.addEventListener('click', e => {
         e.stopPropagation()
         if(e.target !== document) {
-            parentId(e) === 'editor-container' ? editor.activate(e) : ''
+            const id = targetId(e)
+            if(parentId(e) === 'editor-container') editor.activate(e)
         }
     })
 })
+document.onmousedown = function(e){
+    const id = targetId(e)
+    if(!['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) return
+    e = e || window.event
+    e.preventDefault()
+    if(id === 'bold') editor.wrapSelectedText('*')
+    if(id === 'italic') editor.wrapSelectedText('|')
+    if(id === 'underline') editor.wrapSelectedText('_')
+}
 function TestData() {
     this.login = {
         email: 'test123@test123.se',
@@ -109,22 +118,39 @@ function Editor() {
 	this.activate = e => e.target.parentElement.classList.add('active-editor')
 	this.deactivate = () => {
 		const editor = queryTarget('.active-editor')
-		console.log(editor.classList)
 		if(editor) queryTarget('.active-editor').classList.remove('active-editor')
 	}
-	this.format = () => ''
-	this.url = () => ''
+	this.link = () => ''
 
-
-
-	
-	this.resizeTextareaToFitContent = e => {
-		const resizeTextarea = () => {
-			if(!e.target.value) setTextareaHeight('40px')
-			else setTextareaHeight('')
-			setTextareaHeight(`${e.target.scrollHeight}px`)
+	this.format = () => {
+		let text = queryTarget('.active-editor').children.editor.value
+		while(true) {
+			if(text.indexOf('*') === -1) return
+			text = text.replace('*', '<span style="bold">')
+			if(text.indexOf('*') === -1) return
+			text = text.replace('*', '</span>')
+			queryTarget('.active-editor').children.editor.value = text
 		}
-		const setTextareaHeight = valueInPx => e.target.style.height = valueInPx
+	}
+
+	this.wrapSelectedText = symbol => {
+		const editor = queryTarget('.active-editor').children.editor
+		const selectedText = tools.getSelectedText(editor)
+		editor.value = editor.value.replace(selectedText, `${symbol}${selectedText}${symbol}`)
+	}
+
+	this.oldFormat = command => document.execCommand(command,false,null)
+
+	this.resizeTextareaToFitContent = () => {
+		const editor = queryTarget('.active-editor')
+		if(!editor) return
+		const textarea = editor.children.editor
+		const resizeTextarea = () => {
+			if(!textarea.value) setTextareaHeight('40px')
+			else setTextareaHeight('0')
+			setTextareaHeight(`${textarea.scrollHeight}px`)
+		}
+		const setTextareaHeight = valueInPx => textarea.style.height = valueInPx
 		tools.keepPositionY(resizeTextarea)
 	}
 }
@@ -132,7 +158,7 @@ function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
-        const inputs = testData.login //getInputs[id](e.target.elements)
+        const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
@@ -264,6 +290,7 @@ function Themplates() {
 	`
 }
 function Tools() {
+	let throttle
 	this.getPositionY = () => window.scrollY
 	this.keepPositionY = func => {
 		y = this.getPositionY()
@@ -271,6 +298,13 @@ function Tools() {
 		this.scrollToInstantly({top: y})
 	}
 	this.scrollToInstantly = param => window.scrollTo(param)
+	this.throttle = (func, ms) => {
+		this.cancelThrottle()
+		throttle = setTimeout(() => func(), ms)
+	}
+	this.cancelThrottle = () => throttle ? clearTimeout(throttle) : ''
+	
+	this.getSelectedText = element => window.getSelection ? element.value.substring(element.selectionStart, element.selectionEnd) : ''
 }
 function User(datas) {
 	let data
