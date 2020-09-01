@@ -1,8 +1,8 @@
 .editor-container#editor-container
 	.toolbar
 		div
-			a Write
-			a Preview
+			button#write Write
+			button#preview Preview
 		div
 			a.fa.fa-bold.fa-fw#bold(unselectable="on")
 			a.fa.fa-italic.fa-fw#italic
@@ -10,10 +10,10 @@
 			a.fa.fa-list.fa-fw#list
 			a.fa.fa-link.fa-fw#link
 
-	textarea.editor#editor(spellcheck="false")
+	textarea.editor#editor(spellcheck="false" data-enablewrite="true")
+
+	p#formatedContent
 
 	.optionbar
-		button Save
-		button Cancel
-
-.editor-container-test#editor-container
+		button#save Save
+		button#cancel Cancel

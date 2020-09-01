@@ -1,3 +1,5 @@
 function Render() {
-	this.frame = data => themplate.frame(data)
+	this.frame = data => {
+		return 
+	}
 }
