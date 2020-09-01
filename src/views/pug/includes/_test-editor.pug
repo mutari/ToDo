@@ -4,17 +4,16 @@
 			a Write
 			a Preview
 		div
-			a
-				span.fa.fa-bold.fa-fw
-			a
-				span.fa.fa-italic.fa-fw
-			a
-				span.fa.fa-list.fa-fw
-			a
-				span.fa.fa-link.fa-fw
+			a.fa.fa-bold.fa-fw#bold(unselectable="on")
+			a.fa.fa-italic.fa-fw#italic
+			a.fa.fa-underline.fa-fw#underline
+			a.fa.fa-list.fa-fw#list
+			a.fa.fa-link.fa-fw#link
 
-	textarea.editor#editor
+	textarea.editor#editor(spellcheck="false")
 
 	.optionbar
 		button Save
 		button Cancel
+
+.editor-container-test#editor-container

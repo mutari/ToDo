@@ -6,11 +6,12 @@
 	& > .toolbar
 		display: none
 
-	& > textarea.editor
+	& > .editor
+		@extend .pointer
 		background-color: transparent
 		width: 100%
 		padding: 20px
-		@extend .pointer
+		resize: none
 
 	& > .optionbar
 		display: none
@@ -37,13 +38,11 @@
 				grid-area: two
 				color: blue
 				& > a
-					& > span
-						@extend .inactive-link
 				& > a:hover
 					@extend .pointer
 					color: red
 
-		& > textarea.editor
+		& > .editor
 			@extend .cursor-text
 			grid-area: editor
 			min-height: 120px
@@ -63,4 +62,3 @@
 				color: #fff
 			& > button:last-child
 				background-color: transparent
-				

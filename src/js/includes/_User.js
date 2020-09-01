@@ -4,28 +4,33 @@ function User(datas) {
 	this.getUser = () => data
 	this.getFrames = () => frames
 	this.logOut = () => {
-		cookie.destroy('login')
+		cookie.destroy('token')
 		user = new User()
 		frame = new Frame()
 		frame.eject()
 	}
-	if(datas) {
-		if(datas.frame) frame = new Frame(datas.frame)
-		if(datas.hash) cookie.create('login', datas.hash, 365)
-		data = {
-			id: datas.user.id,
-			name: datas.user.name,
-			email: datas.user.email,
-		}
-		frames = datas.user.frames.map(frame => ({
-			id: frame.id,
-			title: frame.id,
-		}))
-	} else {
-		async () => {
-			const response = cookie.check('login') ? await server.postFetch('login', cookie.get('login')) : ''
+
+	this.changeFrame = () => {
+		
+	}
+	this.init = () => {
+		if(datas) {
+			if(datas.frame) frame = new Frame(datas.frame)
+			if(datas.token) cookie.create('token', datas.token, 365)
+			data = {
+				id: datas.user.id,
+				name: datas.user.name,
+				email: datas.user.email,
+			}
+			frames = datas.user.frames.map(frame => ({
+				id: frame.id,
+				title: frame.id,
+			}))
+		} else {
+			const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : ''
 			if(!response.user) return
 			user = new User(response)
 		}
 	}
+	this.init()
 }

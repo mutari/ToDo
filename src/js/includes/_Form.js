@@ -2,7 +2,7 @@ function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
-        const inputs = testData.login //getInputs[id](e.target.elements)
+        const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
