@@ -12,7 +12,6 @@ const mongo = require('mongodb').MongoClient;
 
         const userCol = await db.collection('User_profile')
         const frameCol = await db.collection('Frame_profile')
-
         const app = express()
         
         app.use(bodyParser.urlencoded({extended: false}))

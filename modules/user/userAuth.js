@@ -1,3 +1,5 @@
+const { delete, delete } = require('../../routes/User_routes');
+
 module.exports = (req, res, next) => {
 
     const jwt = require('jsonwebtoken')
@@ -6,9 +8,10 @@ module.exports = (req, res, next) => {
         try {
             
             let token = jwt.verify(req.body.token, process.env.SECRET)
+            //let tokenSecure = jwt.verify(req.body.tokenSecure, process.env.SECRET2)
 
-            delete token.iat;
-            delete token.exp;
+            delete token.iat; delete token.exp;
+            //delete tokenSecure.iat; delete tokenSecure.exp;
             
             req.token = token 
 
