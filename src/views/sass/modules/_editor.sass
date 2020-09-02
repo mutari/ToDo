@@ -1,64 +1,97 @@
 .editor-container
-	margin: 20px
+	display: block
 	width: 500px
+	max-width: 500px
 	background-color: #fff
-
+	padding: 10px
+	word-break: break-all
+	height: auto
+	font-size: 18px
+	@extend .pointer
 	& > .toolbar
+		grid-area: tool-bar
 		display: none
+		justify-content: space-between
+		align-items: center
+		grid-template-areas: "one two"
+		border-bottom: 2px solid #696969
+		padding: 0 10px
+		& > div:first-child
+			grid-area: one
+			& > button
+				@extend .pointer
+
+		& > div:last-child
+			grid-area: two
+			color: blue
+			& > a
+			& > a:hover
+				@extend .pointer
+				color: red
 
 	& > .editor
-		@extend .pointer
-		background-color: transparent
-		width: 100%
-		padding: 20px
+		grid-area: editor
+		display: none
+		@extend .cursor-text
+		min-height: 100px
+		font-size: 18px
+		margin: 10px
 		resize: none
+		&.hide
+			display: none
+	& > p
+		@extend .inactive-link
+		display: block
+		min-height: 40px
+		padding: 10px
+	& > p.editor
+		@extend .no-pointer-event
+		padding: 0
 
 	& > .optionbar
 		display: none
+		justify-content: center
+		align-content: center
+		border-top: 2px solid #696969
+		& > button
+			@extend .pointer
+			height: 25px
+			width: 200px
+		& > button:first-child
+			background-color: #696969
+			color: #fff
+		& > button:last-child
+			background-color: transparent
 
 	&.active-editor
 		display: grid
 		grid-template-columns: auto
 		grid-template-rows: 30px auto 60px
 		grid-template-areas: "tool-bar" "editor" "optionbar"
-		padding: 10px
+		cursor: default
 		& > .toolbar
-			grid-area: tool-bar
 			display: grid
-			justify-content: space-between
-			align-items: center
-			grid-template-areas: "one two"
-			border-bottom: 2px solid #696969
-			padding: 0 10px
-			& > div:first-child
-				grid-area: one
-				& > a
-
-			& > div:last-child
-				grid-area: two
-				color: blue
-				& > a
-				& > a:hover
-					@extend .pointer
-					color: red
-
 		& > .editor
-			@extend .cursor-text
-			grid-area: editor
-			min-height: 120px
-			&:focus
-
+			display: block
 		& > .optionbar
 			display: grid
-			justify-content: center
-			align-content: center
-			border-top: 2px solid #696969
-			& > button
-				@extend .pointer
-				height: 25px
-				width: 200px
-			& > button:first-child
-				background-color: #696969
-				color: #fff
-			& > button:last-child
-				background-color: transparent
+		p
+			display: none
+
+	& > .editor.hide
+		display: none
+
+	.bold
+		font-weight: bold
+
+	.underline
+		text-decoration: underline
+
+	.italic
+		font-style: italic
+
+	.strikeThrough
+		text-decoration: line-through
+		
+
+

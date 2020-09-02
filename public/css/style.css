@@ -1,53 +1,79 @@
 .editor-container {
-  margin: 20px;
+  display: block;
   width: 500px;
-  background-color: #fff; }
+  max-width: 500px;
+  background-color: #fff;
+  padding: 10px;
+  word-break: break-all;
+  height: auto;
+  font-size: 18px; }
   .editor-container > .toolbar {
-    display: none; }
+    grid-area: tool-bar;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    grid-template-areas: "one two";
+    border-bottom: 2px solid #696969;
+    padding: 0 10px; }
+    .editor-container > .toolbar > div:first-child {
+      grid-area: one; }
+    .editor-container > .toolbar > div:last-child {
+      grid-area: two;
+      color: blue; }
+      .editor-container > .toolbar > div:last-child > a:hover {
+        color: red; }
   .editor-container > .editor {
-    background-color: transparent;
-    width: 100%;
-    padding: 20px;
+    grid-area: editor;
+    display: none;
+    min-height: 100px;
+    font-size: 18px;
+    margin: 10px;
     resize: none; }
+    .editor-container > .editor.hide {
+      display: none; }
+  .editor-container > p {
+    display: block;
+    min-height: 40px;
+    padding: 10px; }
+  .editor-container > p.editor {
+    padding: 0; }
   .editor-container > .optionbar {
-    display: none; }
+    display: none;
+    justify-content: center;
+    align-content: center;
+    border-top: 2px solid #696969; }
+    .editor-container > .optionbar > button {
+      height: 25px;
+      width: 200px; }
+    .editor-container > .optionbar > button:first-child {
+      background-color: #696969;
+      color: #fff; }
+    .editor-container > .optionbar > button:last-child {
+      background-color: transparent; }
   .editor-container.active-editor {
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: 30px auto 60px;
     grid-template-areas: "tool-bar" "editor" "optionbar";
-    padding: 10px; }
+    cursor: default; }
     .editor-container.active-editor > .toolbar {
-      grid-area: tool-bar;
-      display: grid;
-      justify-content: space-between;
-      align-items: center;
-      grid-template-areas: "one two";
-      border-bottom: 2px solid #696969;
-      padding: 0 10px; }
-      .editor-container.active-editor > .toolbar > div:first-child {
-        grid-area: one; }
-      .editor-container.active-editor > .toolbar > div:last-child {
-        grid-area: two;
-        color: blue; }
-        .editor-container.active-editor > .toolbar > div:last-child > a:hover {
-          color: red; }
+      display: grid; }
     .editor-container.active-editor > .editor {
-      grid-area: editor;
-      min-height: 120px; }
+      display: block; }
     .editor-container.active-editor > .optionbar {
-      display: grid;
-      justify-content: center;
-      align-content: center;
-      border-top: 2px solid #696969; }
-      .editor-container.active-editor > .optionbar > button {
-        height: 25px;
-        width: 200px; }
-      .editor-container.active-editor > .optionbar > button:first-child {
-        background-color: #696969;
-        color: #fff; }
-      .editor-container.active-editor > .optionbar > button:last-child {
-        background-color: transparent; }
+      display: grid; }
+    .editor-container.active-editor p {
+      display: none; }
+  .editor-container > .editor.hide {
+    display: none; }
+  .editor-container .bold {
+    font-weight: bold; }
+  .editor-container .underline {
+    text-decoration: underline; }
+  .editor-container .italic {
+    font-style: italic; }
+  .editor-container .strikeThrough {
+    text-decoration: line-through; }
 
 * {
   margin: 0;
@@ -80,7 +106,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link {
+.inactive-link, .editor-container > p {
   pointer-events: none; }
 
 .active-link {
@@ -90,13 +116,13 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container > .editor, .editor-container.active-editor > .toolbar > div:last-child > a:hover, .editor-container.active-editor > .optionbar > button {
+.pointer, .editor-container, .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button {
   cursor: pointer; }
 
-.cursor-text, .editor-container.active-editor > .editor {
+.cursor-text, .editor-container > .editor {
   cursor: text; }
 
-.no-pointer-event {
+.no-pointer-event, .editor-container > p.editor {
   pointer-events: none; }
 
 .disable-higlight {

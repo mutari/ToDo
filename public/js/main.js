@@ -4,20 +4,23 @@ const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 
 const testData = new TestData()
 const tools = new Tools()
-const editor = new Editor()
 const server = new Server()
 const cookie = new Cookie()
 let user = new User()
 let frame
+let editor
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
+const themplates = new Themplates()
 
 document.addEventListener("input", e => {
-    if(e.target.type === 'textarea') editor.resizeTextareaToFitContent(e)
+    console.log(e.target.type)
+    if(e.target.type === 'textarea') tools.resizeAreaToFitContent(e.target)
     if(['signUp', 'login'].contains(grandParentId(e))) validate.input(e)
 })
 document.addEventListener( "submit", e => {
@@ -27,29 +30,31 @@ document.addEventListener( "submit", e => {
 })
 
 document.addEventListener("click", e => {
-    console.log(e)
-    if(!queryTarget('.active-editor')) return
-    editor.format()
-    editor.deactivate()
-})
-;[...queryTargetAll('#editor-container')].map(container => {
-    container.addEventListener('click', e => {
-        e.stopPropagation()
-        if(e.target !== document) {
-            const id = targetId(e)
-            if(parentId(e) === 'editor-container') editor.activate(e)
-        }
-    })
-})
-document.onmousedown = function(e){
     const id = targetId(e)
-    if(!['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) return
-    e = e || window.event
-    e.preventDefault()
-    if(id === 'bold') editor.wrapSelectedText('*')
-    if(id === 'italic') editor.wrapSelectedText('|')
-    if(id === 'underline') editor.wrapSelectedText('_')
-}
+    if(queryTarget('.active-editor')) editor.deactivate()
+    else if(id === 'editor-container') editor = new Editor(e)
+})
+document.addEventListener( 'mousedown', e => {
+    const id = targetId(e)
+    
+    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
+
+        // ? why??? e = e || window.event; e.preventDefault()
+        
+        const input = queryTarget('.active-editor').children.editor
+        if(id === 'bold') tools.wrapSelectedText(input, '*')
+        if(id === 'italic') tools.wrapSelectedText(input, '|')
+        if(id === 'underline') tools.wrapSelectedText(input, '_')
+    }
+
+    if(queryTarget('.active-editor')) {
+        if(id === 'write') editor.enableWrite()
+        if(id === 'preview') editor.disableWrite()
+        if(id === 'save') editor.deactivate()
+        if(id === 'cancel') editor.deactivate(true)
+    }
+    
+})
 function TestData() {
     this.login = {
         email: 'test123@test123.se',
@@ -115,45 +120,76 @@ function Cookie() {
 		return`; expires=${date.toGMTString()}`
 	}
 }
-function Editor() {
-	this.activate = e => e.target.parentElement.classList.add('active-editor')
-	this.deactivate = () => {
-		const editor = queryTarget('.active-editor')
-		if(editor) queryTarget('.active-editor').classList.remove('active-editor')
-	}
-	this.link = () => ''
+function Editor(e) {
+	if(!e) return
+	this.this = e
+	const container = this.this.target
+	const textarea = container.children.editor
+	const formatedArea = container.children.formatedContent
+	let previousText
+	textarea.value = '' // onreload, make sure textarea is empthy
 
-	this.format = () => {
-		let text = queryTarget('.active-editor').children.editor.value
-		while(true) {
-			if(text.indexOf('*') === -1) return
-			text = text.replace('*', '<span style="bold">')
-			if(text.indexOf('*') === -1) return
-			text = text.replace('*', '</span>')
-			queryTarget('.active-editor').children.editor.value = text
+	this.activate = () => {
+		container.classList.add('active-editor')
+		previousText = textarea.value
+	}
+	this.deactivate = cancel => {
+		const editorContainer = container
+		const area = textarea
+		if(!cancel) {
+			formatedArea.innerHTML = this.format(area.value)
+			tools.setAreaHeight(area)
+		} else {
+			area.value = previousText
+			formatedArea.classList.remove('editor')
 		}
+		editorContainer.classList.remove('active-editor')
 	}
 
-	this.wrapSelectedText = symbol => {
-		const editor = queryTarget('.active-editor').children.editor
-		const selectedText = tools.getSelectedText(editor)
-		editor.value = editor.value.replace(selectedText, `${symbol}${selectedText}${symbol}`)
+	this.disableWrite = () => {
+		const area = textarea
+		container.dataset.enablewrite = 'false'
+		console.log(previousText)
+		formatedArea.innerHTML = this.format(previousText)
+		area.classList.add('hide')
+		formatedArea.classList.add('editor')
+	}
+	this.enableWrite = () => {
+		const area = textarea
+		area.value = previousText
+		formatedArea.innerHTML = previousText
+		container.dataset.enablewrite = 'true'
+		area.classList.remove('hide')
+		formatedArea.classList.remove('editor')
 	}
 
-	this.oldFormat = command => document.execCommand(command,false,null)
+	this.format = text => tools.testReplaceAllRequestedSymbolsInText(text, symbolStyling)
 
-	this.resizeTextareaToFitContent = () => {
-		const editor = queryTarget('.active-editor')
-		if(!editor) return
-		const textarea = editor.children.editor
-		const resizeTextarea = () => {
-			if(!textarea.value) setTextareaHeight('40px')
-			else setTextareaHeight('0')
-			setTextareaHeight(`${textarea.scrollHeight}px`)
-		}
-		const setTextareaHeight = valueInPx => textarea.style.height = valueInPx
-		tools.keepPositionY(resizeTextarea)
-	}
+	const symbolStyling = [
+		{
+			symbol: '*',
+			class: 'bold',
+		},
+		{
+			symbol: '|',
+			class: 'italic',
+		},
+		{
+			symbol: '_',
+			class: 'underline',
+		},
+		{
+			symbol: '~',
+			class: 'strikeThrough',
+		},
+	]
+
+	container.addEventListener('click', e => {
+		e.stopPropagation()
+		this.activate()
+		tools.resizeAreaToFitContent(textarea)
+	})
+	this.activate()
 }
 function Form() {
 
@@ -234,11 +270,16 @@ function Frame(frame) {
 			})),
 		}))
 	}))
-	const inject = () => queryTarget('#frame').innerHTML = render.frame()
+	const inject = () => {
+		queryTarget('#frame').innerHTML = themplate.frame(data)
+		editor = new Editor()
+	}
 	//inject()
 }
 function Render() {
-	this.frame = data => themplate.frame(data)
+	this.frame = data => {
+		return 
+	}
 }
 function Server() {
 	this.fetch = async dest => {
@@ -305,7 +346,73 @@ function Tools() {
 	}
 	this.cancelThrottle = () => throttle ? clearTimeout(throttle) : ''
 	
-	this.getSelectedText = element => window.getSelection ? element.value.substring(element.selectionStart, element.selectionEnd) : ''
+	this.getSelectedText = element => window.getSelection ? [
+		element.value.substring(element.selectionStart, element.selectionEnd), 
+		element.selectionStart, 
+		element.selectionEnd
+	] : ''
+
+	this.wrapSelectedText = (input, symbol) => {
+		if(!input.dataset.enablewrite) return
+		const [selectedText, startIndex, endIndex] = this.getSelectedText(input)
+		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
+	}
+
+	this.replaceAllRequestedSymbolsInText = (text, symbolStyling) => {
+		const iteration = (content, {symbol, styling}) => {
+			if(content.indicesOf(symbol, true).length < 2) return
+			content = content.replace(symbol, `<span style='${styling}'>`)
+			text = content.replace(symbol, `</span>`)
+			iteration(text, {symbol, styling})
+		}
+		symbolStyling.map(data => iteration(text, data))
+		return text
+	}
+
+	this.testReplaceAllRequestedSymbolsInText = (input, translations) => {
+		let output = ''
+		let classes
+		let notSymbol = true
+		const charArr = input.split('')
+		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
+
+		charArr.map(char => {
+			notSymbol = true
+			translations.map(data => {
+				if(char !== data.symbol) return
+				notSymbol = false
+				classes = ''
+
+				if(!data.live) {
+					setActiveClasses()
+					data.live = true
+				} else {
+					data.live = false
+					setActiveClasses()
+				}
+
+				if(classes) {
+					if(data.live) classes += data.class
+					output += `</span><span class="${classes}">`
+				} else if(data.live) output += `<span class="${data.class}">`
+				else output += `</span>`
+			})
+			if(notSymbol) output += char
+		})
+		return output
+	} // adijidjsaijdjadjasdjako * pfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapå _ wfo | a * jadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfo | ajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadja _ sdjakopfjaeoifihpfwhgoapåwfoaj
+
+	this.resizeAreaToFitContent = targetEl => {
+		const area = targetEl
+		if(!area) return
+		const resizeTextarea = () => {
+			if(!area.value) this.setAreaHeight(targetEl, '40px')
+			else this.setAreaHeight(targetEl, '')
+			this.setAreaHeight(targetEl, `${area.scrollHeight}px`)
+		}
+		this.keepPositionY(resizeTextarea)
+	}
+	this.setAreaHeight = (targetEl, valueInPx) => targetEl.style.height = valueInPx
 }
 function User(datas) {
 	let data
