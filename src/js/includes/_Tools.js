@@ -25,18 +25,7 @@ function Tools() {
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsInText = (text, symbolStyling) => {
-		const iteration = (content, {symbol, styling}) => {
-			if(content.indicesOf(symbol, true).length < 2) return
-			content = content.replace(symbol, `<span style='${styling}'>`)
-			text = content.replace(symbol, `</span>`)
-			iteration(text, {symbol, styling})
-		}
-		symbolStyling.map(data => iteration(text, data))
-		return text
-	}
-
-	this.testReplaceAllRequestedSymbolsInText = (input, translations) => {
+	this.replaceAllRequestedSymbolsWithSpanTags = (input, translations) => {
 		let output = ''
 		let classes
 		let notSymbol = true
@@ -68,6 +57,12 @@ function Tools() {
 		})
 		return output
 	} // adijidjsaijdjadjasdjako * pfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapå _ wfo | a * jadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfo | ajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadja _ sdjakopfjaeoifihpfwhgoapåwfoaj
+
+	this.removeBlacklistedChars = (text, blacklist) => {
+		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
+		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
+		return text
+	}
 
 	this.resizeAreaToFitContent = targetEl => {
 		const area = targetEl

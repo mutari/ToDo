@@ -5,6 +5,24 @@ const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
+String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
+String.prototype.indicesOf = function(searchStr, caseSensitive) { 
+    let str = this
+    let searchStrLen = searchStr.length
+    if (searchStrLen === 0) {
+        return []
+    }
+    let startIndex = 0, index, indices = []
+    if (!caseSensitive) {
+        str = str.toLowerCase()
+        searchStr = searchStr.toLowerCase()
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index)
+        startIndex = index + searchStrLen
+    }
+    return indices
+}
 
 const testData = new TestData()
 const tools = new Tools()
@@ -48,7 +66,7 @@ document.addEventListener( 'mousedown', e => {
     }
 
     if(queryTarget('.active-editor')) {
-        if(id === 'write') editor.enableWrite()
+        if(id === 'write' && editor.write) editor.enableWrite()
         if(id === 'preview') editor.disableWrite()
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)

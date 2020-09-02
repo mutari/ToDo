@@ -5,6 +5,24 @@ const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
+String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
+String.prototype.indicesOf = function(searchStr, caseSensitive) { 
+    let str = this
+    let searchStrLen = searchStr.length
+    if (searchStrLen === 0) {
+        return []
+    }
+    let startIndex = 0, index, indices = []
+    if (!caseSensitive) {
+        str = str.toLowerCase()
+        searchStr = searchStr.toLowerCase()
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index)
+        startIndex = index + searchStrLen
+    }
+    return indices
+}
 
 const testData = new TestData()
 const tools = new Tools()
@@ -48,7 +66,7 @@ document.addEventListener( 'mousedown', e => {
     }
 
     if(queryTarget('.active-editor')) {
-        if(id === 'write') editor.enableWrite()
+        if(id === 'write' && editor.write) editor.enableWrite()
         if(id === 'preview') editor.disableWrite()
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)
@@ -127,43 +145,43 @@ function Editor(e) {
 	const textarea = container.children.editor
 	const formatedArea = container.children.formatedContent
 	let previousText
-	textarea.value = '' // onreload, make sure textarea is empthy
+	let beforeWrite
+	this.write = false
+	previousText = textarea.value
 
-	this.activate = () => {
-		container.classList.add('active-editor')
-		previousText = textarea.value
-	}
+	this.activate = () => container.classList.add('active-editor')
 	this.deactivate = cancel => {
 		const editorContainer = container
-		const area = textarea
 		if(!cancel) {
-			formatedArea.innerHTML = this.format(area.value)
-			tools.setAreaHeight(area)
+			this.format(textarea.value)
+			tools.setAreaHeight(textarea)
 		} else {
-			area.value = previousText
+			textarea.value = previousText
 			formatedArea.classList.remove('editor')
 		}
 		editorContainer.classList.remove('active-editor')
+		container.removeEventListener('click', containerOnClick)
 	}
 
 	this.disableWrite = () => {
-		const area = textarea
-		container.dataset.enablewrite = 'false'
-		console.log(previousText)
-		formatedArea.innerHTML = this.format(previousText)
-		area.classList.add('hide')
+		this.write = true
+		beforeWrite = textarea.value
+		this.format(beforeWrite)
+		textarea.classList.add('hide')
 		formatedArea.classList.add('editor')
 	}
 	this.enableWrite = () => {
-		const area = textarea
-		area.value = previousText
+		textarea.value = beforeWrite
 		formatedArea.innerHTML = previousText
-		container.dataset.enablewrite = 'true'
-		area.classList.remove('hide')
+		textarea.classList.remove('hide')
 		formatedArea.classList.remove('editor')
 	}
 
-	this.format = text => tools.testReplaceAllRequestedSymbolsInText(text, symbolStyling)
+	this.format = text => {
+		text = tools.removeBlacklistedChars(text, blacklist)
+		textarea.value = text
+		formatedArea.innerHTML = tools.replaceAllRequestedSymbolsWithSpanTags(text, symbolStyling)
+	}
 
 	const symbolStyling = [
 		{
@@ -183,12 +201,14 @@ function Editor(e) {
 			class: 'strikeThrough',
 		},
 	]
-
-	container.addEventListener('click', e => {
+	const blacklist = [`<`, `>`, `'`, `"`, '`']
+	const containerOnClick = e => {
 		e.stopPropagation()
 		this.activate()
 		tools.resizeAreaToFitContent(textarea)
-	})
+	}
+	container.addEventListener('click', containerOnClick);
+
 	this.activate()
 }
 function Form() {
@@ -358,18 +378,7 @@ function Tools() {
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsInText = (text, symbolStyling) => {
-		const iteration = (content, {symbol, styling}) => {
-			if(content.indicesOf(symbol, true).length < 2) return
-			content = content.replace(symbol, `<span style='${styling}'>`)
-			text = content.replace(symbol, `</span>`)
-			iteration(text, {symbol, styling})
-		}
-		symbolStyling.map(data => iteration(text, data))
-		return text
-	}
-
-	this.testReplaceAllRequestedSymbolsInText = (input, translations) => {
+	this.replaceAllRequestedSymbolsWithSpanTags = (input, translations) => {
 		let output = ''
 		let classes
 		let notSymbol = true
@@ -401,6 +410,12 @@ function Tools() {
 		})
 		return output
 	} // adijidjsaijdjadjasdjako * pfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapå _ wfo | a * jadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfo | ajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadja _ sdjakopfjaeoifihpfwhgoapåwfoaj
+
+	this.removeBlacklistedChars = (text, blacklist) => {
+		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
+		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
+		return text
+	}
 
 	this.resizeAreaToFitContent = targetEl => {
 		const area = targetEl
