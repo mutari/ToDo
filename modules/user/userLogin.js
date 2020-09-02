@@ -14,8 +14,10 @@ module.exports = async (req, res, next) => {
         bcrypt.compare(password, hash, (err, success) => {
 
             if(success) {
-                const token = jwt.sign({email: user.email, id: ObjectID(user._id)}, process.env.SECRET) // cookin försviner efter en dag
+                const token = jwt.sign({email: user.email, name: user.name, id: ObjectID(user._id)}, process.env.SECRET) // cookin försviner efter en dag
+                const tokenSecure = jwt.sign({id: ObjectID(user._id)}, process.env.SECRET2)
                 req.token = token
+                req.tokenSecure = tokenSecure
                 next()
             }
             else {

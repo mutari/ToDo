@@ -4,20 +4,41 @@ const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
+String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
+String.prototype.indicesOf = function(searchStr, caseSensitive) { 
+    let str = this
+    let searchStrLen = searchStr.length
+    if (searchStrLen === 0) {
+        return []
+    }
+    let startIndex = 0, index, indices = []
+    if (!caseSensitive) {
+        str = str.toLowerCase()
+        searchStr = searchStr.toLowerCase()
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index)
+        startIndex = index + searchStrLen
+    }
+    return indices
+}
 
 const testData = new TestData()
 const tools = new Tools()
-const editor = new Editor()
 const server = new Server()
 const cookie = new Cookie()
 let user = new User()
 let frame
+let editor
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
+const themplates = new Themplates()
 
 document.addEventListener("input", e => {
-    if(e.target.type === 'textarea') editor.resizeTextareaToFitContent(e)
+    console.log(e.target.type)
+    if(e.target.type === 'textarea') tools.resizeAreaToFitContent(e.target)
     if(['signUp', 'login'].contains(grandParentId(e))) validate.input(e)
 })
 document.addEventListener( "submit", e => {
@@ -27,26 +48,28 @@ document.addEventListener( "submit", e => {
 })
 
 document.addEventListener("click", e => {
-    console.log(e)
-    if(!queryTarget('.active-editor')) return
-    editor.format()
-    editor.deactivate()
-})
-;[...queryTargetAll('#editor-container')].map(container => {
-    container.addEventListener('click', e => {
-        e.stopPropagation()
-        if(e.target !== document) {
-            const id = targetId(e)
-            if(parentId(e) === 'editor-container') editor.activate(e)
-        }
-    })
-})
-document.onmousedown = function(e){
     const id = targetId(e)
-    if(!['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) return
-    e = e || window.event
-    e.preventDefault()
-    if(id === 'bold') editor.wrapSelectedText('*')
-    if(id === 'italic') editor.wrapSelectedText('|')
-    if(id === 'underline') editor.wrapSelectedText('_')
-}
+    if(queryTarget('.active-editor')) editor.deactivate()
+    else if(id === 'editor-container') editor = new Editor(e)
+})
+document.addEventListener( 'mousedown', e => {
+    const id = targetId(e)
+    
+    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
+
+        // ? why??? e = e || window.event; e.preventDefault()
+        
+        const input = queryTarget('.active-editor').children.editor
+        if(id === 'bold') tools.wrapSelectedText(input, '*')
+        if(id === 'italic') tools.wrapSelectedText(input, '|')
+        if(id === 'underline') tools.wrapSelectedText(input, '_')
+    }
+
+    if(queryTarget('.active-editor')) {
+        if(id === 'write' && editor.write) editor.enableWrite()
+        if(id === 'preview') editor.disableWrite()
+        if(id === 'save') editor.deactivate()
+        if(id === 'cancel') editor.deactivate(true)
+    }
+    
+})

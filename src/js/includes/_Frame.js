@@ -34,6 +34,9 @@ function Frame(frame) {
 			})),
 		}))
 	}))
-	const inject = () => queryTarget('#frame').innerHTML = render.frame()
+	const inject = () => {
+		queryTarget('#frame').innerHTML = themplate.frame(data)
+		editor = new Editor()
+	}
 	//inject()
 }

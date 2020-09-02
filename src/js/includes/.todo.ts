@@ -2,16 +2,13 @@
  * TODO: Based on server respons, login user
  *       ? display latest frame
  * 
- * TODO: Based on server response, sign up successfull
- *       ? automatical login
- * 
  * TODO: Based on if loged in, send previously chosen frame
  *       ? if first login create an init example frame and store it
  * 
  * TODO: Display frames user is a member of, order as recently choosen
  *       ? if user is author should it be displayed in the frame selction
  * 
- * ? 	 Rename Login.js to User.js, it doesn't realy handle login anymore, it handles whatb comes after a succesfull login
+ * TODO: Fix cancel and save button on editor
  * 
- * ? 	 Rename cards to tasks, more logical considering child tasks are called subtasks
+ * TODO: Test the editor on all of it's aspects
 */

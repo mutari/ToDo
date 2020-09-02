@@ -13,7 +13,7 @@ function User(datas) {
 	this.changeFrame = () => {
 		
 	}
-	this.init = () => {
+	this.init = async () => {
 		if(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
