@@ -1,5 +1,3 @@
-const { delete, delete } = require('../../routes/User_routes');
-
 module.exports = (req, res, next) => {
 
     const jwt = require('jsonwebtoken')
@@ -14,8 +12,9 @@ module.exports = (req, res, next) => {
             //delete tokenSecure.iat; delete tokenSecure.exp;
             
             req.token = token 
+            //req.tokenSecure = tokenSecure
 
-            if(token) next();
+            if(token /*&& tokenSecure*/) next();
             else res.json({message: "User is not loged in", status: 420})
 
         }
