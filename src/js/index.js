@@ -66,7 +66,7 @@ document.addEventListener( 'mousedown', e => {
     }
 
     if(queryTarget('.active-editor')) {
-        if(id === 'write' && editor.write) editor.enableWrite()
+        if(id === 'write' && editor.shouldWriteButtonEnable) editor.enableWrite()
         if(id === 'preview') editor.disableWrite()
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)

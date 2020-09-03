@@ -1,13 +1,11 @@
 function Editor(e) {
 	if(!e) return
-	this.this = e
-	const container = this.this.target
+	const container = e.target
 	const textarea = container.children.editor
 	const formatedArea = container.children.formatedContent
-	let previousText
+	let previousText = textarea.value
 	let beforeWrite
-	this.write = false
-	previousText = textarea.value
+	this.shouldWriteButtonEnable = false
 
 	this.activate = () => container.classList.add('active-editor')
 	this.deactivate = cancel => {
@@ -24,7 +22,7 @@ function Editor(e) {
 	}
 
 	this.disableWrite = () => {
-		this.write = true
+		this.shouldWriteButtonEnable = true
 		beforeWrite = textarea.value
 		this.format(beforeWrite)
 		textarea.classList.add('hide')

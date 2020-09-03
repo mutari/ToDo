@@ -66,7 +66,7 @@ document.addEventListener( 'mousedown', e => {
     }
 
     if(queryTarget('.active-editor')) {
-        if(id === 'write' && editor.write) editor.enableWrite()
+        if(id === 'write' && editor.shouldWriteButtonEnable) editor.enableWrite()
         if(id === 'preview') editor.disableWrite()
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)
@@ -140,14 +140,12 @@ function Cookie() {
 }
 function Editor(e) {
 	if(!e) return
-	this.this = e
-	const container = this.this.target
+	const container = e.target
 	const textarea = container.children.editor
 	const formatedArea = container.children.formatedContent
-	let previousText
+	let previousText = textarea.value
 	let beforeWrite
-	this.write = false
-	previousText = textarea.value
+	this.shouldWriteButtonEnable = false
 
 	this.activate = () => container.classList.add('active-editor')
 	this.deactivate = cancel => {
@@ -164,7 +162,7 @@ function Editor(e) {
 	}
 
 	this.disableWrite = () => {
-		this.write = true
+		this.shouldWriteButtonEnable = true
 		beforeWrite = textarea.value
 		this.format(beforeWrite)
 		textarea.classList.add('hide')
@@ -437,8 +435,8 @@ function User(datas) {
 	this.logOut = () => {
 		cookie.destroy('token')
 		user = new User()
-		frame = new Frame()
 		frame.eject()
+		frame = new Frame()
 	}
 
 	this.changeFrame = () => {
