@@ -9,5 +9,11 @@ module.exports = {
         } catch (error) {
             console.error(error)
         }
+    },
+    postCreateFrame: async (req, res) => {
+
+    },
+    postDeleteFrame: async (req, res) => {
+        
     }
 }
