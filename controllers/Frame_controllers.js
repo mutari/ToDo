@@ -17,7 +17,7 @@ module.exports = {
 
     */
 
-    postGetFrame: (req, res) => {
+    postGetFrame: async (req, res) => {
         try {
             frameId = req.body.id
             userId = req.token.id
