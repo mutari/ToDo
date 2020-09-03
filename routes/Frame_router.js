@@ -11,4 +11,12 @@ router.post('/update/frame', (req, res) => {
     frameController.postUpdateFrame(req, res)
 })
 
+router.post('/delete/frame', (req, res) => {
+    frameController.postDeleteFrame(req, res)
+})
+
+router.post('/create/frame', (req, res) => {
+    frameController.postCreateFrame(req, res)
+})
+
 module.exports = router

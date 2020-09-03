@@ -8,7 +8,7 @@
     "boxes": [
         {
             "name": "To-do", 
-            "color": "#000",
+            "color": "white",
             "tasks": [
                 { 
                     "text": "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
@@ -43,18 +43,18 @@
         },
         {
             "name": "Do today", 
-            "color": "#000",
+            "color": "white",
             "tasks": []
         },
         {
             "name": "In progress", 
-            "color": "#000",
+            "color": "white",
             "tasks": [],
             "max-tasks": 3
         },
         {
             "name": "Done", 
-            "color": "#000",
+            "color": "white",
             "tasks": []
         }
     ]

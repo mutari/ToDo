@@ -20,6 +20,7 @@ module.exports = {
             data.frame.timestampCreated = "$$NOW"
             data.frame.timestampUpdated = "$$NOW"
             data.user.selected_frame = (await req.db.frameCol.insertOne(data.frame))["ops"][0]["_id"]
+            data.user.frames = [data.user.selected_frame]
             await req.db.userCol.updateOne({email: req.body.email}, {$set: {selected_frame: data.user.selected_frame}}, (err, res) => {
                 if (err) throw err;
                 console.log("1 document updated");
