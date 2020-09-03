@@ -22,8 +22,8 @@ function Form() {
         }),
         signUp: el => ({
             name: el.name.value.trim(), 
-            email: el.mail.value.trim(), 
-            password: el.pw.value.trim(), 
+            email: el.email.value.trim(), 
+            password: el.password.value.trim(), 
             comfirmPw: el.comfirmPw.value.trim(),
         }),
     }
@@ -31,8 +31,8 @@ function Form() {
     this.errorMessages = ({
         signUp: {
             name: `First and lastname`,
-            mail: `Must conatin a "@" and a "."`,
-            pw: `Atleast 8 characters`,
+            email: `Must conatin a "@" and a "."`,
+            password: `Atleast 8 characters`,
             comfirmPw: 'The passwords doesn\'t match',
         },
         login: {

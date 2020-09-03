@@ -28,13 +28,13 @@ function Validate() {
 		if(id === 'name')
             if(input.split(' ').length < 2) return false
             
-		if(['email', 'mail'].contains(id)) {
+		if(id === 'email') {
 			if(input.split('@').length !== 2) return false
 			if(input.split('.').length !== 2 || !input.split('.')[1]) return false
 			if(input.split(/(\W)/).length !== 5) return false
         }
 
-        if(['password', 'pw'].contains(id)) 
+        if(id === 'password') 
             if(input.length < 8) return false
             else password = input
 
