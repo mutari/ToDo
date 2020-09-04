@@ -1,18 +1,16 @@
-const { json } = require("express")
-
 module.exports = {
 
     /*
         /get/frame
         body: {id: id}
 
-        /update/frame?type="frame|box|task"
+        /update/frame?type="frame|box|task|subtask"
         body: {frameID: id, boxID: id, taskID: id}
 
         /create/frame
         body: {}
 
-        /delete/frame?type="frame|box|task"
+        /delete/frame?type="frame|box|task|subtask"
         body: {frameID: id, boxID: id, taskID: id}
 
     */
@@ -23,8 +21,7 @@ module.exports = {
             userId = req.token.id
             data = await req.db.frameCol.findOne({
                 $and: [
-                    {"_id": frameId},
-                    {"author": userId}
+                    {"_id": frameId}
                 ]
             })
             res.json(data)
@@ -42,14 +39,32 @@ module.exports = {
     },
     postCreateFrame: async (req, res) => {
         try {
-            
+            type = req.query.type
+            if(type == 'frame') {
+                require('../modules/rwFiles.js').readFile('/../dataSchema/frame_empty.json', async out => { 
+                    frame = out
+                    frame.title = req.body.title
+                    frame.author = req.token.id
+                    frame.timestampCreated = "$$NOW"
+                    frame.timestampUpdate = "$$NOW"
+                    frame.members.push(req.token.id)
+                    if(req.body.boxs) {
+                       frame.boxs = req.body.boxs.map((e, i)=> {
+                            e.queue = i
+                        })
+                    }
+                    await req.db.frameCol.insertOne(frame)
+                })
+            }
+
+            res.json({status: 200})
         } catch (error) {
             console.error(error)
         }
     },
     postDeleteFrame: async (req, res) => {
         try {
-            
+            res.json({status: 200})
         } catch (error) {
             console.error(error)
         }

@@ -23,15 +23,16 @@ module.exports = async (req, res, next) => {
                 next()
             }
             else {
-                console.error(err)
-                req.token = {message: "Sign in faild", status: 402}
+                console.error(err, 'password faild')
+                req.token = {message: "Sign in faild", status: 400}
                 next()
             }
 
         })
     }
     else {
-        req.token = {message: "Sign in faild", status: 401}
+        console.log('user do not exists ')
+        req.token = {message: "Sign in faild", status: 400}
         next()
     }
 
