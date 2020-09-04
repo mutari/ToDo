@@ -21,7 +21,8 @@ module.exports = {
             userId = req.token.id
             data = await req.db.frameCol.findOne({
                 $and: [
-                    {"_id": frameId}
+                    {"_id": frameId},
+                    {"members": userId}
                 ]
             })
             res.json(data)
