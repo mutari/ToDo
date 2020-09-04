@@ -9,6 +9,7 @@ router.post("/signUp", (req, res) => {
 })
 
 router.post("/login", _login, (req, res) => {
+    console.log(req.body)
     userControllers.postLogin(req, res);
 })
 

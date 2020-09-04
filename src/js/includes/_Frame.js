@@ -1,8 +1,8 @@
 function Frame(frame) {
-	if(!frame) return
+	this.insert = (into, content) => queryTarget(into).innerHTML = content
+	if(!frame) this.insert('#frame', '')
 	this.getData = () => data
 	this.getBoxes = () => boxes
-	this.eject = () => queryTarget('#frame').innerHTML = ''
 
 	const data = {
 		id: frame.id,
@@ -32,11 +32,50 @@ function Frame(frame) {
 				text: subtask.text,
 				member: subtask.member,
 			})),
-		}))
+		})),
 	}))
-	const inject = () => {
-		queryTarget('#frame').innerHTML = themplate.frame(data)
-		editor = new Editor()
+	/* const getInput = () => {
+
 	}
-	//inject()
-}
+
+	this.toggleFrame = async() => {
+		if(!user.data) return
+		const id = getInput(e)
+		if(!id) return 
+		const response = await server.postFetch('read', {id, token: cookie.get('token')})
+		if(response.status !== 200) return
+		if(response.frame) frame = new Frame(response.frame)
+	}
+	this.create = async (type, e) => {
+		if(!user.data) return
+		const input = getInput(e)
+		if(!input) return 
+		const response = await server.postFetch('create', {type, input, token: cookie.get('token')})
+		if(response.status !== 200) return
+
+		if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+		else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+	}
+	this.update = async(e) => {
+		if(!user.data) return
+		const input = getInput(e)
+		if(!input) return 
+		const response = await server.postFetch('update', {type, input, token: cookie.get('token')})
+		if(response.status !== 200) return
+
+		if(type === 'frame') if(response.frame) ''
+		else if(['box', 'task', 'subtask'].contains(type)) ''
+	}
+	this.delete = async (type, e) =>  {
+		if(!user.data) return
+		const input = getInput(e)
+		if(!input) return
+		const response = await server.postFetch('delete', {type, input, token: cookie.get('token')})
+		if(response.status !== 200) return
+
+		if(type === 'frame') frame = new Frame()
+		else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+	}
+
+	this.insert('#frame', render.frame(data, this.getBoxes())) */
+} // 200 = all okej, 400 = did not find data, 500 = server fucked up
