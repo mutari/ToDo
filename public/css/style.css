@@ -77,6 +77,16 @@
   .editor-container .strikeThrough {
     text-decoration: line-through; }
 
+.container-dnd {
+  display: flex;
+  width: 33%; }
+  .container-dnd > .task-dnd {
+    width: 100%;
+    background-color: black;
+    color: #fff;
+    padding: 20px;
+    margin: 2px; }
+
 * {
   margin: 0;
   padding: 0;
@@ -108,7 +118,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container > p {
+.inactive-link, .editor-container > p, .container-dnd > .task-dnd > p {
   pointer-events: none; }
 
 .active-link {
