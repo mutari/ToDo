@@ -13,7 +13,7 @@ module.exports = {
         //get frame data
         let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
         if (frame) data.frame = frame
-        else data = await require('../modules/createNewFrame.js')(req, user, data) //generates a new frame
+        else data = await require('../modules/generateStartFrame.js')(req, user, data) //generates a new frame
 
         data.token = req.token
         console.log(data)

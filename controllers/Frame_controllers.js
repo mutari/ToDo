@@ -17,18 +17,14 @@ module.exports = {
 
     postGetFrame: async (req, res) => {
         try {
-            frameId = req.body.id
-            userId = req.token.id
             data = await req.db.frameCol.findOne({
                 $and: [
-                    {"_id": frameId},
-                    {"members": userId}
+                    {"_id": req.body.id},
+                    {"members": req.token.id}
                 ]
             })
             res.json(data)
-        } catch (error) {
-            console.error(error)
-        }
+        } catch (error) { console.error(error); }
     },
     postUpdateFrame: async (req, res) => {
         try {

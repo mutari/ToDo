@@ -7,15 +7,15 @@ router.post('/get/frame', _auth, (req, res) => {
     frameController.postGetFrame(req, res)
 })
 
-router.post('/update/frame', (req, res) => {
+router.post('/update/frame', _auth, (req, res) => {
     frameController.postUpdateFrame(req, res)
 })
 
-router.post('/delete/frame', (req, res) => {
+router.post('/delete/frame', _auth, (req, res) => {
     frameController.postDeleteFrame(req, res)
 })
 
-router.post('/create/frame', (req, res) => {
+router.post('/create/frame', _auth, (req, res) => {
     frameController.postCreateFrame(req, res)
 })
 
