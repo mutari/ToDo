@@ -21,16 +21,18 @@ module.exports = {
         res.json(data)
     },
     postSignUp: async (req, res) => {
-        
-        bcrypt.hash(req.body.password, 12, async (err, hash) => {
-            console.log(req.body.password, hash)
-            delete req.body.password
-            req.body.hash = hash
-            req.body.frames = []
-            await req.db.userCol.insertOne(req.body)
-        })
-
-        res.json({message: "Acount created", status: 200}) // 200 = all okej, 400 = did not find data, 500 = server fucked up 
+        try {
+            bcrypt.hash(req.body.password, 12, async (err, hash) => {
+                delete req.body.password
+                req.body.hash = hash
+                req.body.frames = []
+                await req.db.userCol.insertOne(req.body)
+            }) 
+    
+            res.redirect(307, '/ToDo/login')
+        } catch (error) {
+            console.log(error)
+        }
     },
     postUser: async (req, res) => {
         let data = {}

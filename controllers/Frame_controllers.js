@@ -1,3 +1,5 @@
+const ObjectID = require('mongodb').ObjectID
+
 module.exports = {
 
     /*
@@ -30,21 +32,26 @@ module.exports = {
     postUpdateFrame: async (req, res) => {
         try {
             part = req.query.type
-            if(part == 'frame') await req.db.frameCol.update({"_id": req.body.frameID}, {$set: req.body.data})
-            else if(part == 'box') await req.db.frameCol.update(
-                {
-                    "_id": req.body.frameID
-                }, 
-                {
-                    $set: {
-                        'boxes.$[element]': req.body.data
+            if(part == 'frame') {
+                await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: req.body.data})
+                res.json({message: "frame updated", status: 200})
+            }
+            else if(part == 'box') {
+                console.log(req.body)
+                let respons = await req.db.frameCol.updateOne(
+                    {
+                        "_id": ObjectID(req.body.frameID)
+                    }, 
+                    {
+                        $set: {
+                            'boxes': req.body.data
+                        }
                     }
-                },
-                {   
-                    arrayFilters: [ { element: req.body.boxID } ]
-                }
-            )
-            else if(part == 'task') await req.db.frameCol.update(
+                )
+                console.log(respons)
+                res.json({message: "box update", status: 200})
+            }
+            else if(part == 'task') await req.db.frameCol.updateOne(
                 {
                     "_id": req.body.frameID
                 },
