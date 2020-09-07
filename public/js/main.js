@@ -4,6 +4,9 @@ const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+Array.prototype.removeClass = function(param) {
+    this.forEach(item => item.classList.remove(param))
+}
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
 String.prototype.indicesOf = function(searchStr, caseSensitive) { 
@@ -32,6 +35,7 @@ let user = new User()
 let frame
 let editor
 let dragAndDrop = new DragAndDrop()
+let contextMenu = new ContextMenu()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -52,13 +56,14 @@ document.addEventListener("click", e => {
     const id = targetId(e)
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    contextMenu.toggleMenu(false)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
     
     if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
 
-        // ? why??? e = e || window.event; e.preventDefault()
+        // ? why??? e = e || window.event e.preventDefault()
         
         const input = queryTarget('.active-editor').children.editor
         if(id === 'bold') tools.wrapSelectedText(input, '*')
@@ -72,7 +77,10 @@ document.addEventListener( 'mousedown', e => {
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)
     }
-    
+})
+document.addEventListener( 'resize', () => {
+    if(!contextMenu) return
+    contextMenu.toggleMenu(false)
 })
 function TestData() {
     this.login = {
@@ -114,6 +122,33 @@ function Announce() {
     inputSuccess = id => console.log('success', id)
     inputError = (message, id) => console.log(message, id)
 }
+function ContextMenu() {
+    let isMenuActive = false
+    const menu = queryTarget('#context-menu')
+
+    document.addEventListener( 'contextmenu', e => {
+        if (targetId(e) === 'task') {
+            e.preventDefault()
+            this.toggleMenu(true)
+            this.positionMenu(e)
+        } else this.toggleMenu(false)
+    })
+
+    this.toggleMenu = state => {
+        if(isMenuActive && !state) {
+            isMenuActive = false
+            menu.classList.remove('active')
+        } else if(!isMenuActive && state) {
+            isMenuActive = true
+            menu.classList.add('active')
+        }
+    }
+
+    this.positionMenu = (e) => {
+        const {posX, posY} = tools.getPositionOfEvent(e)
+        tools.positionAbsoluteBoxAt(menu, posX, posY)
+    }
+}
 function Cookie() {
 	this.destroy = key => this.create(key,"",-1)
 	this.check = key => this.get(key) ? true : false
@@ -141,69 +176,75 @@ function Cookie() {
 }
 function DragAndDrop() {
     let dragSrcEl = null
-    this.items = [...document.querySelectorAll('.container-dnd .task-dnd')]
+    let dragType = false
+    let cancelLeave
+    
+    this.tasks = () => [...queryTargetAll('.box .task')]
+    this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
-      e.target.style.opacity = '0.4'
-      
-      dragSrcEl = e.target
-  
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('text/html', e.target.innerHTML)
+        dragSrcEl = e.target
+        dragType = e.target.id
+
+        e.target.style.opacity = '0.4'
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', e.target.innerHTML)
     }
-  
+    
     this.handleDragOver = e => {
-      if (e.preventDefault) {
         e.preventDefault()
-      }
-  
-      e.dataTransfer.dropEffect = 'move'
-      
-      return false
+        e.dataTransfer.dropEffect = 'move'
     }
-  
+    
     this.handleDragEnter = e => {
-      e.target.classList.add('over')
+        if(dragType === 'box')
+            dragSrcEl.id !== e.target.id ? e.target.parentElement.classList.add('over') : e.target.classList.add('over')
+        else if(dragType === 'task')
+            if(dragSrcEl.id === e.target.id) e.target.classList.add('over')
+        if(e.target.id === 'task') cancelLeave = true
     }
-  
+    
     this.handleDragLeave = e => {
-      e.target.classList.remove('over')
+        if(dragType === 'box') {
+            if(e.target.id === 'box' && !cancelLeave)
+                this.boxes().removeClass('over')
+        } else if(dragType === 'task') {
+            e.target.classList.remove('over')
+        }
+        cancelLeave = false
     }
-  
+    
     this.handleDrop = e => {
-      if (e.stopPropagation) {
         e.stopPropagation()
-      }
-      
-      if (dragSrcEl != e.target) {
-        dragSrcEl.innerHTML = e.target.innerHTML
-        e.target.innerHTML = e.dataTransfer.getData('text/html')
-      }
-      
-      return false
+        const srcHTML = e.dataTransfer.getData('text/html')
+        
+        if(dragType === 'box' && dragSrcEl.id === e.target.parentElement.id && e.target.parentElement) {
+            dragSrcEl.innerHTML = e.target.parentElement.innerHTML
+            e.target.parentElement.innerHTML = srcHTML
+        } else if(dragType === 'box' || (dragType === 'task' && dragSrcEl.id === e.target.id)) {
+            dragSrcEl.innerHTML = e.target.innerHTML
+            e.target.innerHTML = srcHTML
+        }
     }
-  
+    
     this.handleDragEnd = e => {
-      e.target.style.opacity = '1'
-      
-      this.items.forEach(item => {
-        item.classList.remove('over')
-      })
+        e.target.style.opacity = 1
+        this.tasks().removeClass('over')
+        this.boxes().removeClass('over')
     }
-    
-    
     
     const addDndEventListener = item => {
-      item.addEventListener('dragstart', this.handleDragStart, false)
-      item.addEventListener('dragenter', this.handleDragEnter, false)
-      item.addEventListener('dragover', this.handleDragOver, false)
-      item.addEventListener('dragleave', this.handleDragLeave, false)
-      item.addEventListener('drop', this.handleDrop, false)
-      item.addEventListener('dragend', this.handleDragEnd, false)
+        item.addEventListener('dragstart', this.handleDragStart, false)
+        item.addEventListener('dragenter', this.handleDragEnter, false)
+        item.addEventListener('dragover', this.handleDragOver, false)
+        item.addEventListener('dragleave', this.handleDragLeave, false)
+        item.addEventListener('drop', this.handleDrop, false)
+        item.addEventListener('dragend', this.handleDragEnd, false)
     }
     
-    this.items.forEach(item => addDndEventListener(item))
-   
+    this.tasks().forEach(task => addDndEventListener(task))
+    this.boxes().forEach(box => addDndEventListener(box))
+    
 }
 function Editor(e) {
 	if(!e) return
@@ -284,6 +325,7 @@ function Form() {
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
+            console.log(response)
             if(!response) throw 'attempt failed'
             if(!['login', 'signUp'].contains(id)) return
             if(!response.user) return
@@ -326,7 +368,7 @@ function Frame(frame) {
 	this.getBoxes = () => boxes
 
 	const data = {
-		id: frame.id,
+		id: frame._id,
 		title: frame.title,
 		description: frame.description,
 		author: frame.author,
@@ -355,50 +397,36 @@ function Frame(frame) {
 			})),
 		})),
 	}))
-	/* const getInput = () => {
+	const getInput = () => {
 
 	}
 
-	this.toggleFrame = async() => {
+	this.CRUD = async (method, type, e) => {
 		if(!user.data) return
-		const id = getInput(e)
-		if(!id) return 
-		const response = await server.postFetch('read', {id, token: cookie.get('token')})
-		if(response.status !== 200) return
-		if(response.frame) frame = new Frame(response.frame)
-	}
-	this.create = async (type, e) => {
-		if(!user.data) return
-		const input = getInput(e)
-		if(!input) return 
-		const response = await server.postFetch('create', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
-
-		if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-		else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
-	}
-	this.update = async(e) => {
-		if(!user.data) return
-		const input = getInput(e)
-		if(!input) return 
-		const response = await server.postFetch('update', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
-
-		if(type === 'frame') if(response.frame) ''
-		else if(['box', 'task', 'subtask'].contains(type)) ''
-	}
-	this.delete = async (type, e) =>  {
-		if(!user.data) return
-		const input = getInput(e)
+		const input = getInput(method, type, e)
 		if(!input) return
-		const response = await server.postFetch('delete', {type, input, token: cookie.get('token')})
+		const response = await server.postFetch('method', {method, input, token: cookie.get('token')})
 		if(response.status !== 200) return
 
-		if(type === 'frame') frame = new Frame()
+		if(method === 'create') {
+			if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+			else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+		}
+		if(method === 'read') {
+			if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+			else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+		}
+		if(method === 'update') {
+			if(type === 'frame') if(response.frame) ''
+			else if(['box', 'task', 'subtask'].contains(type)) ''
+		}
+		if(method === 'delete') {
+			if(type === 'frame') frame = new Frame()
 		else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+		}
 	}
 
-	this.insert('#frame', render.frame(data, this.getBoxes())) */
+	// this.insert('#frame', render.frame(data, this.getBoxes()))
 } // 200 = all okej, 400 = did not find data, 500 = server fucked up
 function Render() {
 	this.frame = data => {
@@ -429,8 +457,8 @@ function Server() {
 	const action = {
 		signUp: "/signUp",
 		login: "/login",
-		read: "/frame/read",
 		create: "/frame/create",
+		read: "/frame/read",
 		delete: "/frame/delete",
 		update: "/frame/update",
 	}
@@ -516,7 +544,7 @@ function Tools() {
 			if(notSymbol) output += char
 		})
 		return output
-	} // adijidjsaijdjadjasdjako * pfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapå _ wfo | a * jadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfo | ajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadja _ sdjakopfjaeoifihpfwhgoapåwfoaj
+	}
 
 	this.removeBlacklistedChars = (text, blacklist) => {
 		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
@@ -535,6 +563,34 @@ function Tools() {
 		this.keepPositionY(resizeTextarea)
 	}
 	this.setAreaHeight = (targetEl, valueInPx) => targetEl.style.height = valueInPx
+
+	this.getPositionOfEvent = e =>{
+		let posx, posy
+	
+		e = !e ? e = window.event : e
+		
+		if (e.pageX || e.pageY) {
+		  posx = e.pageX
+		  posy = e.pageY
+		} else if (e.clientX || e.clientY) {
+		  posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+		  posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+		}
+	
+		return {
+		  posX: posx,
+		  posY: posy
+		}
+	}
+	this.positionAbsoluteBoxAt = (target, x, y) => {
+        targetWidth = target.offsetWidth + 4
+        targetHeight = target.offsetHeight + 4
+        documentWidth = document.innerWidth
+        documentHeight = document.innerHeight
+
+        target.style.left = ((documentWidth - x) < targetWidth) ? `${documentWidth - targetWidth}px` : `${x}px`
+        target.style.top = ((documentHeight - y) < targetHeight) ? `${documentHeight - targetHeight}px` : `${y}px`
+    }
 }
 function User(datas) {
 	let data
@@ -555,7 +611,7 @@ function User(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
 			data = {
-				id: datas.user.id,
+				id: datas.user._id,
 				name: datas.user.name,
 				email: datas.user.email,
 			}

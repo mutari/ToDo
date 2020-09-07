@@ -17,7 +17,7 @@ function User(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
 			data = {
-				id: datas.user.id,
+				id: datas.user._id,
 				name: datas.user.name,
 				email: datas.user.email,
 			}

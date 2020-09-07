@@ -1,11 +1,31 @@
-.container-dnd
-	display: flex
-	width: 33%
-	& > .task-dnd
-		width: 100%
-		background-color: black
-		color:#fff
+.frame
+	padding: 40px
+	background-color: #696969
+	display: grid
+	grid-template-columns: repeat( 3, minmax(200px, 1fr) )
+	grid-column-gap: 6px
+	grid-row-gap: 6px
+
+	& > .box
+		border: 2px dotted transparent
+		background-color: #969696
 		padding: 20px
-		margin: 2px
-		& > p
-			@extend .inactive-link
+		margin: 0 30px
+		&:nth-child(even)
+			background-color: green
+		&.over
+			opacity: .9
+			border: 2px dotted red
+
+		& > .task
+			border: 2px dotted transparent
+			width: 100%
+			background-color: black
+			color:#fff
+			padding: 20px
+			margin: 0 0 10px 0
+			& > p
+				@extend .inactive-link
+			&.over
+				opacity: .9
+				border: 2px dotted red

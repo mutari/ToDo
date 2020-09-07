@@ -22,8 +22,8 @@ function Server() {
 	const action = {
 		signUp: "/signUp",
 		login: "/login",
-		read: "/frame/read",
 		create: "/frame/create",
+		read: "/frame/read",
 		delete: "/frame/delete",
 		update: "/frame/update",
 	}

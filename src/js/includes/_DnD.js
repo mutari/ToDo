@@ -1,66 +1,72 @@
 function DragAndDrop() {
     let dragSrcEl = null
-    this.items = [...document.querySelectorAll('.container-dnd .task-dnd')]
+    let dragType = false
+    let cancelLeave
+    
+    this.tasks = () => [...queryTargetAll('.box .task')]
+    this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
-      e.target.style.opacity = '0.4'
-      
-      dragSrcEl = e.target
-  
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('text/html', e.target.innerHTML)
+        dragSrcEl = e.target
+        dragType = e.target.id
+
+        e.target.style.opacity = '0.4'
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', e.target.innerHTML)
     }
-  
+    
     this.handleDragOver = e => {
-      if (e.preventDefault) {
         e.preventDefault()
-      }
-  
-      e.dataTransfer.dropEffect = 'move'
-      
-      return false
+        e.dataTransfer.dropEffect = 'move'
     }
-  
+    
     this.handleDragEnter = e => {
-      e.target.classList.add('over')
+        if(dragType === 'box')
+            dragSrcEl.id !== e.target.id ? e.target.parentElement.classList.add('over') : e.target.classList.add('over')
+        else if(dragType === 'task')
+            if(dragSrcEl.id === e.target.id) e.target.classList.add('over')
+        if(e.target.id === 'task') cancelLeave = true
     }
-  
+    
     this.handleDragLeave = e => {
-      e.target.classList.remove('over')
+        if(dragType === 'box') {
+            if(e.target.id === 'box' && !cancelLeave)
+                this.boxes().removeClass('over')
+        } else if(dragType === 'task') {
+            e.target.classList.remove('over')
+        }
+        cancelLeave = false
     }
-  
+    
     this.handleDrop = e => {
-      if (e.stopPropagation) {
         e.stopPropagation()
-      }
-      
-      if (dragSrcEl != e.target) {
-        dragSrcEl.innerHTML = e.target.innerHTML
-        e.target.innerHTML = e.dataTransfer.getData('text/html')
-      }
-      
-      return false
+        const srcHTML = e.dataTransfer.getData('text/html')
+        
+        if(dragType === 'box' && dragSrcEl.id === e.target.parentElement.id && e.target.parentElement) {
+            dragSrcEl.innerHTML = e.target.parentElement.innerHTML
+            e.target.parentElement.innerHTML = srcHTML
+        } else if(dragType === 'box' || (dragType === 'task' && dragSrcEl.id === e.target.id)) {
+            dragSrcEl.innerHTML = e.target.innerHTML
+            e.target.innerHTML = srcHTML
+        }
     }
-  
+    
     this.handleDragEnd = e => {
-      e.target.style.opacity = '1'
-      
-      this.items.forEach(item => {
-        item.classList.remove('over')
-      })
+        e.target.style.opacity = 1
+        this.tasks().removeClass('over')
+        this.boxes().removeClass('over')
     }
-    
-    
     
     const addDndEventListener = item => {
-      item.addEventListener('dragstart', this.handleDragStart, false)
-      item.addEventListener('dragenter', this.handleDragEnter, false)
-      item.addEventListener('dragover', this.handleDragOver, false)
-      item.addEventListener('dragleave', this.handleDragLeave, false)
-      item.addEventListener('drop', this.handleDrop, false)
-      item.addEventListener('dragend', this.handleDragEnd, false)
+        item.addEventListener('dragstart', this.handleDragStart, false)
+        item.addEventListener('dragenter', this.handleDragEnter, false)
+        item.addEventListener('dragover', this.handleDragOver, false)
+        item.addEventListener('dragleave', this.handleDragLeave, false)
+        item.addEventListener('drop', this.handleDrop, false)
+        item.addEventListener('dragend', this.handleDragEnd, false)
     }
     
-    this.items.forEach(item => addDndEventListener(item))
-   
+    this.tasks().forEach(task => addDndEventListener(task))
+    this.boxes().forEach(box => addDndEventListener(box))
+    
 }

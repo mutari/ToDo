@@ -4,6 +4,9 @@ const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+Array.prototype.removeClass = function(param) {
+    this.forEach(item => item.classList.remove(param))
+}
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
 String.prototype.indicesOf = function(searchStr, caseSensitive) { 
@@ -32,6 +35,7 @@ let user = new User()
 let frame
 let editor
 let dragAndDrop = new DragAndDrop()
+let contextMenu = new ContextMenu()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -52,13 +56,14 @@ document.addEventListener("click", e => {
     const id = targetId(e)
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    contextMenu.toggleMenu(false)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
     
     if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
 
-        // ? why??? e = e || window.event; e.preventDefault()
+        // ? why??? e = e || window.event e.preventDefault()
         
         const input = queryTarget('.active-editor').children.editor
         if(id === 'bold') tools.wrapSelectedText(input, '*')
@@ -72,5 +77,8 @@ document.addEventListener( 'mousedown', e => {
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)
     }
-    
+})
+document.addEventListener( 'resize', () => {
+    if(!contextMenu) return
+    contextMenu.toggleMenu(false)
 })
