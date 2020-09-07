@@ -31,6 +31,7 @@ const cookie = new Cookie()
 let user = new User()
 let frame
 let editor
+let dragAndDrop = new DragAndDrop()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()

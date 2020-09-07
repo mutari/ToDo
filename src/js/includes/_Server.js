@@ -20,11 +20,13 @@ function Server() {
 	}
 
 	const action = {
-		init: "",
 		signUp: "/signUp",
 		login: "/login",
+		read: "/frame/read",
+		create: "/frame/create",
+		delete: "/frame/delete",
+		update: "/frame/update",
 	}
-	getUrl = dest => `ToDo${action[dest]}`
 
 	const postOption = data => ({
 		method: 'POST',
@@ -33,4 +35,5 @@ function Server() {
 		},
 		body: JSON.stringify(data)
 	})
+	const getUrl = dest => `ToDo${action[dest]}`
 }

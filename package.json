@@ -108,6 +108,8 @@
     "gulp-sass": "^4.1.0"
   },
   "scripts": {
-    "watch": "gulp watch"
+    "watch": "npm run gulp && npm run nodemon",
+    "gulp": "gulp watch",
+    "nodemon": "nodemon"
   }
 }

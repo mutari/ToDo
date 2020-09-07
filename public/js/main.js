@@ -31,6 +31,7 @@ const cookie = new Cookie()
 let user = new User()
 let frame
 let editor
+let dragAndDrop = new DragAndDrop()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -137,6 +138,72 @@ function Cookie() {
 		date.setTime(date.getTime()+(days*24*60*60*1000))
 		return`; expires=${date.toGMTString()}`
 	}
+}
+function DragAndDrop() {
+    let dragSrcEl = null
+    this.items = [...document.querySelectorAll('.container-dnd .task-dnd')]
+    
+    this.handleDragStart = e => {
+      e.target.style.opacity = '0.4'
+      
+      dragSrcEl = e.target
+  
+      e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.setData('text/html', e.target.innerHTML)
+    }
+  
+    this.handleDragOver = e => {
+      if (e.preventDefault) {
+        e.preventDefault()
+      }
+  
+      e.dataTransfer.dropEffect = 'move'
+      
+      return false
+    }
+  
+    this.handleDragEnter = e => {
+      e.target.classList.add('over')
+    }
+  
+    this.handleDragLeave = e => {
+      e.target.classList.remove('over')
+    }
+  
+    this.handleDrop = e => {
+      if (e.stopPropagation) {
+        e.stopPropagation()
+      }
+      
+      if (dragSrcEl != e.target) {
+        dragSrcEl.innerHTML = e.target.innerHTML
+        e.target.innerHTML = e.dataTransfer.getData('text/html')
+      }
+      
+      return false
+    }
+  
+    this.handleDragEnd = e => {
+      e.target.style.opacity = '1'
+      
+      this.items.forEach(item => {
+        item.classList.remove('over')
+      })
+    }
+    
+    
+    
+    const addDndEventListener = item => {
+      item.addEventListener('dragstart', this.handleDragStart, false)
+      item.addEventListener('dragenter', this.handleDragEnter, false)
+      item.addEventListener('dragover', this.handleDragOver, false)
+      item.addEventListener('dragleave', this.handleDragLeave, false)
+      item.addEventListener('drop', this.handleDrop, false)
+      item.addEventListener('dragend', this.handleDragEnd, false)
+    }
+    
+    this.items.forEach(item => addDndEventListener(item))
+   
 }
 function Editor(e) {
 	if(!e) return
@@ -253,10 +320,10 @@ function Form() {
     })
 }
 function Frame(frame) {
-	if(!frame) return
+	this.insert = (into, content) => queryTarget(into).innerHTML = content
+	if(!frame) this.insert('#frame', '')
 	this.getData = () => data
 	this.getBoxes = () => boxes
-	this.eject = () => queryTarget('#frame').innerHTML = ''
 
 	const data = {
 		id: frame.id,
@@ -286,14 +353,53 @@ function Frame(frame) {
 				text: subtask.text,
 				member: subtask.member,
 			})),
-		}))
+		})),
 	}))
-	const inject = () => {
-		queryTarget('#frame').innerHTML = themplate.frame(data)
-		editor = new Editor()
+	/* const getInput = () => {
+
 	}
-	//inject()
-}
+
+	this.toggleFrame = async() => {
+		if(!user.data) return
+		const id = getInput(e)
+		if(!id) return 
+		const response = await server.postFetch('read', {id, token: cookie.get('token')})
+		if(response.status !== 200) return
+		if(response.frame) frame = new Frame(response.frame)
+	}
+	this.create = async (type, e) => {
+		if(!user.data) return
+		const input = getInput(e)
+		if(!input) return 
+		const response = await server.postFetch('create', {type, input, token: cookie.get('token')})
+		if(response.status !== 200) return
+
+		if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+		else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+	}
+	this.update = async(e) => {
+		if(!user.data) return
+		const input = getInput(e)
+		if(!input) return 
+		const response = await server.postFetch('update', {type, input, token: cookie.get('token')})
+		if(response.status !== 200) return
+
+		if(type === 'frame') if(response.frame) ''
+		else if(['box', 'task', 'subtask'].contains(type)) ''
+	}
+	this.delete = async (type, e) =>  {
+		if(!user.data) return
+		const input = getInput(e)
+		if(!input) return
+		const response = await server.postFetch('delete', {type, input, token: cookie.get('token')})
+		if(response.status !== 200) return
+
+		if(type === 'frame') frame = new Frame()
+		else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+	}
+
+	this.insert('#frame', render.frame(data, this.getBoxes())) */
+} // 200 = all okej, 400 = did not find data, 500 = server fucked up
 function Render() {
 	this.frame = data => {
 		return 
@@ -321,11 +427,13 @@ function Server() {
 	}
 
 	const action = {
-		init: "",
 		signUp: "/signUp",
 		login: "/login",
+		read: "/frame/read",
+		create: "/frame/create",
+		delete: "/frame/delete",
+		update: "/frame/update",
 	}
-	getUrl = dest => `ToDo${action[dest]}`
 
 	const postOption = data => ({
 		method: 'POST',
@@ -334,6 +442,7 @@ function Server() {
 		},
 		body: JSON.stringify(data)
 	})
+	const getUrl = dest => `ToDo${action[dest]}`
 }
 function Themplates() {
 	this.frame = () => `
@@ -435,14 +544,13 @@ function User(datas) {
 	this.logOut = () => {
 		cookie.destroy('token')
 		user = new User()
-		frame.eject()
-		frame = new Frame()
+		// frame = new Frame()
 	}
 
 	this.changeFrame = () => {
 		
 	}
-	this.init = async () => {
+	this.init = async (datas) => {
 		if(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
@@ -456,12 +564,17 @@ function User(datas) {
 				title: frame.id,
 			}))
 		} else {
-			const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : ''
-			if(!response.user) return
-			user = new User(response)
+			try {
+				const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : '';
+				console.log(response)
+				if(!response.user) return
+				user = new User(response)
+			} catch (error) {
+				console.log(error)
+			}
 		}
 	}
-	this.init()
+	this.init(datas)
 }
 function Validate() {
     let password
