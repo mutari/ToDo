@@ -17,7 +17,11 @@ module.exports = {
 
     postGetFrame: async (req, res) => {
         try {
-            frameId = req.body.id
+            user = await req.db.userCol.findOne({email: req.token.email})
+            frameId = null
+            if(req.body.id) frameId = req.body.id
+            else if(req.token.latestFrame) frameId = user.latest_frame
+            else throw "need framed id"
             userId = req.token.id
             data = await req.db.frameCol.findOne({
                 $and: [
