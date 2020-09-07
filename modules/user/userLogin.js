@@ -4,6 +4,8 @@ module.exports = async (req, res, next) => {
     const jwt = require('jsonwebtoken')
     const ObjectID = require('mongodb').ObjectID
 
+    console.log(req.body)
+
     //på något sätt måste jag hämta lösen i från databas
     let user = await req.db.userCol.findOne({"email": req.body.email})
 
@@ -23,7 +25,7 @@ module.exports = async (req, res, next) => {
                 next()
             }
             else {
-                console.error(err, 'password faild')
+                console.log('password faild:  ', err)
                 req.token = {message: "Sign in faild", status: 400}
                 next()
             }
@@ -31,7 +33,7 @@ module.exports = async (req, res, next) => {
         })
     }
     else {
-        console.log('user do not exists ')
+        console.log('user do not exists: ', user)
         req.token = {message: "Sign in faild", status: 400}
         next()
     }

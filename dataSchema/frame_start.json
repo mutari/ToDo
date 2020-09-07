@@ -7,10 +7,12 @@
     "members": [],
     "boxes": [
         {
+            "id": 0,
             "name": "To-do", 
             "color": "white",
             "tasks": [
                 { 
+                    "id": 0,
                     "text": "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
                     "description": "", 
                     "members": [], 
@@ -20,6 +22,7 @@
                     "labels": ["New-task"]
                 },
                 { 
+                    "id": 1,
                     "text": "To edit a task simply click on it", 
                     "description": "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
                     "members": [], 
@@ -27,11 +30,13 @@
                     "date": "",
                     "subtasks": [
                         {
+                            "id": 0,
                             "text": "Create a subtask",
                             "state": "true",
                             "member": []
                         },
                         {
+                            "id": 1,
                             "text": "Deleat a subtask",
                             "state": "false",
                             "member": []
@@ -42,17 +47,20 @@
             ]
         },
         {
+            "id": 1,
             "name": "Do today", 
             "color": "white",
             "tasks": []
         },
         {
+            "id": 2,
             "name": "In progress", 
             "color": "white",
             "tasks": [],
             "max-tasks": 3
         },
         {
+            "id": 3,
             "name": "Done", 
             "color": "white",
             "tasks": []

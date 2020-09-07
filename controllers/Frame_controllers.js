@@ -5,34 +5,58 @@ module.exports = {
         body: {id: id}
 
         /update/frame?type="frame|box|task|subtask"
-        body: {frameID: id, boxID: id, taskID: id}
+        body: {frameID: id, boxID: id, taskID: id, subtaskID: id}
 
         /create/frame
         body: {}
 
         /delete/frame?type="frame|box|task|subtask"
-        body: {frameID: id, boxID: id, taskID: id}
+        body: {frameID: id, boxID: id, taskID: id, subtaskID: id}
 
     */
 
     postGetFrame: async (req, res) => {
         try {
-            frameId = req.body.id
-            userId = req.token.id
             data = await req.db.frameCol.findOne({
                 $and: [
-                    {"_id": frameId}
+                    {"_id": req.body.id},
+                    {"members": req.token.id}
                 ]
             })
-            res.json(data)
-        } catch (error) {
-            console.error(error)
-        }
+            if(data) res.json(data)
+            else res.json({message: "could not find frame data", status: 400})
+        } catch (error) { console.error(error); }
     },
     postUpdateFrame: async (req, res) => {
         try {
             part = req.query.type
-            await req.db.frameCol.update({"_id": req.body.frameID})
+            if(part == 'frame') await req.db.frameCol.update({"_id": req.body.frameID}, {$set: req.body.data})
+            else if(part == 'box') await req.db.frameCol.update(
+                {
+                    "_id": req.body.frameID
+                }, 
+                {
+                    $set: {
+                        'boxes.$[element]': req.body.data
+                    }
+                },
+                {   
+                    arrayFilters: [ { element: req.body.boxID } ]
+                }
+            )
+            else if(part == 'task') await req.db.frameCol.update(
+                {
+                    "_id": req.body.frameID
+                },
+                {
+                    $set: {
+                        'boxes.$[boxs].tasks.$[tasks]': req.body.data
+                    }
+                },
+                {
+                    arrayFilters: [ {boxs: req.body.boxID, tasks: req.body.taskID} ]
+                }
+            )
         } catch (error) {
             console.error(error)
         }
