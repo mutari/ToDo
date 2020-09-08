@@ -27,11 +27,11 @@ module.exports = {
                 req.body.hash = hash
                 req.body.frames = []
                 await req.db.userCol.insertOne(req.body)
+                res.redirect(307, '/ToDo/login')
             }) 
-    
-            res.redirect(307, '/ToDo/login')
         } catch (error) {
             console.log(error)
+            res.json({message: "sign upp error", status: 500})
         }
     },
     postUser: async (req, res) => {
