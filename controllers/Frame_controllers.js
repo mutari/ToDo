@@ -36,13 +36,23 @@ module.exports = {
                 await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: req.body.data})
                 res.json({message: "frame updated", status: 200})
             }
-            else if(part == 'box') {
+            else if(part == 'box' || part == 'task' || part == 'subtask') {
                 let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameID)})
 
                 respons.boxes = respons.boxes.map(e => {
-                    if(e.id == req.body.boxID) {
+                    if(e.id == req.body.boxID && !req.body.taskID)
                         Object.assign(e, req.body.data)
-                    }
+                    else if(e.id == req.body.boxID)
+                        respons.boxes.tasks = e.tasks.map(el => {
+                            if(el.id == req.body.taskID && !req.body.subtaskID)
+                                Object.assign(el, req.body.data)
+                            else if(el.id == req.body.taskID)
+                                respons.boxes.subtasks = e.tasks.map(ele => {
+                                    if(ele.id == req.body.subtaskID && !req.body.subtaskID)
+                                        Object.assign(ele, req.body.data)
+                                })
+
+                        })
                     return e
                 })
 
