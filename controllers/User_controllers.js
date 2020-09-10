@@ -34,7 +34,7 @@ module.exports = {
             res.json({message: "sign upp error", status: 500})
         }
     },
-    postUser: async (req, res) => {
+    postGetUser: async (req, res) => {
         let data = {}
 
         let user = await req.db.userCol.findOne({"_id": req.token.id})
@@ -44,5 +44,8 @@ module.exports = {
         data.frame = frame;
 
         res.json(data)
+    },
+    postUpdateUser: async () => {
+        let user = await req.db.updateOne({"_id": req.token.id}, {"$set": req.body})
     }
 }
