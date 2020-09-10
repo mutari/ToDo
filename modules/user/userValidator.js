@@ -12,6 +12,8 @@ module.exports = {
             .escape()
             .not().isEmpty(),
         body('password')
+            .trim()
+            .escape()
     ],
 
     login: [
@@ -20,6 +22,8 @@ module.exports = {
             .normalizeEmail()
             .not().isEmpty(),
         body('password')
+            .trim()
+            .escape()
     ]
 
 }

@@ -3,22 +3,26 @@ const ObjectID = require('mongodb').ObjectID
 
 module.exports = {
     postLogin: async (req, res) => {// självklart kommer lösenord kontrol och så vidare
-        let data = {} // i data objektet ska både user data samt frame data och hash data 
+        try {
+            let data = {} // i data objektet ska både user data samt frame data och hash data 
         
-        //get user data
-        let user = await req.db.userCol.findOne({"email": req.body.email})
-        if (user) data.user = user
-        else {res.json({message: "Could not find a user white that email in the database", status: 400}); return}
+            //get user data
+            let user = await req.db.userCol.findOne({"email": req.body.email})
+            if (user) data.user = user
+            else {res.json({message: "Could not find a user white that email in the database", status: 400}); return}
 
-        //get frame data
-        let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
-        if (frame) data.frame = frame
-        else data = await require('../modules/generateStartFrame.js')(req, user, data) //generates a new frame
+            //get frame data
+            let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
+            if (frame) data.frame = frame
+            else data = await require('../modules/generateStartFrame.js')(req, user, data) //generates a new frame
 
-        data.token = req.token
-        console.log(data)
+            data.token = req.token
+            console.log(data)
 
-        res.json(data)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+        }
     },
     postSignUp: async (req, res) => {
         try {
@@ -35,17 +39,34 @@ module.exports = {
         }
     },
     postGetUser: async (req, res) => {
-        let data = {}
+        try {
+            let data = {}
 
-        let user = await req.db.userCol.findOne({"_id": req.token.id})
-        data.user = user;
+            let user = await req.db.userCol.findOne({"_id": ObjectID(req.token.id)})
+            if(user) data.user = user;
+            else {
+                res.json({message: "could not fin user", status: 400})
+            }
 
-        let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
-        data.frame = frame;
+            let frame = await req.db.frameCol.findOne({"_id": ObjectID(user.selected_frame)})
+            if(frame) data.frame = frame;
+            else {
+                res.json({message: "could not fin frame", status: 400})
+            }
+            data.frame = frame;
 
-        res.json(data)
+            res.json(data)
+        } catch (error) {
+            console.error(error)
+        }
     },
     postUpdateUser: async () => {
-        let user = await req.db.updateOne({"_id": req.token.id}, {"$set": req.body})
+        try {
+            let user = await req.db.updateOne({"_id": req.token.id}, {"$set": req.body})
+
+            res.json({message: "user updated", status: 200})
+        } catch (error) {
+            console.error(error)
+        }
     }
 }
