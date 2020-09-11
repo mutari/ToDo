@@ -16,4 +16,8 @@ router.post("/user", _auth, (req, res) => {
     userControllers.postGetUser(req, res);
 })
 
+router.post("/change/user", _auth, (req, res) => {
+    userControllers.postUpdateUser(req, res);
+})
+
 module.exports = router
