@@ -42,7 +42,7 @@ module.exports = {
             }
         */
         try {
-            part = req.query.type
+            part = req.body.type
             if(part == 'frame') {
                 await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: req.body.data})
                 res.json({message: "frame updated", status: 200})
@@ -77,7 +77,7 @@ module.exports = {
     },
     postCreateFrame: async (req, res) => {
         try {
-            type = req.query.type
+            type = req.body.type
             if(type == 'frame') {
                 require('../modules/rwFiles.js').readFile('/../dataSchema/frame_empty.json', async out => { 
                     frame = out
@@ -102,7 +102,7 @@ module.exports = {
     },
     postDeleteFrame: async (req, res) => {
         try {
-            part = req.query.type
+            part = req.body.type
             if(part == "frame")
                 await req.db.frameCol.remove({"_id": ObjectID(req.body.frameID)})
             else if(part == "box") {
@@ -110,7 +110,9 @@ module.exports = {
                 for(let i = respons.boxes.length - 1; i >= 0; i--)
                     if(respons.boxes[i].id == req.body.boxID) 
                         respons.boxes.splice(i, 1);
-                await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: respons})
+                let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: respons})
+                if(rep)
+                    res.json({message: part + " delete", status: 200})
             }
             else if(part == "task") {
                 respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameID)})
@@ -119,7 +121,9 @@ module.exports = {
                         for(let j = respons.boxes[i].tasks.length - 1; j >= 0; j--)
                             if(respons.boxes[i].tasks[j].id == req.body.taskID) 
                                 respons.boxes[i].tasks.splice(j, 1);
-                await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: respons})
+                let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: respons})
+                if(rep)
+                    res.json({message: part + " delete", status: 200})
             }
             else if(part == "subtask") {
                 respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameID)})
@@ -130,10 +134,11 @@ module.exports = {
                                 for(let x = respons.boxes[i].tasks[j].subtasks.length - 1; x >= 0; x--)
                                     if(respons.boxes[i].tasks[j].subtasks[x].id == req.body.subtaskID)
                                         respons.boxes[i].tasks[j].subtasks.splice(x, 1);
-                await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: respons})
+                let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: respons})
+                if(rep)
+                    res.json({message: part + " delete", status: 200})
             }
-
-            res.json({message: part + " updated", status: 200})
+            res.json({message: "document not deletet?", status: 400})
         } catch (error) {
             console.error(error)
         }
