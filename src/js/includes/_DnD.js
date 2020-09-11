@@ -41,13 +41,16 @@ function DragAndDrop() {
     this.handleDrop = e => {
         e.stopPropagation()
         const srcHTML = e.dataTransfer.getData('text/html')
-        
         if(dragType === 'box' && dragSrcEl.id === e.target.parentElement.id && e.target.parentElement) {
             dragSrcEl.innerHTML = e.target.parentElement.innerHTML
             e.target.parentElement.innerHTML = srcHTML
         } else if(dragType === 'box' || (dragType === 'task' && dragSrcEl.id === e.target.id)) {
             dragSrcEl.innerHTML = e.target.innerHTML
             e.target.innerHTML = srcHTML
+        } else if(dragType === 'task' && e.target.id === 'box') {
+            dragSrcEl.style.opacity = 1
+            e.target.insertAdjacentHTML('beforeend', dragSrcEl.outerHTML)
+            dragSrcEl.remove()
         }
     }
     

@@ -1,31 +1,43 @@
-.frame
-	padding: 40px
-	background-color: #696969
+#renderFrame
 	display: grid
-	grid-template-columns: repeat( 3, minmax(200px, 1fr) )
-	grid-column-gap: 6px
-	grid-row-gap: 6px
-
-	& > .box
-		border: 2px dotted transparent
-		background-color: #969696
-		padding: 20px
-		margin: 0 30px
-		&:nth-child(even)
-			background-color: green
-		&.over
-			opacity: .9
-			border: 2px dotted red
-
-		& > .task
-			border: 2px dotted transparent
+	grid-auto-rows: 100px auto
+	grid-auto-columns: auto
+	grid-template-areas: "title" "frame"
+	height: calc( 100vh - 350px )
+	& > h1
+		grid-area: title
+		height: auto
+	& > .frame
+		grid-area: frame
+		background-color: #696969
+		display: flex
+		align-content: stretch
+		position: relative
+		overflow-x: auto
+		& > .box
+			min-width: 400px
 			width: 100%
-			background-color: black
-			color:#fff
-			padding: 20px
-			margin: 0 0 10px 0
-			& > p
-				@extend .inactive-link
+			border: 2px dotted transparent
+			background-color: #969696
+			padding: 10px 20px 0 0
+			position: relative
+			overflow-y: auto	
+			&:nth-child(even)
+				background-color: green
 			&.over
 				opacity: .9
 				border: 2px dotted red
+			& > h2
+				@extend .inactive-link
+
+			& > .task
+				border: 2px dotted transparent
+				background-color: black
+				color:#fff
+				margin: 2px
+				padding: 20px
+				& > p
+					@extend .inactive-link
+				&.over
+					opacity: .9
+					border: 2px dotted red

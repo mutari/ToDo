@@ -1,21 +1,15 @@
-function ContextMenu() {
-    let isMenuActive = false
+function ContextMenu(e) {
+    const type = [...e.target.classList].find(type => ['frame', 'box', 'task'].includes(type))
+    render.contextMenu(e.target.attributes['data-id'].value, type)
     const menu = queryTarget('#context-menu')
 
-    document.addEventListener( 'contextmenu', e => {
-        if (targetId(e) === 'task') {
-            e.preventDefault()
-            this.toggleMenu(true)
-            this.positionMenu(e)
-        } else this.toggleMenu(false)
-    })
-
     this.toggleMenu = state => {
-        if(isMenuActive && !state) {
-            isMenuActive = false
+        if(!state) {
             menu.classList.remove('active')
-        } else if(!isMenuActive && state) {
-            isMenuActive = true
+            menu.remove()
+            contextMenu = undefined
+        } else if(state) {
+            contextMenu.positionMenu(e)
             menu.classList.add('active')
         }
     }

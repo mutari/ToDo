@@ -22,10 +22,11 @@ function Server() {
 	const action = {
 		signUp: "/signUp",
 		login: "/login",
+		user: "/user",
 		create: "/frame/create",
 		read: "/frame/read",
-		delete: "/frame/delete",
 		update: "/frame/update",
+		delete: "/frame/delete",
 	}
 
 	const postOption = data => ({
@@ -33,7 +34,7 @@ function Server() {
 		headers: {
 		  'Content-Type': 'application/json'
 		},
-		body: JSON.stringify(data)
+		body: JSON.stringify(data),
 	})
 	const getUrl = dest => `ToDo${action[dest]}`
 }

@@ -76,22 +76,22 @@ function Tools() {
 	}
 	this.setAreaHeight = (targetEl, valueInPx) => targetEl.style.height = valueInPx
 
-	this.getPositionOfEvent = e =>{
-		let posx, posy
+	this.getPositionOfEvent = e => {
+		let posX, posY
 	
 		e = !e ? e = window.event : e
 		
 		if (e.pageX || e.pageY) {
-		  posx = e.pageX
-		  posy = e.pageY
+		  posX = e.pageX
+		  posY = e.pageY
 		} else if (e.clientX || e.clientY) {
-		  posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
-		  posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+		  posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+		  posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
 	
 		return {
-		  posX: posx,
-		  posY: posy
+		  posX: posX,
+		  posY: posY
 		}
 	}
 	this.positionAbsoluteBoxAt = (target, x, y) => {

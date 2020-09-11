@@ -111,33 +111,44 @@
       .context-menu > ul > li:nth-child(3)::before {
         content: '\f2ed'; }
 
-.frame {
-  padding: 40px;
-  background-color: #696969;
+#renderFrame {
   display: grid;
-  grid-template-columns: repeat(3, minmax(200px, 1fr));
-  grid-column-gap: 6px;
-  grid-row-gap: 6px; }
-  .frame > .box {
-    border: 2px dotted transparent;
-    background-color: #969696;
-    padding: 20px;
-    margin: 0 30px; }
-    .frame > .box:nth-child(even) {
-      background-color: green; }
-    .frame > .box.over {
-      opacity: .9;
-      border: 2px dotted red; }
-    .frame > .box > .task {
-      border: 2px dotted transparent;
+  grid-auto-rows: 100px auto;
+  grid-auto-columns: auto;
+  grid-template-areas: "title" "frame";
+  height: calc( 100vh - 350px); }
+  #renderFrame > h1 {
+    grid-area: title;
+    height: auto; }
+  #renderFrame > .frame {
+    grid-area: frame;
+    background-color: #696969;
+    display: flex;
+    align-content: stretch;
+    position: relative;
+    overflow-x: auto; }
+    #renderFrame > .frame > .box {
+      min-width: 400px;
       width: 100%;
-      background-color: black;
-      color: #fff;
-      padding: 20px;
-      margin: 0 0 10px 0; }
-      .frame > .box > .task.over {
+      border: 2px dotted transparent;
+      background-color: #969696;
+      padding: 10px 20px 0 0;
+      position: relative;
+      overflow-y: auto; }
+      #renderFrame > .frame > .box:nth-child(even) {
+        background-color: green; }
+      #renderFrame > .frame > .box.over {
         opacity: .9;
         border: 2px dotted red; }
+      #renderFrame > .frame > .box > .task {
+        border: 2px dotted transparent;
+        background-color: black;
+        color: #fff;
+        margin: 2px;
+        padding: 20px; }
+        #renderFrame > .frame > .box > .task.over {
+          opacity: .9;
+          border: 2px dotted red; }
 
 * {
   margin: 0;
@@ -152,7 +163,7 @@ body {
 
 body, html {
   height: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative; }
 
 h1 {
@@ -170,7 +181,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container > p, .frame > .box > .task > p {
+.inactive-link, .editor-container > p, #renderFrame > .frame > .box > h2, #renderFrame > .frame > .box > .task > p {
   pointer-events: none; }
 
 .active-link {
@@ -207,3 +218,6 @@ ul {
   font-size: inherit;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased; }
+
+.above-frame {
+  height: 350px; }
