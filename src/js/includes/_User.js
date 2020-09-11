@@ -1,3 +1,4 @@
+
 function User(datas) {
 	let data
 	let frames
@@ -6,7 +7,7 @@ function User(datas) {
 	this.logOut = () => {
 		cookie.destroy('token')
 		user = new User()
-		// frame = new Frame()
+		frame = new Frame()
 	}
 
 	this.changeFrame = () => {
@@ -17,7 +18,7 @@ function User(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
 			data = {
-				id: datas.user.id,
+				id: datas.user._id,
 				name: datas.user.name,
 				email: datas.user.email,
 			}
@@ -27,10 +28,10 @@ function User(datas) {
 			}))
 		} else {
 			try {
-				const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : '';
-				console.log(response)
-				if(!response.user) return
-				user = new User(response)
+				const {status, data} = await server.postFetch('user', {token: cookie.get('token')})
+				console.log(status, data)
+				if(validate.status(status) || !data) return
+				user = new User(data)
 			} catch (error) {
 				console.log(error)
 			}

@@ -4,6 +4,9 @@ const grandParentId = e => e.target.parentElement.parentElement.id
 const queryTarget = param => document.querySelector(param)
 const queryTargetAll = param => document.querySelectorAll(param)
 Array.prototype.contains = function(obj) { return this.indexOf(obj) > -1 }
+Array.prototype.removeClass = function(param) {
+    this.forEach(item => item.classList.remove(param))
+}
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
 String.prototype.indicesOf = function(searchStr, caseSensitive) { 
@@ -28,14 +31,16 @@ const testData = new TestData()
 const tools = new Tools()
 const server = new Server()
 const cookie = new Cookie()
+const themplates = new Themplates()
+const render = new Render()
 let user = new User()
 let frame
 let editor
 let dragAndDrop = new DragAndDrop()
+let contextMenu
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
-const themplates = new Themplates()
 
 document.addEventListener("input", e => {
     console.log(e.target.type)
@@ -43,8 +48,8 @@ document.addEventListener("input", e => {
     if(['signUp', 'login'].contains(grandParentId(e))) validate.input(e)
 })
 document.addEventListener( "submit", e => {
-    const id = targetId(e)
 	e.preventDefault()
+    const id = targetId(e)
     if(['signUp', 'login'].contains(id)) form.submit(e)
 })
 
@@ -52,13 +57,21 @@ document.addEventListener("click", e => {
     const id = targetId(e)
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    if(contextMenu) {
+        if(grandParentId(e) === 'context-menu') {
+            const dataType = e.target.parentElement.attributes['data-type']
+            if(dataType && frame) frame.CRUD(id, dataType.value, e)
+        }
+        contextMenu.toggleMenu(false)
+    }
+    
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
     
     if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
 
-        // ? why??? e = e || window.event; e.preventDefault()
+        // ? why??? e = e || window.event e.preventDefault()
         
         const input = queryTarget('.active-editor').children.editor
         if(id === 'bold') tools.wrapSelectedText(input, '*')
@@ -72,7 +85,22 @@ document.addEventListener( 'mousedown', e => {
         if(id === 'save') editor.deactivate()
         if(id === 'cancel') editor.deactivate(true)
     }
-    
+})
+document.addEventListener( 'contextmenu', e => {
+    if(contextMenu) {
+        if(!['task', 'box'].contains(targetId(e))) return contextMenu.toggleMenu(false) 
+        contextMenu.toggleMenu(false)
+    }
+    if(!e.target.attributes['data-id']) return
+    e.preventDefault()
+    if(!contextMenu) {
+        contextMenu = new ContextMenu(e)
+        contextMenu.toggleMenu(true) 
+    }
+})
+document.addEventListener( 'resize', () => {
+    if(!contextMenu) return
+    contextMenu.toggleMenu(false)
 })
 function TestData() {
     this.login = {
@@ -86,13 +114,13 @@ function TestData() {
         password: 'aaaaaaaa',
         comfirmPw: 'aaaaaaaa',
     }
-    this.signUp2 = { // invalid name and email (misses "."), password too short and doesn't match comfirm
+    this.signUp2 = { // invaidname and email (misses "."), password too short and doesn't match comfirm
         name: 'Egyuik',
         email: 'test123@test123se',
         password: 'aaaaaaa',
         comfirmPw: 'aaaaaaaa',
     }
-    this.signUp3 = { // invalid name and email (misses "@"), comfirm doesn't match password
+    this.signUp3 = { // invaidname and email (misses "@"), comfirm doesn't match password
         name: 'Egyuik',
         email: 'test123test123.se',
         password: 'aaaaaaaa',
@@ -105,6 +133,454 @@ function TestData() {
         cookie.destroy('name')
         console.log(cookie.check('name'))
     }
+    this.frameJson = {
+        title: "My first board",
+        description: "My first board",
+        author: "",
+        timestampCreated: "",
+        timestampUpdated: "",
+        members: [],
+        boxes: [
+            {
+                id: 0,
+                name: "To-do", 
+                color: "white",
+                tasks: [
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    }
+                ]
+            },
+            {
+                id: 0,
+                name: "To-do", 
+                color: "white",
+                tasks: [
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    }
+                ]
+            },
+            {
+                id: 0,
+                name: "To-do", 
+                color: "white",
+                tasks: [
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    }
+                ]
+            },
+            {
+                id: 0,
+                name: "To-do", 
+                color: "white",
+                tasks: [
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    }
+                ]
+            },
+            {
+                id: 0,
+                name: "To-do", 
+                color: "white",
+                tasks: [
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    }
+                ]
+            },
+            {
+                id: 0,
+                name: "To-do", 
+                color: "white",
+                tasks: [
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 0,
+                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
+                        description: "", 
+                        members: [], 
+                        color: "RED", 
+                        date: "",
+                        subtasks: [], 
+                        labels: ["New-task"]
+                    },
+                    { 
+                        id: 1,
+                        text: "To edit a task simply click on it", 
+                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
+                        members: [], 
+                        color: "BLUE", 
+                        date: "",
+                        subtasks: [
+                            {
+                                id: 0,
+                                text: "Create a subtask",
+                                state: "true",
+                                member: []
+                            },
+                            {
+                                id: 1,
+                                text: "Deleat a subtask",
+                                state: "false",
+                                member: []
+                            }
+                        ], 
+                        labels: ["New-task"]
+                    }
+                ]
+            },
+        ],
+    }
 }
 function Announce() {
     this.formFeedback = errorMessages => {
@@ -113,6 +589,27 @@ function Announce() {
     }
     inputSuccess = id => console.log('success', id)
     inputError = (message, id) => console.log(message, id)
+}
+function ContextMenu(e) {
+    const type = [...e.target.classList].find(type => ['frame', 'box', 'task'].includes(type))
+    render.contextMenu(e.target.attributes['data-id'].value, type)
+    const menu = queryTarget('#context-menu')
+
+    this.toggleMenu = state => {
+        if(!state) {
+            menu.classList.remove('active')
+            menu.remove()
+            contextMenu = undefined
+        } else if(state) {
+            contextMenu.positionMenu(e)
+            menu.classList.add('active')
+        }
+    }
+
+    this.positionMenu = (e) => {
+        const {posX, posY} = tools.getPositionOfEvent(e)
+        tools.positionAbsoluteBoxAt(menu, posX, posY)
+    }
 }
 function Cookie() {
 	this.destroy = key => this.create(key,"",-1)
@@ -141,69 +638,78 @@ function Cookie() {
 }
 function DragAndDrop() {
     let dragSrcEl = null
-    this.items = [...document.querySelectorAll('.container-dnd .task-dnd')]
+    let dragType = false
+    let cancelLeave
+    
+    this.tasks = () => [...queryTargetAll('.box .task')]
+    this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
-      e.target.style.opacity = '0.4'
-      
-      dragSrcEl = e.target
-  
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setData('text/html', e.target.innerHTML)
+        dragSrcEl = e.target
+        dragType = e.target.id
+
+        e.target.style.opacity = '0.4'
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', e.target.innerHTML)
     }
-  
+    
     this.handleDragOver = e => {
-      if (e.preventDefault) {
         e.preventDefault()
-      }
-  
-      e.dataTransfer.dropEffect = 'move'
-      
-      return false
+        e.dataTransfer.dropEffect = 'move'
     }
-  
+    
     this.handleDragEnter = e => {
-      e.target.classList.add('over')
+        if(dragType === 'box')
+            dragSrcEl.id !== e.target.id ? e.target.parentElement.classList.add('over') : e.target.classList.add('over')
+        else if(dragType === 'task')
+            if(dragSrcEl.id === e.target.id) e.target.classList.add('over')
+        if(e.target.id === 'task') cancelLeave = true
     }
-  
+    
     this.handleDragLeave = e => {
-      e.target.classList.remove('over')
+        if(dragType === 'box') {
+            if(e.target.id === 'box' && !cancelLeave)
+                this.boxes().removeClass('over')
+        } else if(dragType === 'task') {
+            e.target.classList.remove('over')
+        }
+        cancelLeave = false
     }
-  
+    
     this.handleDrop = e => {
-      if (e.stopPropagation) {
         e.stopPropagation()
-      }
-      
-      if (dragSrcEl != e.target) {
-        dragSrcEl.innerHTML = e.target.innerHTML
-        e.target.innerHTML = e.dataTransfer.getData('text/html')
-      }
-      
-      return false
+        const srcHTML = e.dataTransfer.getData('text/html')
+        if(dragType === 'box' && dragSrcEl.id === e.target.parentElement.id && e.target.parentElement) {
+            dragSrcEl.innerHTML = e.target.parentElement.innerHTML
+            e.target.parentElement.innerHTML = srcHTML
+        } else if(dragType === 'box' || (dragType === 'task' && dragSrcEl.id === e.target.id)) {
+            dragSrcEl.innerHTML = e.target.innerHTML
+            e.target.innerHTML = srcHTML
+        } else if(dragType === 'task' && e.target.id === 'box') {
+            dragSrcEl.style.opacity = 1
+            e.target.insertAdjacentHTML('beforeend', dragSrcEl.outerHTML)
+            dragSrcEl.remove()
+        }
     }
-  
+    
     this.handleDragEnd = e => {
-      e.target.style.opacity = '1'
-      
-      this.items.forEach(item => {
-        item.classList.remove('over')
-      })
+        e.target.style.opacity = 1
+        this.tasks().removeClass('over')
+        this.boxes().removeClass('over')
     }
-    
-    
     
     const addDndEventListener = item => {
-      item.addEventListener('dragstart', this.handleDragStart, false)
-      item.addEventListener('dragenter', this.handleDragEnter, false)
-      item.addEventListener('dragover', this.handleDragOver, false)
-      item.addEventListener('dragleave', this.handleDragLeave, false)
-      item.addEventListener('drop', this.handleDrop, false)
-      item.addEventListener('dragend', this.handleDragEnd, false)
+        item.addEventListener('dragstart', this.handleDragStart, false)
+        item.addEventListener('dragenter', this.handleDragEnter, false)
+        item.addEventListener('dragover', this.handleDragOver, false)
+        item.addEventListener('dragleave', this.handleDragLeave, false)
+        item.addEventListener('drop', this.handleDrop, false)
+        item.addEventListener('dragend', this.handleDragEnd, false)
     }
     
-    this.items.forEach(item => addDndEventListener(item))
-   
+    this.tasks().forEach(task => addDndEventListener(task))
+    this.boxes().forEach(box => addDndEventListener(box))
+    
 }
 function Editor(e) {
 	if(!e) return
@@ -284,6 +790,7 @@ function Form() {
         const errorMessages = this.errorMessages[id]
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
+            console.log(response)
             if(!response) throw 'attempt failed'
             if(!['login', 'signUp'].contains(id)) return
             if(!response.user) return
@@ -320,13 +827,13 @@ function Form() {
     })
 }
 function Frame(frame) {
-	this.insert = (into, content) => queryTarget(into).innerHTML = content
-	if(!frame) this.insert('#frame', '')
+	if(!frame) queryTarget('#frame').innerHTML = ''
+	//frame = testData.frameJson
 	this.getData = () => data
 	this.getBoxes = () => boxes
 
 	const data = {
-		id: frame.id,
+		id: frame._id,
 		title: frame.title,
 		description: frame.description,
 		author: frame.author,
@@ -338,11 +845,11 @@ function Frame(frame) {
 	}
 	const boxes = frame.boxes.map(box => ({
 		id: box.id,
-		title: box.title,
+		title: box.name,
 		color: box.color,
 		tasks: box.tasks.map(task => ({
 			id: task.id,
-			title: task.title,
+			text: task.text,
 			description: task.description,
 			color: task.color,
 			date: task.date,
@@ -355,56 +862,101 @@ function Frame(frame) {
 			})),
 		})),
 	}))
-	/* const getInput = () => {
-
+	const getInput = (method, type, e) => {
+		const id = e.target.parentElement.attributes['data-id'].value // id from context menu
+		const target = queryTarget(`.${type}[data-id*="${id}"]`) // get the selected element
+		if(type === 'task') {
+			const {id, boxId, frameId} = {
+				id: target.attributes['data-id'],
+				boxId: target.parentElement.attributes['data-id'],
+				frameId: target.parentElement.parentElement.attributes['data-id'],
+			}
+			 return id && boxId && frameId ? {id: id.value, boxId: boxId.value, frameId: frameId.value} : ''
+		} else if(type === 'box') {
+			const {id, frameId} = {
+				id: target.attributes['data-id'],
+				frameId: target.parentElement.attributes['data-id'],
+			}
+			return id && frameId ? {id: id.value, frameId: frameId.value} : ''
+		} else if(type === 'frame') {
+			const id = target.attributes['data-id']
+			return id ? {id: id.value} : ''
+		}
 	}
 
-	this.toggleFrame = async() => {
-		if(!user.data) return
-		const id = getInput(e)
-		if(!id) return 
-		const response = await server.postFetch('read', {id, token: cookie.get('token')})
-		if(response.status !== 200) return
-		if(response.frame) frame = new Frame(response.frame)
-	}
-	this.create = async (type, e) => {
-		if(!user.data) return
-		const input = getInput(e)
-		if(!input) return 
-		const response = await server.postFetch('create', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
-
-		if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-		else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
-	}
-	this.update = async(e) => {
-		if(!user.data) return
-		const input = getInput(e)
-		if(!input) return 
-		const response = await server.postFetch('update', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
-
-		if(type === 'frame') if(response.frame) ''
-		else if(['box', 'task', 'subtask'].contains(type)) ''
-	}
-	this.delete = async (type, e) =>  {
-		if(!user.data) return
-		const input = getInput(e)
+	this.CRUD = async (method, type, e) => {
+		if(!this.getData()) return
+		const input = getInput(method, type, e)
 		if(!input) return
-		const response = await server.postFetch('delete', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
+		console.log(input, method)
+		const response = await server.postFetch(method, {type, input, token: cookie.get('token')})
+		console.log(response)
+		if(validate.status(response.status)) return
 
-		if(type === 'frame') frame = new Frame()
-		else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+		DOMHandler(method, type, e, input)
 	}
 
-	this.insert('#frame', render.frame(data, this.getBoxes())) */
-} // 200 = all okej, 400 = did not find data, 500 = server fucked up
-function Render() {
-	this.frame = data => {
-		return 
+	function DOMHandler(method, type, e, input) {
+		switch (method) {
+			case 'create':
+				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				break
+			case 'read':
+				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				break
+			case 'update':
+				if(type === 'frame') if(response.frame) ''
+				else if(['box', 'task', 'subtask'].contains(type)) ''
+				break
+			case 'delete':
+				console.log(`.${type}[data-id="${input.id}"]`)
+				if(type === 'frame') frame = new Frame()
+				else if(['box', 'task', 'subtask'].contains(type)) render.eject(`.${type}[data-id="${input.id}"]`)
+				break
+		}
 	}
+	this.init = async () => {
+		await render.frame({data, boxes})
+		dragAndDrop = new DragAndDrop()
+	}
+
+	this.init()
+	render.frame({data, boxes})
 }
+
+
+
+
+/* 
+
+		if(method === 'create') {
+			if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+			else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+		}
+		if(method === 'read') {
+			if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+			else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+		}
+		if(method === 'update') {
+			if(type === 'frame') if(response.frame) ''
+			else if(['box', 'task', 'subtask'].contains(type)) ''
+		}
+		if(method === 'delete') {
+			if(type === 'frame') frame = new Frame()
+			else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+		} */
+function Render() {
+	this.frame = frame => {
+		queryTarget('#renderFrame').innerHTML = themplates.frame(frame)
+		Promise.resolve()
+	}
+	this.contextMenu = (id, type) => {
+		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
+	}
+	this.eject = param => queryTarget(param).remove()
+ }
 function Server() {
 	this.fetch = async dest => {
 		try {
@@ -429,10 +981,11 @@ function Server() {
 	const action = {
 		signUp: "/signUp",
 		login: "/login",
-		read: "/frame/read",
+		user: "/user",
 		create: "/frame/create",
-		delete: "/frame/delete",
+		read: "/frame/read",
 		update: "/frame/update",
+		delete: "/frame/delete",
 	}
 
 	const postOption = data => ({
@@ -440,22 +993,35 @@ function Server() {
 		headers: {
 		  'Content-Type': 'application/json'
 		},
-		body: JSON.stringify(data)
+		body: JSON.stringify(data),
 	})
 	const getUrl = dest => `ToDo${action[dest]}`
 }
 function Themplates() {
-	this.frame = () => `
-	
+	this.frame = frame => `
+		<h1>${frame.data.title}</h1>
+		<div class="frame" data-id="${frame.data.id}">${frame.boxes.map(box => this.box(box)).join('')}</div>
 	`
-	this.box = () => `
-	
+	this.box = box => `
+		<ul class="box" id="box" draggable="true" data-id="${box.id}">
+			<h2>${box.title}</h2>
+			${box.tasks.map(task => this.taskMin(task)).join('')}
+		</ul>
 	`
-	this.card = () => `
-	
+	this.taskMin = task => `
+		<li class="task" id="task" draggable="true" data-id="${task.id}"><p>${task.text}</p></li>
 	`
 	this.subtask = () => `
 	
+	`
+	this.contextMenu = (id, type) => `
+		<nav class="context-menu" id="context-menu">
+			<ul data-id="${id}" data-type="${type}">
+				<li id="read">View</li>
+				<li id="edit">Edit</li>
+				<li id="delete">Delete</li>
+			</ul>
+		</nav>
 	`
 }
 function Tools() {
@@ -516,7 +1082,7 @@ function Tools() {
 			if(notSymbol) output += char
 		})
 		return output
-	} // adijidjsaijdjadjasdjako * pfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapå _ wfo | a * jadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfo | ajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadja _ sdjakopfjaeoifihpfwhgoapåwfoaj
+	}
 
 	this.removeBlacklistedChars = (text, blacklist) => {
 		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
@@ -535,7 +1101,36 @@ function Tools() {
 		this.keepPositionY(resizeTextarea)
 	}
 	this.setAreaHeight = (targetEl, valueInPx) => targetEl.style.height = valueInPx
+
+	this.getPositionOfEvent = e => {
+		let posX, posY
+	
+		e = !e ? e = window.event : e
+		
+		if (e.pageX || e.pageY) {
+		  posX = e.pageX
+		  posY = e.pageY
+		} else if (e.clientX || e.clientY) {
+		  posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+		  posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+		}
+	
+		return {
+		  posX: posX,
+		  posY: posY
+		}
+	}
+	this.positionAbsoluteBoxAt = (target, x, y) => {
+        targetWidth = target.offsetWidth + 4
+        targetHeight = target.offsetHeight + 4
+        documentWidth = document.innerWidth
+        documentHeight = document.innerHeight
+
+        target.style.left = ((documentWidth - x) < targetWidth) ? `${documentWidth - targetWidth}px` : `${x}px`
+        target.style.top = ((documentHeight - y) < targetHeight) ? `${documentHeight - targetHeight}px` : `${y}px`
+    }
 }
+
 function User(datas) {
 	let data
 	let frames
@@ -544,7 +1139,7 @@ function User(datas) {
 	this.logOut = () => {
 		cookie.destroy('token')
 		user = new User()
-		// frame = new Frame()
+		frame = new Frame()
 	}
 
 	this.changeFrame = () => {
@@ -555,7 +1150,7 @@ function User(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
 			data = {
-				id: datas.user.id,
+				id: datas.user._id,
 				name: datas.user.name,
 				email: datas.user.email,
 			}
@@ -565,10 +1160,10 @@ function User(datas) {
 			}))
 		} else {
 			try {
-				const response = cookie.check('token') ? await server.postFetch('login', {token: cookie.get('token')}) : '';
-				console.log(response)
-				if(!response.user) return
-				user = new User(response)
+				const {status, data} = await server.postFetch('user', {token: cookie.get('token')})
+				console.log(status, data)
+				if(validate.status(status) || !data) return
+				user = new User(data)
 			} catch (error) {
 				console.log(error)
 			}
@@ -620,5 +1215,9 @@ function Validate() {
             if(input !== password) return false
             
 		return input ? true : false
-	}
+    }
+    
+    this.status = (status) => { // 200 = all okej, 400 = did not find data, 500 = server fucked up
+        return !(status <= 200 && status >= 0)
+    } 
 }

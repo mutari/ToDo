@@ -1,11 +1,11 @@
 function Frame(frame) {
-	this.insert = (into, content) => queryTarget(into).innerHTML = content
-	if(!frame) this.insert('#frame', '')
+	if(!frame) queryTarget('#frame').innerHTML = ''
+	//frame = testData.frameJson
 	this.getData = () => data
 	this.getBoxes = () => boxes
 
 	const data = {
-		id: frame.id,
+		id: frame._id,
 		title: frame.title,
 		description: frame.description,
 		author: frame.author,
@@ -17,11 +17,11 @@ function Frame(frame) {
 	}
 	const boxes = frame.boxes.map(box => ({
 		id: box.id,
-		title: box.title,
+		title: box.name,
 		color: box.color,
 		tasks: box.tasks.map(task => ({
 			id: task.id,
-			title: task.title,
+			text: task.text,
 			description: task.description,
 			color: task.color,
 			date: task.date,
@@ -34,48 +34,88 @@ function Frame(frame) {
 			})),
 		})),
 	}))
-	/* const getInput = () => {
-
+	const getInput = (method, type, e) => {
+		const id = e.target.parentElement.attributes['data-id'].value // id from context menu
+		const target = queryTarget(`.${type}[data-id*="${id}"]`) // get the selected element
+		if(type === 'task') {
+			const {id, boxId, frameId} = {
+				id: target.attributes['data-id'],
+				boxId: target.parentElement.attributes['data-id'],
+				frameId: target.parentElement.parentElement.attributes['data-id'],
+			}
+			 return id && boxId && frameId ? {id: id.value, boxId: boxId.value, frameId: frameId.value} : ''
+		} else if(type === 'box') {
+			const {id, frameId} = {
+				id: target.attributes['data-id'],
+				frameId: target.parentElement.attributes['data-id'],
+			}
+			return id && frameId ? {id: id.value, frameId: frameId.value} : ''
+		} else if(type === 'frame') {
+			const id = target.attributes['data-id']
+			return id ? {id: id.value} : ''
+		}
 	}
 
-	this.toggleFrame = async() => {
-		if(!user.data) return
-		const id = getInput(e)
-		if(!id) return 
-		const response = await server.postFetch('read', {id, token: cookie.get('token')})
-		if(response.status !== 200) return
-		if(response.frame) frame = new Frame(response.frame)
-	}
-	this.create = async (type, e) => {
-		if(!user.data) return
-		const input = getInput(e)
-		if(!input) return 
-		const response = await server.postFetch('create', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
-
-		if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-		else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
-	}
-	this.update = async(e) => {
-		if(!user.data) return
-		const input = getInput(e)
-		if(!input) return 
-		const response = await server.postFetch('update', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
-
-		if(type === 'frame') if(response.frame) ''
-		else if(['box', 'task', 'subtask'].contains(type)) ''
-	}
-	this.delete = async (type, e) =>  {
-		if(!user.data) return
-		const input = getInput(e)
+	this.CRUD = async (method, type, e) => {
+		if(!this.getData()) return
+		const input = getInput(method, type, e)
 		if(!input) return
-		const response = await server.postFetch('delete', {type, input, token: cookie.get('token')})
-		if(response.status !== 200) return
+		console.log(input, method)
+		const response = await server.postFetch(method, {type, input, token: cookie.get('token')})
+		console.log(response)
+		if(validate.status(response.status)) return
 
-		if(type === 'frame') frame = new Frame()
-		else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+		DOMHandler(method, type, e, input)
 	}
 
-	this.insert('#frame', render.frame(data, this.getBoxes())) */
-} // 200 = all okej, 400 = did not find data, 500 = server fucked up
+	function DOMHandler(method, type, e, input) {
+		switch (method) {
+			case 'create':
+				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				break
+			case 'read':
+				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				break
+			case 'update':
+				if(type === 'frame') if(response.frame) ''
+				else if(['box', 'task', 'subtask'].contains(type)) ''
+				break
+			case 'delete':
+				console.log(`.${type}[data-id="${input.id}"]`)
+				if(type === 'frame') frame = new Frame()
+				else if(['box', 'task', 'subtask'].contains(type)) render.eject(`.${type}[data-id="${input.id}"]`)
+				break
+		}
+	}
+	this.init = async () => {
+		await render.frame({data, boxes})
+		dragAndDrop = new DragAndDrop()
+	}
+
+	this.init()
+	render.frame({data, boxes})
+}
+
+
+
+
+/* 
+
+		if(method === 'create') {
+			if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+			else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+		}
+		if(method === 'read') {
+			if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
+			else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+		}
+		if(method === 'update') {
+			if(type === 'frame') if(response.frame) ''
+			else if(['box', 'task', 'subtask'].contains(type)) ''
+		}
+		if(method === 'delete') {
+			if(type === 'frame') frame = new Frame()
+			else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
+		} */

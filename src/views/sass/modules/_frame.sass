@@ -1,11 +1,43 @@
-.container-dnd
-	display: flex
-	width: 33%
-	& > .task-dnd
-		width: 100%
-		background-color: black
-		color:#fff
-		padding: 20px
-		margin: 2px
-		& > p
-			@extend .inactive-link
+#renderFrame
+	display: grid
+	grid-auto-rows: 100px auto
+	grid-auto-columns: auto
+	grid-template-areas: "title" "frame"
+	height: calc( 100vh - 350px )
+	& > h1
+		grid-area: title
+		height: auto
+	& > .frame
+		grid-area: frame
+		background-color: #696969
+		display: flex
+		align-content: stretch
+		position: relative
+		overflow-x: auto
+		& > .box
+			min-width: 400px
+			width: 100%
+			border: 2px dotted transparent
+			background-color: #969696
+			padding: 10px 20px 0 0
+			position: relative
+			overflow-y: auto	
+			&:nth-child(even)
+				background-color: green
+			&.over
+				opacity: .9
+				border: 2px dotted red
+			& > h2
+				@extend .inactive-link
+
+			& > .task
+				border: 2px dotted transparent
+				background-color: black
+				color:#fff
+				margin: 2px
+				padding: 20px
+				& > p
+					@extend .inactive-link
+				&.over
+					opacity: .9
+					border: 2px dotted red

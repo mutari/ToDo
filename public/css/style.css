@@ -77,15 +77,78 @@
   .editor-container .strikeThrough {
     text-decoration: line-through; }
 
-.container-dnd {
-  display: flex;
-  width: 33%; }
-  .container-dnd > .task-dnd {
-    width: 100%;
-    background-color: black;
-    color: #fff;
-    padding: 20px;
-    margin: 2px; }
+.context-menu {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  width: 240px;
+  background-color: #fff;
+  border: solid 1px #dfdfdf;
+  box-shadow: 1px 1px 2px #cfcfcf; }
+  .context-menu.active {
+    display: block; }
+  .context-menu > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0; }
+    .context-menu > ul > li {
+      display: block;
+      margin-bottom: 4px;
+      padding: 5px;
+      color: black; }
+      .context-menu > ul > li:last-child {
+        margin-bottom: 0; }
+      .context-menu > ul > li:hover {
+        color: #fff;
+        background-color: #0066aa; }
+      .context-menu > ul > li::before {
+        font-weight: 900;
+        margin: 0 .5em 0 0; }
+      .context-menu > ul > li:nth-child(1)::before {
+        content: '\f06e'; }
+      .context-menu > ul > li:nth-child(2)::before {
+        content: '\f044'; }
+      .context-menu > ul > li:nth-child(3)::before {
+        content: '\f2ed'; }
+
+#renderFrame {
+  display: grid;
+  grid-auto-rows: 100px auto;
+  grid-auto-columns: auto;
+  grid-template-areas: "title" "frame";
+  height: calc( 100vh - 350px); }
+  #renderFrame > h1 {
+    grid-area: title;
+    height: auto; }
+  #renderFrame > .frame {
+    grid-area: frame;
+    background-color: #696969;
+    display: flex;
+    align-content: stretch;
+    position: relative;
+    overflow-x: auto; }
+    #renderFrame > .frame > .box {
+      min-width: 400px;
+      width: 100%;
+      border: 2px dotted transparent;
+      background-color: #969696;
+      padding: 10px 20px 0 0;
+      position: relative;
+      overflow-y: auto; }
+      #renderFrame > .frame > .box:nth-child(even) {
+        background-color: green; }
+      #renderFrame > .frame > .box.over {
+        opacity: .9;
+        border: 2px dotted red; }
+      #renderFrame > .frame > .box > .task {
+        border: 2px dotted transparent;
+        background-color: black;
+        color: #fff;
+        margin: 2px;
+        padding: 20px; }
+        #renderFrame > .frame > .box > .task.over {
+          opacity: .9;
+          border: 2px dotted red; }
 
 * {
   margin: 0;
@@ -100,7 +163,7 @@ body {
 
 body, html {
   height: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative; }
 
 h1 {
@@ -118,7 +181,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container > p, .container-dnd > .task-dnd > p {
+.inactive-link, .editor-container > p, #renderFrame > .frame > .box > h2, #renderFrame > .frame > .box > .task > p {
   pointer-events: none; }
 
 .active-link {
@@ -128,7 +191,7 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container, .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button {
+.pointer, .editor-container, .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, .context-menu > ul > li {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor {
@@ -146,3 +209,15 @@ ul {
 
 .no-wrap {
   white-space: nowrap; }
+
+.context-menu > ul > li::before {
+  display: inline-block;
+  font-family: 'Font Awesome 5 Free';
+  font-style: normal;
+  font-variant: normal;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased; }
+
+.above-frame {
+  height: 350px; }

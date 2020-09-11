@@ -56,7 +56,7 @@ function Tools() {
 			if(notSymbol) output += char
 		})
 		return output
-	} // adijidjsaijdjadjasdjako * pfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapå _ wfo | a * jadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfo | ajadijidjsaijdjadjasdjakopfjaeoifihpfwhgoapåwfoajadijidjsaijdjadja _ sdjakopfjaeoifihpfwhgoapåwfoaj
+	}
 
 	this.removeBlacklistedChars = (text, blacklist) => {
 		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
@@ -75,4 +75,32 @@ function Tools() {
 		this.keepPositionY(resizeTextarea)
 	}
 	this.setAreaHeight = (targetEl, valueInPx) => targetEl.style.height = valueInPx
+
+	this.getPositionOfEvent = e => {
+		let posX, posY
+	
+		e = !e ? e = window.event : e
+		
+		if (e.pageX || e.pageY) {
+		  posX = e.pageX
+		  posY = e.pageY
+		} else if (e.clientX || e.clientY) {
+		  posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+		  posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+		}
+	
+		return {
+		  posX: posX,
+		  posY: posY
+		}
+	}
+	this.positionAbsoluteBoxAt = (target, x, y) => {
+        targetWidth = target.offsetWidth + 4
+        targetHeight = target.offsetHeight + 4
+        documentWidth = document.innerWidth
+        documentHeight = document.innerHeight
+
+        target.style.left = ((documentWidth - x) < targetWidth) ? `${documentWidth - targetWidth}px` : `${x}px`
+        target.style.top = ((documentHeight - y) < targetHeight) ? `${documentHeight - targetHeight}px` : `${y}px`
+    }
 }
