@@ -13,11 +13,14 @@
 	box-sizing: border-box
 	font-family: sans-serif
 
-body 
+body
 	background-color: #222222
 	color: white
+	&.light
+		background-color: #f5f5f5
+		color: black
 body, html 
-	height: auto
+	height: 100vh
 	overflow: hidden
 	position: relative
 
@@ -71,3 +74,25 @@ ul
 	font-size: inherit
 	text-rendering: auto
 	-webkit-font-smoothing: antialiased
+
+.darkModeToggle
+	display: block
+	position: absolute
+	bottom: 30px
+	right: 10px
+	& > button
+		@extend .pointer
+		height: 25px
+		width: 25px
+		border-radius: 50%
+		border: 2px solid #f5f5f5
+	& > #dark
+		background-color: #222
+		margin: 0 5px 0 0
+	& > #light
+		background-color: #f5f5f5
+	&.light
+		& > #dark
+			border: 2px solid #222
+		& > #light
+			border: 2px solid #222

@@ -3,6 +3,7 @@ function DragAndDrop() {
     let dragType = false
     let cancelLeave
     
+    this.frame = queryTarget('.frame')
     this.tasks = () => [...queryTargetAll('.box .task')]
     this.boxes = () => [...queryTargetAll('.frame .box')]
     
@@ -61,15 +62,13 @@ function DragAndDrop() {
         this.boxes().removeClass('over')
     }
     
-    const addDndEventListener = item => {
-        item.addEventListener('dragstart', this.handleDragStart, false)
-        item.addEventListener('dragenter', this.handleDragEnter, false)
-        item.addEventListener('dragover', this.handleDragOver, false)
-        item.addEventListener('dragleave', this.handleDragLeave, false)
-        item.addEventListener('drop', this.handleDrop, false)
-        item.addEventListener('dragend', this.handleDragEnd, false)
+    const addDndEventListener = frame => {
+        frame.addEventListener('dragstart', this.handleDragStart, false)
+        frame.addEventListener('dragenter', this.handleDragEnter, false)
+        frame.addEventListener('dragover', this.handleDragOver, false)
+        frame.addEventListener('dragleave', this.handleDragLeave, false)
+        frame.addEventListener('drop', this.handleDrop, false)
+        frame.addEventListener('dragend', this.handleDragEnd, false)
     }
-    
-    this.tasks().forEach(task => addDndEventListener(task))
-    this.boxes().forEach(box => addDndEventListener(box))
+    addDndEventListener(this.frame)
 }

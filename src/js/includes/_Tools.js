@@ -102,5 +102,12 @@ function Tools() {
 
         target.style.left = ((documentWidth - x) < targetWidth) ? `${documentWidth - targetWidth}px` : `${x}px`
         target.style.top = ((documentHeight - y) < targetHeight) ? `${documentHeight - targetHeight}px` : `${y}px`
-    }
+	}
+	
+	this.ifAttributesGetValues = (ids) => {
+		let arr
+		for(id in ids)
+			arr = ids[id] ? {...arr, [id]: ids[id].value} : ''
+		return arr.length === ids.length ? arr : ''
+	}
 }

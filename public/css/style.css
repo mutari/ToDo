@@ -196,9 +196,12 @@
 body {
   background-color: #222222;
   color: white; }
+  body.light {
+    background-color: #f5f5f5;
+    color: black; }
 
 body, html {
-  height: auto;
+  height: 100vh;
   overflow: hidden;
   position: relative; }
 
@@ -227,7 +230,7 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container, .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, .context-menu > ul > li {
+.pointer, .editor-container, .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, .context-menu > ul > li, .darkModeToggle > button {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor {
@@ -254,3 +257,23 @@ ul {
   font-size: inherit;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased; }
+
+.darkModeToggle {
+  display: block;
+  position: absolute;
+  bottom: 30px;
+  right: 10px; }
+  .darkModeToggle > button {
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    border: 2px solid #f5f5f5; }
+  .darkModeToggle > #dark {
+    background-color: #222;
+    margin: 0 5px 0 0; }
+  .darkModeToggle > #light {
+    background-color: #f5f5f5; }
+  .darkModeToggle.light > #dark {
+    border: 2px solid #222; }
+  .darkModeToggle.light > #light {
+    border: 2px solid #222; }

@@ -36,7 +36,7 @@ const render = new Render()
 let user = new User()
 let frame
 let editor
-let dragAndDrop = new DragAndDrop()
+let dragAndDrop
 let contextMenu
 const form = new Form()
 const validate = new Validate()
@@ -63,17 +63,19 @@ document.addEventListener("click", e => {
             console.log(id)
             const dataType = e.target.parentElement.attributes['data-type']
             if(id === 'update') frame.toggleTextarea(e, true)
-            else if(dataType && frame) frame.CRUD(id, dataType.value, e)
+            else if(dataType && frame) crud(id, dataType.value, e)
         }
         contextMenu.toggleMenu(false)
     } else {
         if(id === 'create') {
             const dataType = e.target.attributes['data-type']
-            if(dataType && frame) frame.CRUD(id, dataType.value, e)
+            if(dataType && frame) crud(id, dataType.value, e)
         }
         if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
     }
-    
+
+    if(id === 'dark') toggleDarkmode(true)
+    else if(id === 'light') toggleDarkmode(false)
 })
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
@@ -123,6 +125,12 @@ document.addEventListener( 'resize', () => {
     contextMenu.toggleMenu(false)
 })
 
+function toggleDarkmode(bool) {
+    const targets = [queryTarget('body'), queryTarget('#frame'), queryTarget('.darkModeToggle')]
+    targets.forEach(target => {
+        bool ? target.classList.remove('light') : target.classList.add('light')
+    })
+}
 
 function hide() {
     ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
