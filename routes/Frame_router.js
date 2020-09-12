@@ -15,7 +15,7 @@ router.post('/frame/delete', _auth, (req, res) => {
     frameController.postDeleteFrame(req, res)
 })
 
-router.post('/frame/create', _auth, (req, res) => {
+router.post('/frame/create', (req, res) => {
     frameController.postCreateFrame(req, res)
 })
 

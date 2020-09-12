@@ -102,11 +102,47 @@ module.exports = {
                             e.queue = i
                         })
                     }
-                    await req.db.frameCol.insertOne(frame)
+                    let respons = await req.db.frameCol.insertOne(frame)
+                    if(respons)
+                        res.json({status: 200})
+                    else
+                        res.json({status: 400})
                 })
-            }
+            } 
+            else if(type == 'task') {
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+                if(!respons) {
+                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
+                    return
+                }
 
-            res.json({status: 200})
+                respons.boxes.map(e => {
+                    if(e.id == req.body.id) {
+                        e.tasks.push({
+                            id: new Date().getTime() + parseInt(Math.random() * 10000),
+                            text: "",
+                            description: "",
+                            members: [],
+                            color: "gray",
+                            date: new Date().getTime(),
+                            subtasks: [],
+                            labels: []
+                        })
+                    }
+                    return e
+                })
+
+                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
+                if(respons){
+                    res.json({message: type + " created", status: 200})
+                    return
+                }
+                else {
+                    res.json({message: type + "could not be created", status: 400})
+                    return
+                }
+
+            }
         } catch (error) {
             console.error(error)
         }
