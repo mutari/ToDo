@@ -116,10 +116,12 @@ module.exports = {
                     return
                 }
 
+                let newID = new Date().getTime() + parseInt(Math.random() * 10000)
+
                 respons.boxes.map(e => {
                     if(e.id == req.body.id) {
                         e.tasks.push({
-                            id: new Date().getTime() + parseInt(Math.random() * 10000),
+                            id: newID,
                             text: "",
                             description: "",
                             members: [],
@@ -134,7 +136,7 @@ module.exports = {
 
                 respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(respons){
-                    res.json({message: type + " created", status: 200})
+                    res.json({message: type + " created", status: 200, id: newID})
                     return
                 }
                 else {
