@@ -18,4 +18,9 @@ function ContextMenu(e) {
         const {posX, posY} = tools.getPositionOfEvent(e)
         tools.positionAbsoluteBoxAt(menu, posX, posY)
     }
+    this.extractTarget = e => {
+        const id = e.target.parentElement.attributes['data-id'].value
+        const type = e.target.parentElement.attributes['data-type'].value
+		return queryTarget(`.${type}[data-id*="${id}"]`)
+    }
 }

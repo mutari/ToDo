@@ -43,7 +43,6 @@ const validate = new Validate()
 const announce = new Announce()
 
 document.addEventListener("input", e => {
-    console.log(e.target.type)
     if(e.target.type === 'textarea') tools.resizeAreaToFitContent(e.target)
     if(['signUp', 'login'].contains(grandParentId(e))) validate.input(e)
 })
@@ -60,11 +59,15 @@ document.addEventListener("click", e => {
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
             const dataType = e.target.parentElement.attributes['data-type']
-            if(dataType && frame) frame.CRUD(id, dataType.value, e)
+            if(['update'].contains(id)) frame.toggleTextarea(e, true)
+            else if(dataType && frame) frame.CRUD(id, dataType.value, e)
         }
         contextMenu.toggleMenu(false)
-    }
+    } else if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
     
+})
+document.addEventListener("dblclick", e => {
+    const id = targetId(e)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
@@ -86,6 +89,14 @@ document.addEventListener( 'mousedown', e => {
         if(id === 'cancel') editor.deactivate(true)
     }
 })
+document.addEventListener( 'keydown', e => {
+    const key = e.keyCode
+    if([13, 27].contains(key)) {
+        e.preventDefault()
+        if(key == 13) frame.toggleTextarea(e, false, true) //key 13 enter
+        if(key === 27) frame.toggleTextarea(e, false) //key 27 esc
+    }
+})
 document.addEventListener( 'contextmenu', e => {
     if(contextMenu) {
         if(!['task', 'box'].contains(targetId(e))) return contextMenu.toggleMenu(false) 
@@ -102,3 +113,17 @@ document.addEventListener( 'resize', () => {
     if(!contextMenu) return
     contextMenu.toggleMenu(false)
 })
+
+
+function hide() {
+    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+        target.style.display = 'none'
+    })
+}
+function show() {
+    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+        target.style.display = 'block'
+    })
+}
+hide()
+

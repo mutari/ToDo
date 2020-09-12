@@ -1,39 +1,33 @@
-<form class="" id="signUp" action="ToDo/signUp" method="POST"> 
-    <div>
-        <label>Name <span>(First and lastname)</span> *</label>
-        <input type="text" name="name" id="name">
-        <p id="nameFeedback"></p>
-    </div>
-    <div>
-        <label>E-post <span>(info@exempel.se)</span> *</label>
-        <input type="text" name="email" id="email">
-        <p id="emailFeedback"></p>
-    </div>
-    <div>
-        <label>Password *</label>
-        <input type="text" name="password" id="password">
-        <p id="passwordFeedback"></p>
-    </div>
-    <div>
-        <label>Comfirm password *</label>
-        <input type="text" name="comfirmPw" id="comfirmPw">
-        <p id="comfirmPwFeedback"></p>
-    </div>
-    <button>Sign up</button>
-</form>
-<br>
-<br>
-<br>
-<form class="" id="login" action="ToDo/login" method="POST"> 
-    <div>
-        <label>Email <span>(info@example.se)</span> *</label>
-        <input type="text" name="email" id="email">
-        <p id="emailFeedback"></p>
-    </div>
-    <div>
-        <label>Password *</label>
-        <input type="text" name="password" id="password">
-        <p id="passwordFeedback"></p>
-    </div>
-    <button>Login</button>
-</form>
+form#signUp(method="POST")
+    div
+        label Name * 
+        input#name(type="text")
+        p#nameFeedback
+    div
+        label Email (info@example.com) * 
+        input#email(type="text")
+        p#emailFeedback
+    div
+        label Password * 
+        input#pw(type="text")
+        p#pwFeedback
+    div
+        label Comfirm password * 
+        input#comfirmPw(type="text")
+        p#comfirmPwFeedback
+    button sign up
+
+br
+br
+br
+
+form#login(method="POST")
+    div
+        label Email * 
+        input#email(type="text")
+        p#emailFeedback
+    div
+        label Password * 
+        input#pw(type="text")
+        p#pwFeedback
+    button Login

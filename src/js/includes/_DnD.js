@@ -7,9 +7,10 @@ function DragAndDrop() {
     this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
+        console.log(e)
+        if(queryTarget('textarea.active')) frame.toggleTextarea(e, false)
         dragSrcEl = e.target
         dragType = e.target.id
-
         e.target.style.opacity = '0.4'
         e.dataTransfer.effectAllowed = 'move'
         e.dataTransfer.setData('text/html', e.target.innerHTML)
@@ -56,6 +57,7 @@ function DragAndDrop() {
     
     this.handleDragEnd = e => {
         e.target.style.opacity = 1
+        dragSrcEl.style.opacity = 1
         this.tasks().removeClass('over')
         this.boxes().removeClass('over')
     }
@@ -71,5 +73,4 @@ function DragAndDrop() {
     
     this.tasks().forEach(task => addDndEventListener(task))
     this.boxes().forEach(box => addDndEventListener(box))
-    
 }

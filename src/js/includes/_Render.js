@@ -1,7 +1,15 @@
 function Render() {
-	this.frame = frame => {
-		queryTarget('#renderFrame').innerHTML = themplates.frame(frame)
-		Promise.resolve()
+	this.frame = async frame => {
+		await renderFrame()
+		;[...queryTargetAll('#textarea')].forEach(textarea => {
+			tools.resizeAreaToFitContent(textarea)
+		})
+		return Promise.resolve()
+
+		function renderFrame() {
+			queryTarget('#frame').innerHTML = themplates.frame(frame)
+			return Promise.resolve()
+		}
 	}
 	this.contextMenu = (id, type) => {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))

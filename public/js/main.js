@@ -43,7 +43,6 @@ const validate = new Validate()
 const announce = new Announce()
 
 document.addEventListener("input", e => {
-    console.log(e.target.type)
     if(e.target.type === 'textarea') tools.resizeAreaToFitContent(e.target)
     if(['signUp', 'login'].contains(grandParentId(e))) validate.input(e)
 })
@@ -60,11 +59,15 @@ document.addEventListener("click", e => {
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
             const dataType = e.target.parentElement.attributes['data-type']
-            if(dataType && frame) frame.CRUD(id, dataType.value, e)
+            if(['update'].contains(id)) frame.toggleTextarea(e, true)
+            else if(dataType && frame) frame.CRUD(id, dataType.value, e)
         }
         contextMenu.toggleMenu(false)
-    }
+    } else if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
     
+})
+document.addEventListener("dblclick", e => {
+    const id = targetId(e)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
@@ -86,6 +89,14 @@ document.addEventListener( 'mousedown', e => {
         if(id === 'cancel') editor.deactivate(true)
     }
 })
+document.addEventListener( 'keydown', e => {
+    const key = e.keyCode
+    if([13, 27].contains(key)) {
+        e.preventDefault()
+        if(key == 13) frame.toggleTextarea(e, false, true) //key 13 enter
+        if(key === 27) frame.toggleTextarea(e, false) //key 27 esc
+    }
+})
 document.addEventListener( 'contextmenu', e => {
     if(contextMenu) {
         if(!['task', 'box'].contains(targetId(e))) return contextMenu.toggleMenu(false) 
@@ -102,6 +113,21 @@ document.addEventListener( 'resize', () => {
     if(!contextMenu) return
     contextMenu.toggleMenu(false)
 })
+
+
+function hide() {
+    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+        target.style.display = 'none'
+    })
+}
+function show() {
+    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+        target.style.display = 'block'
+    })
+}
+hide()
+
+
 function TestData() {
     this.login = {
         email: 'test123@test123.se',
@@ -610,6 +636,11 @@ function ContextMenu(e) {
         const {posX, posY} = tools.getPositionOfEvent(e)
         tools.positionAbsoluteBoxAt(menu, posX, posY)
     }
+    this.extractTarget = e => {
+        const id = e.target.parentElement.attributes['data-id'].value
+        const type = e.target.parentElement.attributes['data-type'].value
+		return queryTarget(`.${type}[data-id*="${id}"]`)
+    }
 }
 function Cookie() {
 	this.destroy = key => this.create(key,"",-1)
@@ -645,9 +676,10 @@ function DragAndDrop() {
     this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
+        console.log(e)
+        if(queryTarget('textarea.active')) frame.toggleTextarea(e, false)
         dragSrcEl = e.target
         dragType = e.target.id
-
         e.target.style.opacity = '0.4'
         e.dataTransfer.effectAllowed = 'move'
         e.dataTransfer.setData('text/html', e.target.innerHTML)
@@ -694,6 +726,7 @@ function DragAndDrop() {
     
     this.handleDragEnd = e => {
         e.target.style.opacity = 1
+        dragSrcEl.style.opacity = 1
         this.tasks().removeClass('over')
         this.boxes().removeClass('over')
     }
@@ -709,7 +742,6 @@ function DragAndDrop() {
     
     this.tasks().forEach(task => addDndEventListener(task))
     this.boxes().forEach(box => addDndEventListener(box))
-    
 }
 function Editor(e) {
 	if(!e) return
@@ -786,6 +818,8 @@ function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
+        
+        console.log((e.target.elements))
         const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
@@ -803,12 +837,12 @@ function Form() {
     const getInputs = {
         login: el => ({
             email: el.email.value.trim(), 
-            password: el.password.value.trim(),
+            password: el.pw.value.trim(),
         }),
         signUp: el => ({
             name: el.name.value.trim(), 
-            email: el.email.value.trim(), 
-            password: el.password.value.trim(), 
+            email: el.email.value.trim(),
+            password: el.pw.value.trim(), 
             comfirmPw: el.comfirmPw.value.trim(),
         }),
     }
@@ -827,7 +861,9 @@ function Form() {
     })
 }
 function Frame(frame) {
-	if(!frame) queryTarget('#frame').innerHTML = ''
+	let previousText
+	let previousType
+	if(!frame) return queryTarget('#frame').innerHTML = ''
 	//frame = testData.frameJson
 	this.getData = () => data
 	this.getBoxes = () => boxes
@@ -862,16 +898,58 @@ function Frame(frame) {
 			})),
 		})),
 	}))
+
+	this.toggleTextarea = (e, state, save) => {
+		if(state) {
+			dragAndDrop.stopDndOfActiveTextarea = true
+			const parent = contextMenu.extractTarget(e)
+			const textarea = parent.children.textarea
+			reveal()
+			previousText = textarea.value
+		} else {
+			const textareas = queryTargetAll('textarea.active')
+			;[...textareas].forEach(async textarea => {
+				try {
+					if(save) await this.CRUD('update', previousType)
+					hide()
+				} catch (error) {
+					console.log(error)
+					hide()
+					textarea.value = previousText
+				}
+			})
+		}
+		function hide() {
+			textarea.classList.remove('active')
+			textarea.readOnly = true
+			textarea.blur()
+		}
+		function reveal() {
+			textarea.classList.add('active')
+			textarea.readOnly = false
+			textarea.focus()
+		}
+	}
+
 	const getInput = (method, type, e) => {
-		const id = e.target.parentElement.attributes['data-id'].value // id from context menu
-		const target = queryTarget(`.${type}[data-id*="${id}"]`) // get the selected element
+		let textarea
+		let target
+		if(method === 'update') {
+			textarea = queryTarget('#textarea.active')
+			target = textarea.parentElement
+			type = target.id
+		} else {
+			target = contextMenu.extractTarget(e)
+		}
+
 		if(type === 'task') {
 			const {id, boxId, frameId} = {
 				id: target.attributes['data-id'],
 				boxId: target.parentElement.attributes['data-id'],
 				frameId: target.parentElement.parentElement.attributes['data-id'],
 			}
-			 return id && boxId && frameId ? {id: id.value, boxId: boxId.value, frameId: frameId.value} : ''
+			const ids = id && boxId && frameId ? {id: id.value, boxId: boxId.value, frameId: frameId.value} : ''
+			return textarea ? {...ids, ...{data: {text: textarea.value}, type}} : ids
 		} else if(type === 'box') {
 			const {id, frameId} = {
 				id: target.attributes['data-id'],
@@ -885,16 +963,22 @@ function Frame(frame) {
 	}
 
 	this.CRUD = async (method, type, e) => {
-		if(!this.getData()) return
-		const input = getInput(method, type, e)
-		if(!input) return
-		console.log(input, method)
-		const response = await server.postFetch(method, {type, input, token: cookie.get('token')})
-		console.log(response)
-		if(validate.status(response.status)) return
-
-		DOMHandler(method, type, e, input)
+		try {
+			console.log('hej')
+			if(!this.getData()) return
+			const input = getInput(method, type, e)
+			if(!input) return
+			if(input.text) if(input.text === previousText) return
+			console.log({type, ...input, token: cookie.get('token')})
+			const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})
+			if(validate.status(response.status) || !response.status) throw ''
+			return DOMHandler(method, type, e, input)
+		} catch (error) {
+			console.log(error)
+			return Promise.reject()
+		}
 	}
+
 
 	function DOMHandler(method, type, e, input) {
 		switch (method) {
@@ -907,23 +991,23 @@ function Frame(frame) {
 				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
 				break
 			case 'update':
-				if(type === 'frame') if(response.frame) ''
-				else if(['box', 'task', 'subtask'].contains(type)) ''
-				break
+				return Promise.resolve()
 			case 'delete':
-				console.log(`.${type}[data-id="${input.id}"]`)
 				if(type === 'frame') frame = new Frame()
 				else if(['box', 'task', 'subtask'].contains(type)) render.eject(`.${type}[data-id="${input.id}"]`)
 				break
 		}
 	}
 	this.init = async () => {
-		await render.frame({data, boxes})
-		dragAndDrop = new DragAndDrop()
+		try {
+			await render.frame({data, boxes})
+			dragAndDrop = new DragAndDrop()
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	this.init()
-	render.frame({data, boxes})
 }
 
 
@@ -948,9 +1032,17 @@ function Frame(frame) {
 			else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
 		} */
 function Render() {
-	this.frame = frame => {
-		queryTarget('#renderFrame').innerHTML = themplates.frame(frame)
-		Promise.resolve()
+	this.frame = async frame => {
+		await renderFrame()
+		;[...queryTargetAll('#textarea')].forEach(textarea => {
+			tools.resizeAreaToFitContent(textarea)
+		})
+		return Promise.resolve()
+
+		function renderFrame() {
+			queryTarget('#frame').innerHTML = themplates.frame(frame)
+			return Promise.resolve()
+		}
 	}
 	this.contextMenu = (id, type) => {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
@@ -999,17 +1091,20 @@ function Server() {
 }
 function Themplates() {
 	this.frame = frame => `
-		<h1>${frame.data.title}</h1>
+		<nav><h1>${frame.data.title}</h1></nav>
 		<div class="frame" data-id="${frame.data.id}">${frame.boxes.map(box => this.box(box)).join('')}</div>
 	`
 	this.box = box => `
 		<ul class="box" id="box" draggable="true" data-id="${box.id}">
 			<h2>${box.title}</h2>
+			<button id="create">+</button>
 			${box.tasks.map(task => this.taskMin(task)).join('')}
 		</ul>
 	`
 	this.taskMin = task => `
-		<li class="task" id="task" draggable="true" data-id="${task.id}"><p>${task.text}</p></li>
+		<li class="task" id="task" draggable="true"  data-id="${task.id}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${task.text}</textarea>
+		</li>
 	`
 	this.subtask = () => `
 	
@@ -1017,8 +1112,9 @@ function Themplates() {
 	this.contextMenu = (id, type) => `
 		<nav class="context-menu" id="context-menu">
 			<ul data-id="${id}" data-type="${type}">
-				<li id="read">View</li>
-				<li id="edit">Edit</li>
+				<li id="veiw">View</li>
+				${type === 'box' ? '<li id="create">Add</li>' : ''}
+				<li id="update">Edit</li>
 				<li id="delete">Delete</li>
 			</ul>
 		</nav>
@@ -1094,7 +1190,7 @@ function Tools() {
 		const area = targetEl
 		if(!area) return
 		const resizeTextarea = () => {
-			if(!area.value) this.setAreaHeight(targetEl, '40px')
+			if(!area.value) this.setAreaHeight(targetEl, '0px')
 			else this.setAreaHeight(targetEl, '')
 			this.setAreaHeight(targetEl, `${area.scrollHeight}px`)
 		}
@@ -1145,7 +1241,7 @@ function User(datas) {
 	this.changeFrame = () => {
 		
 	}
-	this.init = async (datas) => {
+	this.init = async () => {
 		if(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
@@ -1160,16 +1256,15 @@ function User(datas) {
 			}))
 		} else {
 			try {
-				const {status, data} = await server.postFetch('user', {token: cookie.get('token')})
-				console.log(status, data)
-				if(validate.status(status) || !data) return
-				user = new User(data)
+				const datas = await server.postFetch('user', {token: cookie.get('token')})
+				if(!datas) return //if(validate.status(status) || !data) return
+				user = new User(datas)
 			} catch (error) {
 				console.log(error)
 			}
 		}
 	}
-	this.init(datas)
+	this.init()
 }
 function Validate() {
     let password

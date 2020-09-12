@@ -2,6 +2,8 @@ function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
+        
+        console.log((e.target.elements))
         const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
         try {
@@ -19,12 +21,12 @@ function Form() {
     const getInputs = {
         login: el => ({
             email: el.email.value.trim(), 
-            password: el.password.value.trim(),
+            password: el.pw.value.trim(),
         }),
         signUp: el => ({
             name: el.name.value.trim(), 
-            email: el.email.value.trim(), 
-            password: el.password.value.trim(), 
+            email: el.email.value.trim(),
+            password: el.pw.value.trim(), 
             comfirmPw: el.comfirmPw.value.trim(),
         }),
     }

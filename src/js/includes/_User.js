@@ -13,7 +13,7 @@ function User(datas) {
 	this.changeFrame = () => {
 		
 	}
-	this.init = async (datas) => {
+	this.init = async () => {
 		if(datas) {
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
@@ -28,14 +28,13 @@ function User(datas) {
 			}))
 		} else {
 			try {
-				const {status, data} = await server.postFetch('user', {token: cookie.get('token')})
-				console.log(status, data)
-				if(validate.status(status) || !data) return
-				user = new User(data)
+				const datas = await server.postFetch('user', {token: cookie.get('token')})
+				if(!datas) return //if(validate.status(status) || !data) return
+				user = new User(datas)
 			} catch (error) {
 				console.log(error)
 			}
 		}
 	}
-	this.init(datas)
+	this.init()
 }
