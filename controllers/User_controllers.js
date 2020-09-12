@@ -19,9 +19,10 @@ module.exports = {
             data.token = req.token
             console.log(data)
 
-            res.json(data)
+            res.json({...data, status: 200})
         } catch (error) {
             console.error(error)
+            res.json({message: "sign in error", status: 400})
         }
     },
     postSignUp: async (req, res) => {
@@ -55,18 +56,21 @@ module.exports = {
             }
             data.frame = frame;
 
-            res.json(data)
+            res.json({...data, status: 200})
         } catch (error) {
             console.error(error)
+            res.json({message: "get user data error", status: 400})
         }
     },
     postUpdateUser: async () => {
         try {
             let user = await req.db.updateOne({"_id": req.token.id}, {"$set": req.body})
 
-            res.json({message: "user updated", status: 200})
+            if(user) res.json({message: "user updated", status: 200})
+            else res.json({message: "User did not update", status: 400})
         } catch (error) {
             console.error(error)
+            res.json({message: "update user data error", status: 400})
         }
     }
 }
