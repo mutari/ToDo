@@ -68,7 +68,7 @@ function Tools() {
 		const area = targetEl
 		if(!area) return
 		const resizeTextarea = () => {
-			if(!area.value) this.setAreaHeight(targetEl, '0px')
+			if(!area.value) this.setAreaHeight(targetEl, '18px')
 			else this.setAreaHeight(targetEl, '')
 			this.setAreaHeight(targetEl, `${area.scrollHeight}px`)
 		}

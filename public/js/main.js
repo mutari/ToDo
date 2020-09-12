@@ -54,16 +54,25 @@ document.addEventListener( "submit", e => {
 
 document.addEventListener("click", e => {
     const id = targetId(e)
+
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
+            console.log(id)
             const dataType = e.target.parentElement.attributes['data-type']
-            if(['update'].contains(id)) frame.toggleTextarea(e, true)
+            if(id === 'update') frame.toggleTextarea(e, true)
             else if(dataType && frame) frame.CRUD(id, dataType.value, e)
         }
         contextMenu.toggleMenu(false)
-    } else if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
+    } else {
+        if(id === 'create') {
+            const dataType = e.target.attributes['data-type']
+            if(dataType && frame) frame.CRUD(id, dataType.value, e)
+        }
+        if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
+    }
     
 })
 document.addEventListener("dblclick", e => {
@@ -72,7 +81,7 @@ document.addEventListener("dblclick", e => {
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
     
-    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
+    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].includes(id)) {
 
         // ? why??? e = e || window.event e.preventDefault()
         
@@ -91,7 +100,7 @@ document.addEventListener( 'mousedown', e => {
 })
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
-    if([13, 27].contains(key)) {
+    if([13, 27].includes(key)) {
         e.preventDefault()
         if(key == 13) frame.toggleTextarea(e, false, true) //key 13 enter
         if(key === 27) frame.toggleTextarea(e, false) //key 27 esc
@@ -99,7 +108,7 @@ document.addEventListener( 'keydown', e => {
 })
 document.addEventListener( 'contextmenu', e => {
     if(contextMenu) {
-        if(!['task', 'box'].contains(targetId(e))) return contextMenu.toggleMenu(false) 
+        if(!['task', 'box'].includes(targetId(e))) return contextMenu.toggleMenu(false) 
         contextMenu.toggleMenu(false)
     }
     if(!e.target.attributes['data-id']) return
@@ -636,9 +645,10 @@ function ContextMenu(e) {
         const {posX, posY} = tools.getPositionOfEvent(e)
         tools.positionAbsoluteBoxAt(menu, posX, posY)
     }
-    this.extractTarget = e => {
-        const id = e.target.parentElement.attributes['data-id'].value
-        const type = e.target.parentElement.attributes['data-type'].value
+    this.extractTarget = () => {
+        const ulTag = menu.children[0]
+        const id = ulTag.attributes['data-id'].value
+        const type = ulTag.attributes['data-type'].value
 		return queryTarget(`.${type}[data-id*="${id}"]`)
     }
 }
@@ -676,7 +686,6 @@ function DragAndDrop() {
     this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
-        console.log(e)
         if(queryTarget('textarea.active')) frame.toggleTextarea(e, false)
         dragSrcEl = e.target
         dragType = e.target.id
@@ -860,6 +869,8 @@ function Form() {
         }
     })
 }
+const { text } = require("body-parser")
+
 function Frame(frame) {
 	let previousText
 	let previousType
@@ -899,35 +910,39 @@ function Frame(frame) {
 		})),
 	}))
 
-	this.toggleTextarea = (e, state, save) => {
+	this.toggleTextarea = (id, state, save) => {
 		if(state) {
 			dragAndDrop.stopDndOfActiveTextarea = true
-			const parent = contextMenu.extractTarget(e)
+			const parent = contextMenu ? contextMenu.extractTarget() : queryTarget(`[data-id="${id}"]`)
 			const textarea = parent.children.textarea
-			reveal()
+			reveal(textarea)
 			previousText = textarea.value
 		} else {
 			const textareas = queryTargetAll('textarea.active')
 			;[...textareas].forEach(async textarea => {
 				try {
-					if(save) await this.CRUD('update', previousType)
-					hide()
+					if(save) {
+						await this.CRUD('update', previousType)
+						textarea.innerHTML = textarea.value
+					}
+					hide(textarea)
 				} catch (error) {
 					console.log(error)
-					hide()
+					hide(textarea)
 					textarea.value = previousText
 				}
 			})
 		}
-		function hide() {
-			textarea.classList.remove('active')
-			textarea.readOnly = true
-			textarea.blur()
-		}
-		function reveal() {
+		function reveal(textarea) {
+			tools.resizeAreaToFitContent(textarea)
 			textarea.classList.add('active')
 			textarea.readOnly = false
 			textarea.focus()
+		}
+		function hide(textarea) {
+			textarea.classList.remove('active')
+			textarea.readOnly = true
+			textarea.blur()
 		}
 	}
 
@@ -938,6 +953,9 @@ function Frame(frame) {
 			textarea = queryTarget('#textarea.active')
 			target = textarea.parentElement
 			type = target.id
+		} else if(method === 'create') {
+			target = e.target.parentElement
+			type = 'box'
 		} else {
 			target = contextMenu.extractTarget(e)
 		}
@@ -964,14 +982,18 @@ function Frame(frame) {
 
 	this.CRUD = async (method, type, e) => {
 		try {
-			console.log('hej')
 			if(!this.getData()) return
-			const input = getInput(method, type, e)
-			if(!input) return
-			if(input.text) if(input.text === previousText) return
+			let input = getInput(method, type, e)
+			if(!input && type !== 'create') return
+			if(input.data)
+				if(input.data.text === previousText) throw ''
 			console.log({type, ...input, token: cookie.get('token')})
 			const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})
 			if(validate.status(response.status) || !response.status) throw ''
+			if(method === 'create') {
+				if(!response.id) return
+				input = {...input, createdId: response.id}
+			}
 			return DOMHandler(method, type, e, input)
 		} catch (error) {
 			console.log(error)
@@ -983,18 +1005,19 @@ function Frame(frame) {
 	function DOMHandler(method, type, e, input) {
 		switch (method) {
 			case 'create':
-				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				if(type === 'frame') {
+					if(response.frame) frame = new Frame(response.frame)
+				} else if(['box', 'task', 'subtask'].includes(type)) render[type](input)
 				break
 			case 'read':
 				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				else if(['box', 'task', 'subtask'].includes(type)) if(response[type]) render[type](input)
 				break
 			case 'update':
 				return Promise.resolve()
 			case 'delete':
 				if(type === 'frame') frame = new Frame()
-				else if(['box', 'task', 'subtask'].contains(type)) render.eject(`.${type}[data-id="${input.id}"]`)
+				else if(['box', 'task', 'subtask'].includes(type)) render.eject(`.${type}[data-id="${input.id}"]`)
 				break
 		}
 	}
@@ -1032,7 +1055,7 @@ function Frame(frame) {
 			else if(['box', 'task', 'subtask'].contains(type)) eject(id) //!id?
 		} */
 function Render() {
-	this.frame = async frame => {
+	this.frame = async data => {
 		await renderFrame()
 		;[...queryTargetAll('#textarea')].forEach(textarea => {
 			tools.resizeAreaToFitContent(textarea)
@@ -1040,7 +1063,15 @@ function Render() {
 		return Promise.resolve()
 
 		function renderFrame() {
-			queryTarget('#frame').innerHTML = themplates.frame(frame)
+			queryTarget('#frame').innerHTML = themplates.frame(data)
+			return Promise.resolve()
+		}
+	}
+	this.task = async data => {
+		await renderTask()
+		frame.toggleTextarea(data.createdId, true)
+		function renderTask() {
+			queryTarget(`.box[data-id="${data.id}"]`).insertAdjacentHTML('beforeend', themplates.taskMin({id: data.createdId, text: ' '}))
 			return Promise.resolve()
 		}
 	}
@@ -1097,7 +1128,7 @@ function Themplates() {
 	this.box = box => `
 		<ul class="box" id="box" draggable="true" data-id="${box.id}">
 			<h2>${box.title}</h2>
-			<button id="create">+</button>
+			<button id="create" data-type="task">+</button>
 			${box.tasks.map(task => this.taskMin(task)).join('')}
 		</ul>
 	`
@@ -1190,7 +1221,7 @@ function Tools() {
 		const area = targetEl
 		if(!area) return
 		const resizeTextarea = () => {
-			if(!area.value) this.setAreaHeight(targetEl, '0px')
+			if(!area.value) this.setAreaHeight(targetEl, '18px')
 			else this.setAreaHeight(targetEl, '')
 			this.setAreaHeight(targetEl, `${area.scrollHeight}px`)
 		}

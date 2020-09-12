@@ -54,16 +54,25 @@ document.addEventListener( "submit", e => {
 
 document.addEventListener("click", e => {
     const id = targetId(e)
+
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
+            console.log(id)
             const dataType = e.target.parentElement.attributes['data-type']
-            if(['update'].contains(id)) frame.toggleTextarea(e, true)
+            if(id === 'update') frame.toggleTextarea(e, true)
             else if(dataType && frame) frame.CRUD(id, dataType.value, e)
         }
         contextMenu.toggleMenu(false)
-    } else if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
+    } else {
+        if(id === 'create') {
+            const dataType = e.target.attributes['data-type']
+            if(dataType && frame) frame.CRUD(id, dataType.value, e)
+        }
+        if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
+    }
     
 })
 document.addEventListener("dblclick", e => {
@@ -72,7 +81,7 @@ document.addEventListener("dblclick", e => {
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
     
-    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].contains(id)) {
+    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].includes(id)) {
 
         // ? why??? e = e || window.event e.preventDefault()
         
@@ -91,7 +100,7 @@ document.addEventListener( 'mousedown', e => {
 })
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
-    if([13, 27].contains(key)) {
+    if([13, 27].includes(key)) {
         e.preventDefault()
         if(key == 13) frame.toggleTextarea(e, false, true) //key 13 enter
         if(key === 27) frame.toggleTextarea(e, false) //key 27 esc
@@ -99,7 +108,7 @@ document.addEventListener( 'keydown', e => {
 })
 document.addEventListener( 'contextmenu', e => {
     if(contextMenu) {
-        if(!['task', 'box'].contains(targetId(e))) return contextMenu.toggleMenu(false) 
+        if(!['task', 'box'].includes(targetId(e))) return contextMenu.toggleMenu(false) 
         contextMenu.toggleMenu(false)
     }
     if(!e.target.attributes['data-id']) return

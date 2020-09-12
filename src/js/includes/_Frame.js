@@ -1,3 +1,5 @@
+const { text } = require("body-parser")
+
 function Frame(frame) {
 	let previousText
 	let previousType
@@ -37,35 +39,39 @@ function Frame(frame) {
 		})),
 	}))
 
-	this.toggleTextarea = (e, state, save) => {
+	this.toggleTextarea = (id, state, save) => {
 		if(state) {
 			dragAndDrop.stopDndOfActiveTextarea = true
-			const parent = contextMenu.extractTarget(e)
+			const parent = contextMenu ? contextMenu.extractTarget() : queryTarget(`[data-id="${id}"]`)
 			const textarea = parent.children.textarea
-			reveal()
+			reveal(textarea)
 			previousText = textarea.value
 		} else {
 			const textareas = queryTargetAll('textarea.active')
 			;[...textareas].forEach(async textarea => {
 				try {
-					if(save) await this.CRUD('update', previousType)
-					hide()
+					if(save) {
+						await this.CRUD('update', previousType)
+						textarea.innerHTML = textarea.value
+					}
+					hide(textarea)
 				} catch (error) {
 					console.log(error)
-					hide()
+					hide(textarea)
 					textarea.value = previousText
 				}
 			})
 		}
-		function hide() {
-			textarea.classList.remove('active')
-			textarea.readOnly = true
-			textarea.blur()
-		}
-		function reveal() {
+		function reveal(textarea) {
+			tools.resizeAreaToFitContent(textarea)
 			textarea.classList.add('active')
 			textarea.readOnly = false
 			textarea.focus()
+		}
+		function hide(textarea) {
+			textarea.classList.remove('active')
+			textarea.readOnly = true
+			textarea.blur()
 		}
 	}
 
@@ -76,6 +82,9 @@ function Frame(frame) {
 			textarea = queryTarget('#textarea.active')
 			target = textarea.parentElement
 			type = target.id
+		} else if(method === 'create') {
+			target = e.target.parentElement
+			type = 'box'
 		} else {
 			target = contextMenu.extractTarget(e)
 		}
@@ -102,14 +111,18 @@ function Frame(frame) {
 
 	this.CRUD = async (method, type, e) => {
 		try {
-			console.log('hej')
 			if(!this.getData()) return
-			const input = getInput(method, type, e)
-			if(!input) return
-			if(input.text) if(input.text === previousText) return
+			let input = getInput(method, type, e)
+			if(!input && type !== 'create') return
+			if(input.data)
+				if(input.data.text === previousText) throw ''
 			console.log({type, ...input, token: cookie.get('token')})
 			const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})
 			if(validate.status(response.status) || !response.status) throw ''
+			if(method === 'create') {
+				if(!response.id) return
+				input = {...input, createdId: response.id}
+			}
 			return DOMHandler(method, type, e, input)
 		} catch (error) {
 			console.log(error)
@@ -121,18 +134,19 @@ function Frame(frame) {
 	function DOMHandler(method, type, e, input) {
 		switch (method) {
 			case 'create':
-				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				if(type === 'frame') {
+					if(response.frame) frame = new Frame(response.frame)
+				} else if(['box', 'task', 'subtask'].includes(type)) render[type](input)
 				break
 			case 'read':
 				if(type === 'frame') if(response.frame) frame = new Frame(response.frame)
-				else if(['box', 'task', 'subtask'].contains(type)) if(response[type]) render[type](input)
+				else if(['box', 'task', 'subtask'].includes(type)) if(response[type]) render[type](input)
 				break
 			case 'update':
 				return Promise.resolve()
 			case 'delete':
 				if(type === 'frame') frame = new Frame()
-				else if(['box', 'task', 'subtask'].contains(type)) render.eject(`.${type}[data-id="${input.id}"]`)
+				else if(['box', 'task', 'subtask'].includes(type)) render.eject(`.${type}[data-id="${input.id}"]`)
 				break
 		}
 	}

@@ -7,7 +7,6 @@ function DragAndDrop() {
     this.boxes = () => [...queryTargetAll('.frame .box')]
     
     this.handleDragStart = e => {
-        console.log(e)
         if(queryTarget('textarea.active')) frame.toggleTextarea(e, false)
         dragSrcEl = e.target
         dragType = e.target.id

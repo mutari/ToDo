@@ -6,7 +6,7 @@ function Themplates() {
 	this.box = box => `
 		<ul class="box" id="box" draggable="true" data-id="${box.id}">
 			<h2>${box.title}</h2>
-			<button id="create">+</button>
+			<button id="create" data-type="task">+</button>
 			${box.tasks.map(task => this.taskMin(task)).join('')}
 		</ul>
 	`
