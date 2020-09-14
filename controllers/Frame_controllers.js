@@ -109,9 +109,9 @@ module.exports = {
                 })
             } 
             else if(type == 'box') {
-                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.id)})
                 if(!respons) {
-                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
+                    res.json({message: `did not find a frame white that id: ${req.body.id}`, status: 400})
                     return
                 }
                 
@@ -121,10 +121,11 @@ module.exports = {
                     id: newID,
                     text: "",
                     color: "gray",
-                    tasks: []
+                    tasks: [],
+                    timestampCreated: new Date().getTime()
                 })
 
-                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
+                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.id)}, {$set: respons})
                 if(respons){
                     res.json({message: type + " created", status: 200, id: ObjectID(newID)})
                     return
@@ -154,7 +155,8 @@ module.exports = {
                             color: "gray",
                             date: new Date().getTime(),
                             subtasks: [],
-                            labels: []
+                            labels: [],
+                            timestampCreated: new Date().getTime()
                         })
                     }
                     return e
@@ -188,7 +190,8 @@ module.exports = {
                                     id: newID,
                                     text: "",
                                     state: false,
-                                    members: []
+                                    members: [],
+                                    timestampCreated: new Date().getTime()
                                 })
                             }
                         })
