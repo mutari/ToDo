@@ -5,8 +5,7 @@ async function toggleTextarea(e, state, save) {
             : queryTarget(`[data-id="${e}"]`) ? queryTarget(`[data-id="${e}"]`)
             : parentId(e) === 'taskLarge' ? e.target.parentElement
             : e.target
-
-        console.log(parent)
+            
         const textarea = parent.children.textarea
         toggle(textarea, state)
         frame.previousText = textarea.value
@@ -15,10 +14,16 @@ async function toggleTextarea(e, state, save) {
         const textarea = queryTarget('textarea.active')
         try {
             if(save) {
-                const type = frame.previousType
+                const parent = textarea.parentElement
+                const type = parent.id
                 await crud.run('update', type)
                 textarea.innerHTML = textarea.value
-                if(type === 'taskLarge') queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`).children.textarea.innerHTML = textarea.value
+                console.log(type)
+                if(type === 'taskLarge') {
+                    const task = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)
+                    task.children.textarea.innerHTML = textarea.value
+                    task.children.textarea.value = textarea.value
+                }
             }
             toggle(textarea, state)
         } catch (error) {

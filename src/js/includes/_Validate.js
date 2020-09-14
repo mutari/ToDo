@@ -17,14 +17,14 @@ function Validate() {
         const id = targetId(e)
         if(id === 'comfirmPw') return
         const input = e.target.value.trim()
-        errorMessages = form.errorMessages[grandParentId(e)]
+        const errorMessages = form.errorMessages[grandParentId(e)]
         
         if(isInputValid(input, id)) 
             errorMessages[id] = ''
         announce.formFeedback({[id]: errorMessages[id]})
     }
 
-	isInputValid = (input, id) => {
+	function isInputValid(input, id) {
 		if(id === 'name')
             if(input.split(' ').length < 2) return false
             

@@ -3,6 +3,6 @@ function Announce() {
       for(let key in errorMessages)
         errorMessages[key] ? inputError(errorMessages[key], key) : inputSuccess(key)
     }
-    inputSuccess = id => console.log('success', id)
-    inputError = (message, id) => console.log(message, id)
+    const inputSuccess = id => console.log('success', id)
+    const inputError = (message, id) => console.log(message, id)
 }

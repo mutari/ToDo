@@ -17,6 +17,8 @@ function User(datas) {
 	init(datas)
 	async function init(datas) {
 		if(datas) {
+			console.log(datas)
+			console.log(datas.user)
 			hide()
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)

@@ -82,23 +82,23 @@ function Tools() {
 		e = !e ? e = window.event : e
 		
 		if (e.pageX || e.pageY) {
-		  posX = e.pageX
-		  posY = e.pageY
+			posX = e.pageX
+			posY = e.pageY
 		} else if (e.clientX || e.clientY) {
-		  posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
-		  posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+			posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+			posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
-	
+
 		return {
-		  posX: posX,
-		  posY: posY
+			posX: posX,
+			posY: posY
 		}
 	}
 	this.positionAbsoluteBoxAt = (target, x, y) => {
-        targetWidth = target.offsetWidth + 4
-        targetHeight = target.offsetHeight + 4
-        documentWidth = document.innerWidth
-        documentHeight = document.innerHeight
+        const targetWidth = target.offsetWidth + 4
+        const targetHeight = target.offsetHeight + 4
+        const documentWidth = document.innerWidth
+        const documentHeight = document.innerHeight
 
         target.style.left = ((documentWidth - x) < targetWidth) ? `${documentWidth - targetWidth}px` : `${x}px`
         target.style.top = ((documentHeight - y) < targetHeight) ? `${documentHeight - targetHeight}px` : `${y}px`
@@ -106,7 +106,7 @@ function Tools() {
 	
 	this.ifAttributesGetValues = (ids) => {
 		let arr
-		for(id in ids)
+		for(const id in ids)
 			arr = ids[id] ? {...arr, [id]: ids[id].value} : ''
 		return arr.length === ids.length ? arr : ''
 	}

@@ -32,9 +32,9 @@ function Server() {
 	const postOption = data => ({
 		method: 'POST',
 		headers: {
-		  'Content-Type': 'application/json'
+			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(data),
 	})
-	const getUrl = dest => `ToDo${action[dest]}` //http://98.128.142.46/
+	const getUrl = dest => `http://98.128.142.46/ToDo${action[dest]}` //https://98.128.142.46/
 }

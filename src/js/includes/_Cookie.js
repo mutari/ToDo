@@ -8,7 +8,7 @@ function Cookie() {
 	this.get = key => {
 		key = `${key}=`
 		var content = document.cookie.split(';')
-		for(info of content) {
+		for(let info of content) {
 			while (info.charAt(0) == ' ')
 				info = info.substring(1)
 			if (info.indexOf(key) == 0)

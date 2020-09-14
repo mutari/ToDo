@@ -4,7 +4,6 @@ function Form() {
         const id = targetId(e)
         const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
-
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
             if(!response) throw 'attempt failed'

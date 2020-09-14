@@ -26,25 +26,35 @@ function CRUD() {
     }
 
     this.getData = function(method, type, e) {
-        let data, textarea, target, ids
 
-        if(contextMenu) {
+        /* PROCESS START */
+        let data, textarea, target
+
+        contextMenu ? ifContextMenu()
+            : method === 'read' ? ifRead()
+            : method === 'update' ? ifUpdate()
+            : method === 'create' ? ifCreate()
+            : ''
+        
+        data = {...getIds(), ...data}
+
+        return (!data || (data.data && data.data.text === frame.previousText)) ? '' : data
+        /* PROCESS END */
+
+        /* DELIGATION FUNCTIONS */
+        function getIds() {
+            let ids = {id: target.attributes['data-id']}
+            if(type === 'task') ids = {...ids, boxId: target.parentElement.attributes['data-id'], frameId: target.parentElement.parentElement.attributes['data-id']}
+            if(type === 'box') ids = {...ids, frameId: target.parentElement.attributes['data-id']}
+            return tools.ifAttributesGetValues(ids)
+        }
+        
+        /* Case dependent preperation */
+        function ifContextMenu() {
             target = contextMenu.extractTarget(e)
-            if(type === 'task') data = {domType: 'taskLarge'}
-        } else if(method === 'read') {
-            target = e.target
-            const domType = type === 'task' ? 'taskLarge' : type
-            data = {domType}
-        } else if(method === 'update') {
-            textarea = queryTarget('#textarea.active')
-            if(type === 'taskLarge')  target = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)
-            else target = textarea.parentElement
-            const id = target.id
-            type = id === 'frameNav' ? 'frame' 
-                : id === 'taskLarge' ? 'task'
-                : id
-            data = {data: {text: textarea.value}, type}
-        } else if(method === 'create') {
+            if(type === 'task') data = {renderType: 'taskLarge'}
+        }
+        function ifCreate() {
             if(type === 'task') {
                 target = e.target.parentElement
                 type = 'box'
@@ -54,37 +64,46 @@ function CRUD() {
                 type = 'frame'
             }
         }
-        
-        if(type === 'task') ids = {...ids, boxId: target.parentElement.attributes['data-id'], frameId: target.parentElement.parentElement.attributes['data-id']}
-        if(type === 'box') ids = {...ids, frameId: target.parentElement.attributes['data-id']}
-        ids = {...ids, id: target.attributes['data-id']}
-        data = {...tools.ifAttributesGetValues(ids), ...data}
-        
-        return (!data || (data.data && data.data.text === frame.previousText)) ? '' : data //return '' if no change on update
+        function ifRead() {
+            target = e.target
+            data = {renderType: type === 'task' ? 'taskLarge' : type}
+        }
+        function ifUpdate() {
+            textarea = queryTarget('#textarea.active')
+            target = textarea.parentElement
+            if(type === 'taskLarge') 
+                target = queryTarget(`.task[data-id="${target.attributes['data-id'].value}"]`)
+            const id = target.id
+            type = id === 'frameNav' ? 'frame' : id === 'taskLarge' ? 'task': id //Convert DOM specific types into basic types
+            data = {data: {text: textarea.value}, type}
+        }
     }
     
     this.DOMHandler = function(method, type, input) {
-        switch (method) {
-            case 'create':
-                if(type === 'frame') {
-                    if(response.frame) frame = new Frame(response.frame) //! fake
-                } else if(type === 'task') render[type](input)
-                else if(['box', 'subtask'].includes(type)) render[type](input)
-                break
-            case 'read': //! fake
-                if(type === 'frame') {
-                    if(response.frame) frame = new Frame(response.frame)
-                } else if(type === 'task') render[`${input.domType}`](input)
-                else if(['box', 'subtask'].includes(type)) if(response[type]) render[type](input)
-                break
-            case 'update':
-                break
-            case 'delete':
-                if(type === 'frame') frame = new Frame()  //! fake?
-                else if(['box', 'task', 'subtask'].includes(type)) render.eject(`.${type}[data-id="${input.id}"]`)
-                break
-        }
+        method === 'create' ? ifCreate()
+            : method === 'read' ? ifRead()
+            : method === 'delete' ? ifDelete()
+            : ''
+
         return Promise.resolve()
+
+         /* Case dependent preperation */
+        function ifCreate() {
+            if(type === 'frame') {
+                if(response.frame) frame = new Frame(response.frame) //! fake
+            } else if(type === 'task') render[type](input)
+            else if(['box', 'subtask'].includes(type)) render[type](input)
+        }
+        function ifRead() {
+            if(type === 'frame') {
+                if(response.frame) frame = new Frame(response.frame)
+            } else if(type === 'task') render[`${input.renderType}`](input)
+            else if(['box', 'subtask'].includes(type)) if(response[type]) render[type](input)
+        }
+        function ifDelete() {
+            if(type === 'frame') frame = new Frame()  //! fake?
+            else if(['box', 'task', 'subtask'].includes(type)) render.eject(`.${type}[data-id="${input.id}"]`)
+        }
     }
 
     function updateStoredValues(method, type, input) {

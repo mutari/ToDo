@@ -6,31 +6,31 @@ function Frame(frame) {
 	this.getData = () => data
 	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.filter(box => parseInt(data.boxId) === box.id)[0]
+	this.addTask = data => boxes.find(box => parseInt(data.boxId) === box.id)
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.filter(box => parseInt(data.boxId) === box.id)[0]
-			.tasks.filter(task => parseInt(data.id) === task.id)[0]
+		let task = boxes.find(box => parseInt(data.boxId) === box.id)
+			.tasks.find(task => parseInt(data.id) === task.id)
 
-		for(key in data.data) Object.assign(task, {[key]: data.data[key]})
+		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 	
 
 	const data = {
 		id: frame._id,
-		title: frame.title,
+		text: frame.text,
 		description: frame.description,
 		author: frame.author,
 		members: frame.members.map(member => ({
 			id: member.id,
-			name: member.name,
+			text: member.text,
 			profileImgLink: member.profileImgLink,
 		})),
 	}
 	let boxes = frame.boxes.map(box => ({
 		id: box.id,
-		title: box.name,
+		text: box.text,
 		color: box.color,
 		tasks: box.tasks.map(task => ({
 			id: task.id,

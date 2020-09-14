@@ -671,8 +671,7 @@ async function toggleTextarea(e, state, save) {
             : queryTarget(`[data-id="${e}"]`) ? queryTarget(`[data-id="${e}"]`)
             : parentId(e) === 'taskLarge' ? e.target.parentElement
             : e.target
-
-        console.log(parent)
+            
         const textarea = parent.children.textarea
         toggle(textarea, state)
         frame.previousText = textarea.value
@@ -681,10 +680,16 @@ async function toggleTextarea(e, state, save) {
         const textarea = queryTarget('textarea.active')
         try {
             if(save) {
-                const type = frame.previousType
+                const parent = textarea.parentElement
+                const type = parent.id
                 await crud.run('update', type)
                 textarea.innerHTML = textarea.value
-                if(type === 'taskLarge') queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`).children.textarea.innerHTML = textarea.value
+                console.log(type)
+                if(type === 'taskLarge') {
+                    const task = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)
+                    task.children.textarea.innerHTML = textarea.value
+                    task.children.textarea.value = textarea.value
+                }
             }
             toggle(textarea, state)
         } catch (error) {
@@ -722,8 +727,8 @@ function Announce() {
       for(let key in errorMessages)
         errorMessages[key] ? inputError(errorMessages[key], key) : inputSuccess(key)
     }
-    inputSuccess = id => console.log('success', id)
-    inputError = (message, id) => console.log(message, id)
+    const inputSuccess = id => console.log('success', id)
+    const inputError = (message, id) => console.log(message, id)
 }
 function ContextMenu(e) {
     const type = [...e.target.classList].find(type => [ 'frameNav', 'frame', 'box', 'task'].includes(type))
@@ -763,7 +768,7 @@ function Cookie() {
 	this.get = key => {
 		key = `${key}=`
 		var content = document.cookie.split(';')
-		for(info of content) {
+		for(let info of content) {
 			while (info.charAt(0) == ' ')
 				info = info.substring(1)
 			if (info.indexOf(key) == 0)
@@ -806,25 +811,35 @@ function CRUD() {
     }
 
     this.getData = function(method, type, e) {
-        let data, textarea, target, ids
 
-        if(contextMenu) {
+        /* PROCESS START */
+        let data, textarea, target
+
+        contextMenu ? ifContextMenu()
+            : method === 'read' ? ifRead()
+            : method === 'update' ? ifUpdate()
+            : method === 'create' ? ifCreate()
+            : ''
+        
+        data = {...getIds(), ...data}
+
+        return (!data || (data.data && data.data.text === frame.previousText)) ? '' : data
+        /* PROCESS END */
+
+        /* DELIGATION FUNCTIONS */
+        function getIds() {
+            let ids = {id: target.attributes['data-id']}
+            if(type === 'task') ids = {...ids, boxId: target.parentElement.attributes['data-id'], frameId: target.parentElement.parentElement.attributes['data-id']}
+            if(type === 'box') ids = {...ids, frameId: target.parentElement.attributes['data-id']}
+            return tools.ifAttributesGetValues(ids)
+        }
+        
+        /* Case dependent preperation */
+        function ifContextMenu() {
             target = contextMenu.extractTarget(e)
-            if(type === 'task') data = {domType: 'taskLarge'}
-        } else if(method === 'read') {
-            target = e.target
-            const domType = type === 'task' ? 'taskLarge' : type
-            data = {domType}
-        } else if(method === 'update') {
-            textarea = queryTarget('#textarea.active')
-            if(type === 'taskLarge')  target = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)
-            else target = textarea.parentElement
-            const id = target.id
-            type = id === 'frameNav' ? 'frame' 
-                : id === 'taskLarge' ? 'task'
-                : id
-            data = {data: {text: textarea.value}, type}
-        } else if(method === 'create') {
+            if(type === 'task') data = {renderType: 'taskLarge'}
+        }
+        function ifCreate() {
             if(type === 'task') {
                 target = e.target.parentElement
                 type = 'box'
@@ -834,37 +849,46 @@ function CRUD() {
                 type = 'frame'
             }
         }
-        
-        if(type === 'task') ids = {...ids, boxId: target.parentElement.attributes['data-id'], frameId: target.parentElement.parentElement.attributes['data-id']}
-        if(type === 'box') ids = {...ids, frameId: target.parentElement.attributes['data-id']}
-        ids = {...ids, id: target.attributes['data-id']}
-        data = {...tools.ifAttributesGetValues(ids), ...data}
-        
-        return (!data || (data.data && data.data.text === frame.previousText)) ? '' : data //return '' if no change on update
+        function ifRead() {
+            target = e.target
+            data = {renderType: type === 'task' ? 'taskLarge' : type}
+        }
+        function ifUpdate() {
+            textarea = queryTarget('#textarea.active')
+            target = textarea.parentElement
+            if(type === 'taskLarge') 
+                target = queryTarget(`.task[data-id="${target.attributes['data-id'].value}"]`)
+            const id = target.id
+            type = id === 'frameNav' ? 'frame' : id === 'taskLarge' ? 'task': id //Convert DOM specific types into basic types
+            data = {data: {text: textarea.value}, type}
+        }
     }
     
     this.DOMHandler = function(method, type, input) {
-        switch (method) {
-            case 'create':
-                if(type === 'frame') {
-                    if(response.frame) frame = new Frame(response.frame) //! fake
-                } else if(type === 'task') render[type](input)
-                else if(['box', 'subtask'].includes(type)) render[type](input)
-                break
-            case 'read': //! fake
-                if(type === 'frame') {
-                    if(response.frame) frame = new Frame(response.frame)
-                } else if(type === 'task') render[`${input.domType}`](input)
-                else if(['box', 'subtask'].includes(type)) if(response[type]) render[type](input)
-                break
-            case 'update':
-                break
-            case 'delete':
-                if(type === 'frame') frame = new Frame()  //! fake?
-                else if(['box', 'task', 'subtask'].includes(type)) render.eject(`.${type}[data-id="${input.id}"]`)
-                break
-        }
+        method === 'create' ? ifCreate()
+            : method === 'read' ? ifRead()
+            : method === 'delete' ? ifDelete()
+            : ''
+
         return Promise.resolve()
+
+         /* Case dependent preperation */
+        function ifCreate() {
+            if(type === 'frame') {
+                if(response.frame) frame = new Frame(response.frame) //! fake
+            } else if(type === 'task') render[type](input)
+            else if(['box', 'subtask'].includes(type)) render[type](input)
+        }
+        function ifRead() {
+            if(type === 'frame') {
+                if(response.frame) frame = new Frame(response.frame)
+            } else if(type === 'task') render[`${input.renderType}`](input)
+            else if(['box', 'subtask'].includes(type)) if(response[type]) render[type](input)
+        }
+        function ifDelete() {
+            if(type === 'frame') frame = new Frame()  //! fake?
+            else if(['box', 'task', 'subtask'].includes(type)) render.eject(`.${type}[data-id="${input.id}"]`)
+        }
     }
 
     function updateStoredValues(method, type, input) {
@@ -1023,7 +1047,6 @@ function Form() {
         const id = targetId(e)
         const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
-
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
             if(!response) throw 'attempt failed'
@@ -1069,31 +1092,31 @@ function Frame(frame) {
 	this.getData = () => data
 	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.filter(box => parseInt(data.boxId) === box.id)[0]
+	this.addTask = data => boxes.find(box => parseInt(data.boxId) === box.id)
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.filter(box => parseInt(data.boxId) === box.id)[0]
-			.tasks.filter(task => parseInt(data.id) === task.id)[0]
+		let task = boxes.find(box => parseInt(data.boxId) === box.id)
+			.tasks.find(task => parseInt(data.id) === task.id)
 
-		for(key in data.data) Object.assign(task, {[key]: data.data[key]})
+		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 	
 
 	const data = {
 		id: frame._id,
-		title: frame.title,
+		text: frame.text,
 		description: frame.description,
 		author: frame.author,
 		members: frame.members.map(member => ({
 			id: member.id,
-			name: member.name,
+			text: member.text,
 			profileImgLink: member.profileImgLink,
 		})),
 	}
 	let boxes = frame.boxes.map(box => ({
 		id: box.id,
-		title: box.name,
+		text: box.text,
 		color: box.color,
 		tasks: box.tasks.map(task => ({
 			id: task.id,
@@ -1209,22 +1232,22 @@ function Server() {
 	const postOption = data => ({
 		method: 'POST',
 		headers: {
-		  'Content-Type': 'application/json'
+			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify(data),
 	})
-	const getUrl = dest => `ToDo${action[dest]}` //http://98.128.142.46/
+	const getUrl = dest => `http://98.128.142.46/ToDo${action[dest]}` //https://98.128.142.46/
 }
 function Themplates() {
 	this.frame = frame => `
 		<nav class="frameNav" id="frameNav" data-id="${frame.data.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${frame.data.title}</textarea>
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${frame.data.text}</textarea>
 		</nav>
 		<div class="frame" id="frame" data-id="${frame.data.id}">${frame.boxes ? frame.boxes.map(box => this.box(box)).join('') : ''}</div>
 	`
 	this.box = box => `
 		<ul class="box" id="box" draggable="true" data-id="${box.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${box.title}</textarea>
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${box.text}</textarea>
 			<button id="create" data-type="task">+</button>
 			${box.tasks ? box.tasks.map(task => this.task(task)).join('') : ''}
 			<span id="boxAdd" data-partnerId="${box.id}" />
@@ -1367,23 +1390,23 @@ function Tools() {
 		e = !e ? e = window.event : e
 		
 		if (e.pageX || e.pageY) {
-		  posX = e.pageX
-		  posY = e.pageY
+			posX = e.pageX
+			posY = e.pageY
 		} else if (e.clientX || e.clientY) {
-		  posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
-		  posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+			posX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+			posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
-	
+
 		return {
-		  posX: posX,
-		  posY: posY
+			posX: posX,
+			posY: posY
 		}
 	}
 	this.positionAbsoluteBoxAt = (target, x, y) => {
-        targetWidth = target.offsetWidth + 4
-        targetHeight = target.offsetHeight + 4
-        documentWidth = document.innerWidth
-        documentHeight = document.innerHeight
+        const targetWidth = target.offsetWidth + 4
+        const targetHeight = target.offsetHeight + 4
+        const documentWidth = document.innerWidth
+        const documentHeight = document.innerHeight
 
         target.style.left = ((documentWidth - x) < targetWidth) ? `${documentWidth - targetWidth}px` : `${x}px`
         target.style.top = ((documentHeight - y) < targetHeight) ? `${documentHeight - targetHeight}px` : `${y}px`
@@ -1391,7 +1414,7 @@ function Tools() {
 	
 	this.ifAttributesGetValues = (ids) => {
 		let arr
-		for(id in ids)
+		for(const id in ids)
 			arr = ids[id] ? {...arr, [id]: ids[id].value} : ''
 		return arr.length === ids.length ? arr : ''
 	}
@@ -1425,6 +1448,8 @@ function User(datas) {
 	init(datas)
 	async function init(datas) {
 		if(datas) {
+			console.log(datas)
+			console.log(datas.user)
 			hide()
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
@@ -1472,14 +1497,14 @@ function Validate() {
         const id = targetId(e)
         if(id === 'comfirmPw') return
         const input = e.target.value.trim()
-        errorMessages = form.errorMessages[grandParentId(e)]
+        const errorMessages = form.errorMessages[grandParentId(e)]
         
         if(isInputValid(input, id)) 
             errorMessages[id] = ''
         announce.formFeedback({[id]: errorMessages[id]})
     }
 
-	isInputValid = (input, id) => {
+	function isInputValid(input, id) {
 		if(id === 'name')
             if(input.split(' ').length < 2) return false
             

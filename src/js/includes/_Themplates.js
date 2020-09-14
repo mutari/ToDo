@@ -1,13 +1,13 @@
 function Themplates() {
 	this.frame = frame => `
 		<nav class="frameNav" id="frameNav" data-id="${frame.data.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${frame.data.title}</textarea>
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${frame.data.text}</textarea>
 		</nav>
 		<div class="frame" id="frame" data-id="${frame.data.id}">${frame.boxes ? frame.boxes.map(box => this.box(box)).join('') : ''}</div>
 	`
 	this.box = box => `
 		<ul class="box" id="box" draggable="true" data-id="${box.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${box.title}</textarea>
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${box.text}</textarea>
 			<button id="create" data-type="task">+</button>
 			${box.tasks ? box.tasks.map(task => this.task(task)).join('') : ''}
 			<span id="boxAdd" data-partnerId="${box.id}" />
