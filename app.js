@@ -14,6 +14,7 @@ const mongo = require('mongodb').MongoClient;
         const frameCol = await db.collection('Frame_profile')
         const app = express()
         
+        app.use(require('cors')())
         app.use(bodyParser.urlencoded({extended: true}))
         app.use(bodyParser.json())
         app.use(express.static(__dirname + "/public"))

@@ -1,5 +1,5 @@
 {
-    "title": "My first board",
+    "text": "My first board",
     "description": "My first board",
     "author": "",
     "timestampCreated": "",
@@ -8,7 +8,7 @@
     "boxes": [
         {
             "id": 0,
-            "name": "To-do", 
+            "text": "To-do", 
             "color": "white",
             "tasks": [
                 { 
@@ -48,20 +48,20 @@
         },
         {
             "id": 1,
-            "name": "Do today", 
+            "text": "Do today", 
             "color": "white",
             "tasks": []
         },
         {
             "id": 2,
-            "name": "In progress", 
+            "text": "In progress", 
             "color": "white",
             "tasks": [],
             "max-tasks": 3
         },
         {
             "id": 3,
-            "name": "Done", 
+            "text": "Done", 
             "color": "white",
             "tasks": []
         }
