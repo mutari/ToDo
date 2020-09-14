@@ -86,7 +86,6 @@ module.exports = {
         }
     },
     postCreateFrame: async (req, res) => {
-        // make posibel to create box, task and subtask
         try {
             type = req.body.type
             if(type == 'frame') {
@@ -109,6 +108,19 @@ module.exports = {
                         res.json({status: 400})
                 })
             } 
+            else if(type == 'box') {
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+                if(!respons) {
+                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
+                    return
+                }
+                
+                let newID = ObjectID();
+
+                respons.boxes.map
+
+
+            }
             else if(type == 'task') {
                 let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons) {
@@ -116,7 +128,7 @@ module.exports = {
                     return
                 }
 
-                let newID = new Date().getTime() + parseInt(Math.random() * 10000)
+                let newID = ObjectId()
 
                 respons.boxes.map(e => {
                     if(e.id == req.body.id) {
@@ -136,7 +148,7 @@ module.exports = {
 
                 respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(respons){
-                    res.json({message: type + " created", status: 200, id: newID})
+                    res.json({message: type + " created", status: 200, id: ObjectId(newID)})
                     return
                 }
                 else {
@@ -187,11 +199,11 @@ module.exports = {
                 respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
                     res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400}).end()
-                for(let i = respons.boxes.length - 1; i >= 0; i--)
+                for(let i = respons.boxes.length - 1; i >= 0; i--) 
                     if(respons.boxes[i].id == req.body.boxId) 
-                        for(let j = respons.boxes[i].tasks.length - 1; j >= 0; j--)
+                        for(let j = respons.boxes[i].tasks.length - 1; j >= 0; j--) 
                             if(respons.boxes[i].tasks[j].id == req.body.taskId) 
-                                for(let x = respons.boxes[i].tasks[j].subtasks.length - 1; x >= 0; x--)
+                                for(let x = respons.boxes[i].tasks[j].subtasks.length - 1; x >= 0; x--) 
                                     if(respons.boxes[i].tasks[j].subtasks[x].id == req.body.id)
                                         respons.boxes[i].tasks[j].subtasks.splice(x, 1);
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})

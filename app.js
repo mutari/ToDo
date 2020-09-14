@@ -2,7 +2,6 @@ require('dotenv').config()
 const express = require("express")
 const bodyParser = require('body-parser')
 const mongo = require('mongodb').MongoClient;
-const cors = require('cors')
 
 (async () => {
     try {
@@ -15,10 +14,10 @@ const cors = require('cors')
         const frameCol = await db.collection('Frame_profile')
         const app = express()
         
+        app.use(require('cors')())
         app.use(bodyParser.urlencoded({extended: true}))
         app.use(bodyParser.json())
         app.use(express.static(__dirname + "/public"))
-        app.use(cors())
         app.use((req, res, next) => {
             req.db = {userCol: userCol, frameCol: frameCol} 
             next();
