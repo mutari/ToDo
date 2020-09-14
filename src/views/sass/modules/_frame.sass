@@ -1,13 +1,38 @@
-$navHeight: 100px
+$navHeight: 120px
+$boxBorder: 2px
+$paddingBetweenBoxes: 40px
+$spanBetweenBoxesWidth: 10px
+$boxContentBorderRadius: 5px
 
+$taskWidth: 600px
+$taskHeight: 400px
 
-#frame
+#render
 	display: grid
-	grid-auto-rows: 100px auto
+	grid-auto-rows: $navHeight auto
 	grid-auto-columns: auto
-	grid-template-areas: "title" "frame"
+	grid-template-areas: "frameNav" "frame"
+
+	textarea
+		@extend .inactive-link
+		user-select: contain
+		width: 100%
+		resize: none
+		background: none
+		color: inherit
+		padding: 5px 0
+		height: 0
+		min-height: 18px
+		border-radius: inherit
+		transition: background .05s linear, padding .1s ease-in-out
+		&.active
+			padding: 5px
+			@extend .active-link
+			@extend .cursor-text
+			background: rgba(black , .15)
+
 	& > nav
-		grid-area: title
+		grid-area: frameNav
 		display: grid
 		grid-auto-rows: $navHeight
 		grid-auto-columns: 1fr 1fr 1fr
@@ -15,11 +40,10 @@ $navHeight: 100px
 		align-items: center
 		& > buttton
 			grid-area: toggle
-		& > h1
+		& > textarea
 			grid-area: title
-			text-align: center
-			height: auto
 			font-size: 3vw
+			text-align: center
 		& > .users
 			grid-area: users
 	& > .frame
@@ -31,50 +55,120 @@ $navHeight: 100px
 		overflow-x: auto
 		padding: 0 60px
 		height: calc( 100vh - #{$navHeight} )
+
 		& > .box
-			min-width: 400px
+			min-width: 350px
 			width: 100%
-			border: 2px dotted transparent
-			padding: 10px 0 0 0
-			margin: 0 40px 0 0
+			border: $boxBorder dotted transparent
+			padding: 10px $paddingBetweenBoxes 0 0
 			position: relative
 			overflow-y: auto
+			overflow-x: hidden
 			&.over
 				opacity: .9
-				border: 2px dotted red
-			& > h2
-				@extend .inactive-link
-				margin: 20px
+				border: $boxBorder dotted red
+			& > textarea
+				font-size: 22px
+				font-weight: bold
+				padding: 20px
+				border-radius: $boxContentBorderRadius
+				transition: margin .05s linear
+				&.active
+					margin: 0 0 20px 0
 			& > button, & > .task
+				@extend .pointer
 				background-color: #494949
-				border-radius: 5px
+				border-radius: $boxContentBorderRadius
+				box-shadow: 3px 3px 3px rgba(black , .3)
 			& > button
 				width: 100%
 				height: 60px
 				font-size: 50px
 				color: #E3E3E3
+			& > span
+				@extend .pointer
+				display: grid
+				place-content: center
+				position: absolute
+				right: calc( (#{$paddingBetweenBoxes} - (#{$spanBetweenBoxesWidth} + #{$boxBorder}))/2 )
+				top: 0
+				height: 100%
+				background-color: transparent
+				width: $spanBetweenBoxesWidth
+				border-radius: 3px 3px 0 0
+				opacity: 0
+				transition: background .1s linear, opacity .2s linear
+				box-shadow: 0 3px 10px rgba(black , .3)
+				&::before
+					display: grid
+					place-content: center
+					content: '+'
+					font-size: 0
+					background-color: #222
+					width: $spanBetweenBoxesWidth*3
+					height: $spanBetweenBoxesWidth*3
+					border: 4px solid transparent
+					border-radius: 50%
+					transition: font-size .1s linear, background .1s linear, border .1s linear
+				&.hover
+					opacity: .85
+					background-color: green
+					&::before
+						border: 4px solid green
+						font-size: $spanBetweenBoxesWidth*1.5
 
 			& > .task
 				//cursor: url("/img/ygtZg.png"), auto
 				position: relative
-				border: 2px dotted transparent
+				border: $boxBorder dotted transparent
 				padding: 20px
 				margin: 20px 0
-				& > textarea
-					@extend .inactive-link
-					user-select: contain
-					width: 100%
-					resize: none
-					background: none
-					color: inherit
-					padding: 10px
-					height: 0
-					min-height: 18px
-					
-					&.active
-						@extend .active-link
-						background: rgba(white , .8)
-						color: black
 				&.over
 					opacity: .9
-					border: 2px dotted red
+					border: $boxBorder dotted red
+	
+	.task-container
+		& > .taskLarge
+			position: absolute
+			top: calc( 50vh - #{$taskHeight}/2 )
+			right: calc( 50vw - #{$taskWidth}/2 )
+			width: $taskWidth
+			height: $taskHeight
+			background-color: #494949
+			border-radius: $boxContentBorderRadius
+			z-index: 2
+			padding: 20px
+			font-size: 18px
+
+			display: grid
+			grid-auto-columns: auto
+			grid-auto-rows: 50px 25px 40px auto
+			grid-template-areas: "title" "owner" "info" "description"
+			& > textarea:nth-child(1)
+				@extend .active-link
+				@extend .pointer
+				grid-area: title
+				font-size: 28px
+				font-weight: 700
+				&.active
+					@extend .cursor-text
+				
+			& > p:nth-child(2)
+				grid-area: owner
+				color: #E3E3E3
+
+			& > div:nth-child(3)
+				grid-area: info
+
+			& > .editor-container
+				@extend .editor-container
+				grid-area: description
+
+		& > #taskShadow
+			position: absolute
+			display: block
+			background-color: rgba( black, .5)
+			height: 100vh
+			width: 100vw
+			top: 0
+			right: 0

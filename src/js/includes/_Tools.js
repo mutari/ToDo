@@ -110,4 +110,14 @@ function Tools() {
 			arr = ids[id] ? {...arr, [id]: ids[id].value} : ''
 		return arr.length === ids.length ? arr : ''
 	}
+
+	this.focusAndputCursorAtEnd = target => {
+		if(document.activeElement !== target) target.focus()
+		let len = target.value.length * 2
+		
+		setTimeout(function() {
+		target.setSelectionRange(len, len);
+		}, 1)
+		target.scrollTop = 999999
+	}
 }

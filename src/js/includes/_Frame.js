@@ -1,10 +1,21 @@
 function Frame(frame) {
 	this.previousText
 	this.previousType
-	if(!frame) return queryTarget('#frame').innerHTML = ''
+	if(!frame) return queryTarget('#render').innerHTML = ''
 	
 	this.getData = () => data
 	this.getBoxes = () => boxes
+	
+	this.addTask = data => boxes.filter(box => parseInt(data.boxId) === box.id)[0]
+		.tasks.push({id: data.id})
+
+	this.updateTask = data => {
+		let task = boxes.filter(box => parseInt(data.boxId) === box.id)[0]
+			.tasks.filter(task => parseInt(data.id) === task.id)[0]
+
+		for(key in data.data) Object.assign(task, {[key]: data.data[key]})
+	}
+	
 
 	const data = {
 		id: frame._id,
@@ -17,7 +28,7 @@ function Frame(frame) {
 			profileImgLink: member.profileImgLink,
 		})),
 	}
-	const boxes = frame.boxes.map(box => ({
+	let boxes = frame.boxes.map(box => ({
 		id: box.id,
 		title: box.name,
 		color: box.color,
@@ -36,46 +47,9 @@ function Frame(frame) {
 			})),
 		})),
 	}))
-
-	this.toggleTextarea = (id, state, save) => {
-		const reveal = textarea => {
-			this.toggleTextarea()
-			tools.resizeAreaToFitContent(textarea)
-			textarea.classList.add('active')
-			textarea.readOnly = false
-			textarea.focus()
-		}
-		const hide = (textarea) => {
-			textarea.classList.remove('active')
-			textarea.readOnly = true
-			textarea.blur()
-		}
-
-		if(state) {
-			dragAndDrop.stopDndOfActiveTextarea = true
-			const parent = contextMenu ? contextMenu.extractTarget() : queryTarget(`[data-id="${id}"]`)
-			const textarea = parent.children.textarea
-			reveal(textarea)
-			this.previousText = textarea.value
-		} else {
-			const textareas = queryTargetAll('textarea.active')
-			;[...textareas].forEach(async textarea => {
-				try {
-					if(save) {
-						await crud('update', this.previousType)
-						textarea.innerHTML = textarea.value
-					} else throw ''
-					hide(textarea)
-				} catch (error) {
-					console.log(error)
-					hide(textarea)
-					textarea.value = this.previousText
-				}
-			})
-		}
-	}
-
-	this.init = async () => {
+	
+	init()
+	async function init() {
 		try {
 			await render.frame({data, boxes})
 			dragAndDrop = new DragAndDrop()
@@ -84,6 +58,4 @@ function Frame(frame) {
 			console.log(error)
 		}
 	}
-
-	this.init()
 }

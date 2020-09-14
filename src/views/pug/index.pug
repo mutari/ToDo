@@ -4,12 +4,15 @@ html
 
 	body
 		// include includes/_navbar.pug
+		.loadingscreen
 
 		main
+		
+			include includes/_basic-form.pug
+			include includes/_test-editor.pug
 
-			#frame
-				include includes/_basic-form.pug
-				include includes/_test-editor.pug
+			#render
+
 			.darkModeToggle
 				button#dark
 				button#light

@@ -33,11 +33,12 @@ const server = new Server()
 const cookie = new Cookie()
 const themplates = new Themplates()
 const render = new Render()
-let user = new User()
 let frame
 let editor
 let dragAndDrop
 let contextMenu
+let user = new User('')
+let crud = new CRUD()
 const form = new Form()
 const validate = new Validate()
 const announce = new Announce()
@@ -60,18 +61,25 @@ document.addEventListener("click", e => {
     
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
-            console.log(id)
             const dataType = e.target.parentElement.attributes['data-type']
-            if(id === 'update') frame.toggleTextarea(e, true)
-            else if(dataType && frame) crud(id, dataType.value, e)
+            if(id === 'update') toggleTextarea(e, true)
+            else if(id === 'read') crud.run('read', 'task', e)
+            else if(dataType && frame) crud.run(id, dataType.value, e)
         }
         contextMenu.toggleMenu(false)
     } else {
         if(id === 'create') {
             const dataType = e.target.attributes['data-type']
-            if(dataType && frame) crud(id, dataType.value, e)
+            if(dataType && frame) crud.run(id, dataType.value, e)
         }
-        if(queryTarget('textarea.active') && id !== 'textarea') frame.toggleTextarea(e, false)
+        if(queryTarget('textarea.active') && id !== 'textarea') toggleTextarea(e, false)
+    }
+
+    if(id === 'task') crud.run('read', id, e)
+    else if(id === 'taskShadow') render.eject('.task-container')
+    else if(id === 'boxAdd') {
+        crud.run('create', 'box', e)
+        hoverBetweenBoxes.remove(e)
     }
 
     if(id === 'dark') toggleDarkmode(true)
@@ -79,6 +87,8 @@ document.addEventListener("click", e => {
 })
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
+    if(['box', 'frameNav'].includes(id)) toggleTextarea(e, true)
+    if(parentId(e) === 'taskLarge') toggleTextarea(e, true)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
@@ -104,16 +114,19 @@ document.addEventListener( 'keydown', e => {
     const key = e.keyCode
     if([13, 27].includes(key)) {
         e.preventDefault()
-        if(key == 13) frame.toggleTextarea(e, false, true) //key 13 enter
-        if(key === 27) frame.toggleTextarea(e, false) //key 27 esc
+        if(key == 13) toggleTextarea(e, false, true) //key 13 enter
+        if(key === 27) toggleTextarea(e, false) //key 27 esc
     }
+    if(parentId(e) === 'frameNav') 
+        if(e.target.value.length > 33 && ![8,16,17,37,38,39,40].includes(key)) e.preventDefault() //8 backspace & 16 shift & 17 ctrl & 37,38,39,40 arrowkeys
 })
 document.addEventListener( 'contextmenu', e => {
+    const id = targetId(e)
     if(contextMenu) {
-        if(!['task', 'box'].includes(targetId(e))) return contextMenu.toggleMenu(false) 
+        if(!['task', 'box', 'frame', 'frameNav'].includes(id)) return contextMenu.toggleMenu(false) 
         contextMenu.toggleMenu(false)
     }
-    if(!e.target.attributes['data-id']) return
+    if(!e.target.attributes['data-id'] || id === 'taskLarge') return
     e.preventDefault()
     if(!contextMenu) {
         contextMenu = new ContextMenu(e)
@@ -124,6 +137,35 @@ document.addEventListener( 'resize', () => {
     if(!contextMenu) return
     contextMenu.toggleMenu(false)
 })
+
+const hoverBetweenBoxes = {
+    add: e => {
+        tools.throttle(function() {e.target.classList.add('hover')}, 300)
+    },
+    remove: e => {
+        tools.cancelThrottle()
+        e.target.classList.remove('hover')
+    },
+}
+document.addEventListener("mouseover", e => {
+    const id = targetId(e)
+    if(id === "boxAdd") hoverBetweenBoxes.add(e)
+})
+document.addEventListener("mouseout", e => {
+    const id = targetId(e)
+    if(id === "boxAdd") {
+        hoverBetweenBoxes.remove(e)
+    }
+})
+
+
+
+
+
+
+
+
+
 
 function toggleDarkmode(bool) {
     const targets = [queryTarget('body'), queryTarget('#frame'), queryTarget('.darkModeToggle')]
@@ -142,5 +184,3 @@ function show() {
         target.style.display = 'block'
     })
 }
-hide()
-

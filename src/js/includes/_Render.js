@@ -7,15 +7,42 @@ function Render() {
 		return Promise.resolve()
 
 		function renderFrame() {
-			queryTarget('#frame').innerHTML = themplates.frame(data)
+			queryTarget('#render').innerHTML = themplates.frame(data)
+			return Promise.resolve()
+		}
+	}
+	this.box = async data => {
+		console.log('hej')
+		await renderBox()
+		toggleTextarea(5, true)
+		return Promise.resolve()
+		
+		function renderBox() {
+			queryTarget(`.box[data-id="${data.idToRenderAt}"`).insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
+			return Promise.resolve()
+		}
+	}
+	this.taskLarge = async (data) => {
+		const boxes = frame.getBoxes()
+		console.log(boxes,data)
+		const box = boxes.find(box => box.id === parseInt(data.boxId))
+		const task = {...box.tasks.find(task => task.id === parseInt(data.id)), parent: box.title}
+		await renderTaskLarge()
+		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
+		return Promise.resolve()
+
+		function renderTaskLarge() {
+			queryTarget(`#render`).insertAdjacentHTML('beforeend', themplates.taskLarge(task))
 			return Promise.resolve()
 		}
 	}
 	this.task = async data => {
 		await renderTask()
-		frame.toggleTextarea(data.createdId, true)
+		toggleTextarea(data.createdId, true)
+		return Promise.resolve()
+
 		function renderTask() {
-			queryTarget(`.box[data-id="${data.id}"]`).insertAdjacentHTML('beforeend', themplates.taskMin({id: data.createdId, text: ' '}))
+			queryTarget(`.box[data-id="${data.id}"]`).insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
 			return Promise.resolve()
 		}
 	}

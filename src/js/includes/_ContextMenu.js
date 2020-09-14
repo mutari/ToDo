@@ -1,5 +1,6 @@
 function ContextMenu(e) {
-    const type = [...e.target.classList].find(type => ['frame', 'box', 'task'].includes(type))
+    const type = [...e.target.classList].find(type => [ 'frameNav', 'frame', 'box', 'task'].includes(type))
+    
     render.contextMenu(e.target.attributes['data-id'].value, type)
     const menu = queryTarget('#context-menu')
 

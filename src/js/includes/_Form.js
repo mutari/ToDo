@@ -2,13 +2,11 @@ function Form() {
 
     this.submit = async e => {
         const id = targetId(e)
-        
-        console.log((e.target.elements))
         const inputs = getInputs[id](e.target.elements)
         const errorMessages = this.errorMessages[id]
+
         try {
             const response = validate.form(inputs, errorMessages) ? await server.postFetch(id, inputs) : ''
-            console.log(response)
             if(!response) throw 'attempt failed'
             if(!['login', 'signUp'].contains(id)) return
             if(!response.user) return
