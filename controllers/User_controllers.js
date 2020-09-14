@@ -62,15 +62,24 @@ module.exports = {
             res.json({message: "get user data error", status: 400})
         }
     },
-    postUpdateUser: async () => {
+    postUpdateUser: async (req, res) => {
         try {
-            let user = await req.db.updateOne({"_id": req.token.id}, {"$set": req.body})
+            let user = await req.db.userCol.updateOne({"_id": ObjectID(req.token.id)}, {"$set": req.body})
 
             if(user) res.json({message: "user updated", status: 200})
             else res.json({message: "User did not update", status: 400})
         } catch (error) {
             console.error(error)
             res.json({message: "update user data error", status: 400})
+        }
+    },
+    postDeleteUser: async (req, res) => {
+        try {
+            let respons = req.db.userCol.removeOne({"_id": ObjectID(req.token.id)})
+            if(user) res.json({message: "user removed", status: 200})
+            else res.json({message: "User did not get removed", status: 400})
+        } catch (error) {
+            console.error(error)
         }
     }
 }

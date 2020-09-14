@@ -43,6 +43,7 @@ module.exports = {
         try {
             part = req.body.type
             if(part == 'frame') {
+                req.body.data.timestampUpdated = new Date().getTime()
                 let respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.id)}, {$set: req.body.data})
                 if(respons)
                     res.json({message: "frame updated", status: 200})
@@ -51,6 +52,7 @@ module.exports = {
             }
             else if(part == 'box' || part == 'task' || part == 'subtask') {
                 let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+                respons.timestampUpdated = new Date().getTime()
                 if(!respons)
                     res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
 
@@ -93,15 +95,13 @@ module.exports = {
                     frame = out
                     frame.text = req.body.text
                     frame.author = req.token.id
-                    frame.timestampCreated = "$$NOW"
-                    frame.timestampUpdate = "$$NOW"
                     frame.members.push(req.token.id)
                     if(req.body.boxs) {
                        frame.boxs = req.body.boxs.map((e, i)=> {
                             e.queue = i
                         })
                     }
-                    let respons = await req.db.frameCol.insertOne(frame)
+                    let respons = await req.db.frameCol.insertOne(frame, {$currentDate: {lastModified: true, "timestampCreated": {$type: "timestamp"}, "timestampUpdate": {$type: "timestamp"}}})
                     if(respons)
                         res.json({status: 200})
                     else
@@ -121,10 +121,18 @@ module.exports = {
                     id: newID,
                     text: "",
                     color: "gray",
-                    tasks: [], 
-
+                    tasks: []
                 })
 
+                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
+                if(respons){
+                    res.json({message: type + " created", status: 200, id: ObjectID(newID)})
+                    return
+                }
+                else {
+                    res.json({message: type + "could not be created", status: 400})
+                    return
+                }
 
             }
             else if(type == 'task') {
@@ -163,6 +171,41 @@ module.exports = {
                 }
 
             }
+            else if(type == 'subtask') { // box = boxId, task = id
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+                if(!respons) {
+                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
+                    return
+                }
+
+                let newID = ObjectID()
+
+                respons.boxes.map(e => {
+                    if(e.id == req.body.boxId) {
+                        e.tasks.map(el => {
+                            if(el.id == req.body.id) {
+                                el.tasks.push({
+                                    id: newID,
+                                    text: "",
+                                    state: false,
+                                    members: []
+                                })
+                            }
+                        })
+                    }
+                })
+
+                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
+                if(respons){
+                    res.json({message: type + " created", status: 200, id: ObjectID(newID)})
+                    return
+                }
+                else {
+                    res.json({message: type + "could not be created", status: 400})
+                    return
+                }
+
+            }
         } catch (error) {
             console.error(error)
         }
@@ -173,25 +216,25 @@ module.exports = {
             if(part == "frame") {
                 respons = await req.db.frameCol.remove({"_id": ObjectID(req.body.id)})
                 if(!respons)
-                    res.json({message: `did not find a frame white that id: ${req.body.id}`, status: 400}).end()
+                    return res.json({message: `did not find a frame white that id: ${req.body.id}`, status: 400})
                 else
-                    res.json({message: `removed a frame white that id: ${req.body.id}`, status: 200}).end()
+                    return res.json({message: `removed a frame white that id: ${req.body.id}`, status: 200})
             }
             else if(part == "box") {
                 respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
-                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400}).end()
+                    return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
                 for(let i = respons.boxes.length - 1; i >= 0; i--)
                     if(respons.boxes[i].id == req.body.id) 
                         respons.boxes.splice(i, 1);
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(rep)
-                    res.json({message: part + " delete", status: 200}).end()
+                    return res.json({message: part + " delete", status: 200})
             }
             else if(part == "task") {
                 respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
-                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400}).end()
+                    return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
                 for(let i = respons.boxes.length - 1; i >= 0; i--)
                     if(respons.boxes[i].id == req.body.boxId) 
                         for(let j = respons.boxes[i].tasks.length - 1; j >= 0; j--)
@@ -199,27 +242,30 @@ module.exports = {
                                 respons.boxes[i].tasks.splice(j, 1);
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(rep)
-                    res.json({message: part + " delete", status: 200}).end()
+                    return res.json({message: part + " delete", status: 200})
             }
             else if(part == "subtask") {
                 respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
-                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400}).end()
-                for(let i = respons.boxes.length - 1; i >= 0; i--) 
-                    if(respons.boxes[i].id == req.body.boxId) 
-                        for(let j = respons.boxes[i].tasks.length - 1; j >= 0; j--) 
-                            if(respons.boxes[i].tasks[j].id == req.body.taskId) 
-                                for(let x = respons.boxes[i].tasks[j].subtasks.length - 1; x >= 0; x--) 
-                                    if(respons.boxes[i].tasks[j].subtasks[x].id == req.body.id)
-                                        respons.boxes[i].tasks[j].subtasks.splice(x, 1);
+                    res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
+                start:
+                    for(let i = respons.boxes.length - 1; i >= 0; i--) 
+                        if(respons.boxes[i].id == req.body.boxId) 
+                            for(let j = respons.boxes[i].tasks.length - 1; j >= 0; j--) 
+                                if(respons.boxes[i].tasks[j].id == req.body.taskId) 
+                                    for(let x = respons.boxes[i].tasks[j].subtasks.length - 1; x >= 0; x--) 
+                                        if(respons.boxes[i].tasks[j].subtasks[x].id == req.body.id) {
+                                            respons.boxes[i].tasks[j].subtasks.splice(x, 1);
+                                            break start
+                                        }
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(rep)
-                    res.json({message: part + " delete", status: 200}).end()
+                    return res.json({message: part + " delete", status: 200})
             }
-            res.json({message: "document could not deletet", status: 400}).end()
+            return res.json({message: "document could not deletet", status: 400})
         } catch (error) {
             console.error(error)
-            res.json({message: "document could not deletet", status: 400}).end()
+            return res.json({message: "document could not deletet", status: 400})
         }
     }
 }
