@@ -43,7 +43,7 @@ module.exports = {
         try {
             part = req.body.type
             if(part == 'frame') {
-                let respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameID)}, {$set: req.body.data})
+                let respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.id)}, {$set: req.body.data})
                 if(respons)
                     res.json({message: "frame updated", status: 200})
                 else 
