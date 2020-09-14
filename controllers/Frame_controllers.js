@@ -270,5 +270,8 @@ module.exports = {
             console.error(error)
             return res.json({message: "document could not deletet", status: 400})
         }
+    },
+    postUpdateFramePosition: (req, res) => {
+
     }
 }

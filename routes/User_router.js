@@ -4,16 +4,23 @@ const userControllers = require('../controllers/User_controllers.js')
 const _login = require('../modules/user/userLogin.js')
 const _auth = require('../modules/user/userAuth.js')
 
-router.post("/signUp", 
-    userControllers.postSignUp(req, res))
+router.post(
+    "/signUp", 
+        userControllers.postSignUp)
 
-router.post("/login", _login, 
-    userControllers.postLogin(req, res))
+router.post(
+    "/login", 
+        _login, 
+            userControllers.postLogin)
 
-router.post("/user", _auth, 
-    userControllers.postGetUser(req, res))
+router.post(
+    "/user", 
+        _auth, 
+            userControllers.postGetUser)
 
-router.post("/change/user", _auth, 
-    userControllers.postUpdateUser(req, res))
+router.post(
+    "/change/user", 
+        _auth, 
+            userControllers.postUpdateUser)
 
 module.exports = router
