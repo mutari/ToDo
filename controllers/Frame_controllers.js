@@ -91,7 +91,7 @@ module.exports = {
             if(type == 'frame') {
                 require('../modules/rwFiles.js').readFile('/../dataSchema/frame_empty.json', async out => { 
                     frame = out
-                    frame.title = req.body.title
+                    frame.text = req.body.text
                     frame.author = req.token.id
                     frame.timestampCreated = "$$NOW"
                     frame.timestampUpdate = "$$NOW"
@@ -117,7 +117,13 @@ module.exports = {
                 
                 let newID = ObjectID();
 
-                respons.boxes.map
+                respons.boxes.push({
+                    id: newID,
+                    text: "",
+                    color: "gray",
+                    tasks: [], 
+
+                })
 
 
             }
@@ -128,7 +134,7 @@ module.exports = {
                     return
                 }
 
-                let newID = ObjectId()
+                let newID = ObjectID()
 
                 respons.boxes.map(e => {
                     if(e.id == req.body.id) {
@@ -148,7 +154,7 @@ module.exports = {
 
                 respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(respons){
-                    res.json({message: type + " created", status: 200, id: ObjectId(newID)})
+                    res.json({message: type + " created", status: 200, id: ObjectID(newID)})
                     return
                 }
                 else {
