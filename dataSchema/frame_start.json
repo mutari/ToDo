@@ -7,38 +7,43 @@
     "members": [],
     "boxes": [
         {
-            "id": 0,
+            "id": "0",
             "text": "To-do", 
             "color": "white",
+            "posId": 0, 
             "tasks": [
                 { 
-                    "id": 0,
+                    "id": "0",
                     "text": "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
                     "description": "", 
                     "members": [], 
                     "color": "RED", 
+                    "posId": 0, 
                     "date": "",
                     "subtasks": [], 
                     "labels": ["New-task"]
                 },
                 { 
-                    "id": 1,
+                    "id": "1",
                     "text": "To edit a task simply click on it", 
                     "description": "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
                     "members": [], 
                     "color": "BLUE", 
+                    "posId": 1, 
                     "date": "",
                     "subtasks": [
                         {
-                            "id": 0,
+                            "id": "0",
                             "text": "Create a subtask",
                             "state": "true",
+                            "posId": 0, 
                             "member": []
                         },
                         {
-                            "id": 1,
+                            "id": "1",
                             "text": "Deleat a subtask",
                             "state": "false",
+                            "posId": 1, 
                             "member": []
                         }
                     ], 
@@ -47,22 +52,25 @@
             ]
         },
         {
-            "id": 1,
+            "id": "1",
             "text": "Do today", 
             "color": "white",
+            "posId": 1,
             "tasks": []
         },
         {
-            "id": 2,
+            "id": "2",
             "text": "In progress", 
             "color": "white",
+            "posId": 2,
             "tasks": [],
             "max-tasks": 3
         },
         {
-            "id": 3,
+            "id": "3",
             "text": "Done", 
             "color": "white",
+            "posId": 3,
             "tasks": []
         }
     ]
