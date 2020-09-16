@@ -19,7 +19,7 @@ module.exports = {
 
     postGetFrame: async (req, res) => {
         try {
-            data = await req.db.frameCol.findOne({
+            let data = await req.db.frameCol.findOne({
                 $and: [
                     {"_id": req.body.id},
                     {"members": req.token.id}
@@ -41,8 +41,8 @@ module.exports = {
             }
         */
         try {
-            part = req.body.type
-            if(part == 'frame') {
+            let type = req.body.type
+            if(type == 'frame') {
                 req.body.data.timestampUpdated = new Date().getTime()
                 let respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.id)}, {$set: req.body.data})
                 if(respons)
@@ -50,7 +50,7 @@ module.exports = {
                 else 
                     res.json({message: "frame not updated", status: 400})    
             }
-            else if(part == 'box' || part == 'task' || part == 'subtask') {
+            else if(type == 'box' || type == 'task' || type == 'subtask') {
                 let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 respons.timestampUpdated = new Date().getTime()
                 if(!respons)
@@ -78,9 +78,9 @@ module.exports = {
 
                 respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(respons)
-                    res.json({message: part + " update", status: 200})
+                    res.json({message: type + " update", status: 200})
                 else
-                    res.json({message: part + "could not be updatet", status: 400})
+                    res.json({message: type + "could not be updatet", status: 400})
             }
         } catch (error) {
             console.error(error)
@@ -89,10 +89,10 @@ module.exports = {
     },
     postCreateFrame: async (req, res) => {
         try {
-            type = req.body.type
+            let type = req.body.type
             if(type == 'frame') {
                 require('../modules/rwFiles.js').readFile('/../dataSchema/frame_empty.json', async out => { 
-                    frame = out
+                    let frame = out
                     frame.text = req.body.text
                     frame.author = req.token.id
                     frame.members.push(req.token.id)
@@ -215,16 +215,16 @@ module.exports = {
     },
     postDeleteFrame: async (req, res) => {
         try {
-            part = req.body.type
-            if(part == "frame") {
-                respons = await req.db.frameCol.remove({"_id": ObjectID(req.body.id)})
+            let type = req.body.type
+            if(type == "frame") {
+                let respons = await req.db.frameCol.remove({"_id": ObjectID(req.body.id)})
                 if(!respons)
                     return res.json({message: `did not find a frame white that id: ${req.body.id}`, status: 400})
                 else
                     return res.json({message: `removed a frame white that id: ${req.body.id}`, status: 200})
             }
-            else if(part == "box") {
-                respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+            else if(type == "box") {
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
                     return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
                 for(let i = respons.boxes.length - 1; i >= 0; i--)
@@ -232,10 +232,10 @@ module.exports = {
                         respons.boxes.splice(i, 1);
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(rep)
-                    return res.json({message: part + " delete", status: 200})
+                    return res.json({message: type + " delete", status: 200})
             }
-            else if(part == "task") {
-                respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+            else if(type == "task") {
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
                     return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
                 for(let i = respons.boxes.length - 1; i >= 0; i--)
@@ -245,10 +245,10 @@ module.exports = {
                                 respons.boxes[i].tasks.splice(j, 1);
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(rep)
-                    return res.json({message: part + " delete", status: 200})
+                    return res.json({message: type + " delete", status: 200})
             }
-            else if(part == "subtask") {
-                respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
+            else if(type == "subtask") {
+                let respons = await req.db.frameCol.findOne({"_id": ObjectID(req.body.frameId)})
                 if(!respons)
                     res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
                 start:
@@ -263,7 +263,7 @@ module.exports = {
                                         }
                 let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
                 if(rep)
-                    return res.json({message: part + " delete", status: 200})
+                    return res.json({message: type + " delete", status: 200})
             }
             return res.json({message: "document could not deletet", status: 400})
         } catch (error) {
@@ -271,7 +271,51 @@ module.exports = {
             return res.json({message: "document could not deletet", status: 400})
         }
     },
-    postUpdateFramePosition: (req, res) => {
+    postUpdateFramePosition: async (req, res) => {
+        /*
+            {
+                frameId:
+                boxes: [
+                    {
+                        id:
+                        pos:
+                        tasks: [
+                            {
+                                id:
+                                pos:
+                            }
+                        ]
+                    }
+                ]
+            }
+        */
+        
+        try {
+            let respons = await req.db.frameCol.findOne({'_id': ObjectID(req.token.frameId)})
+            if(!respons)
+                return res.json({message: `did not find a frame white that id: ${req.body.id}`, status: 400})
+            
+            respons.boxes.forEach(e => {
 
+            })
+
+
+            let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
+            if(rep)
+                return res.json({message: type + " delete", status: 200})
+        } catch (error) {
+            console.error(error)
+            return res.json({message: "somthing whent wrong when moving pos", status: 400}) 
+        }
+
+
+        function moveAndUpdate(NewData, OldData) {
+            return OldData.map(e => {
+                for(let i = 0; NewData.length; i++) {
+                    if(e.id == NewData[i].id)
+                        return e.pos = NewData[i].pos
+                }
+            });
+        }
     }
 }

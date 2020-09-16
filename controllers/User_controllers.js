@@ -76,7 +76,7 @@ module.exports = {
     postDeleteUser: async (req, res) => {
         try {
             let respons = req.db.userCol.removeOne({"_id": ObjectID(req.token.id)})
-            if(user) res.json({message: "user removed", status: 200})
+            if(respons) res.json({message: "user removed", status: 200})
             else res.json({message: "User did not get removed", status: 400})
         } catch (error) {
             console.error(error)
