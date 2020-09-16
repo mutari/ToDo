@@ -241,7 +241,8 @@
     #render .task-container > .taskLarge > textarea:nth-child(1) {
       grid-area: title;
       font-size: 28px;
-      font-weight: 700; }
+      font-weight: 700;
+      margin: 0 0 5px 0; }
     #render .task-container > .taskLarge > p:nth-child(2) {
       grid-area: owner;
       color: #E3E3E3; }
@@ -249,7 +250,8 @@
       grid-area: info;
       display: flex;
       flex-wrap: wrap;
-      gap: 15px; }
+      gap: 15px;
+      margin: 0 0 10px 0; }
       #render .task-container > .taskLarge > div.info > div.members > div > button, #render .task-container > .taskLarge > div.info > div.labels > #labels > button, #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .task-container > .taskLarge > div.info > div.members > div > div.img {
         display: block;
         height: 25px;
@@ -259,7 +261,8 @@
         background-color: rgba(0, 0, 0, 0.15);
         color: inherit; }
         #render .task-container > .taskLarge > div.info > div.members > div > button::after, #render .task-container > .taskLarge > div.info > div.labels > #labels > button::after {
-          content: '+'; }
+          content: '+';
+          font-size: 19.8px; }
         #render .task-container > .taskLarge > div.info > div.members > div > button:hover, #render .task-container > .taskLarge > div.info > div.labels > #labels > button:hover {
           background-color: rgba(0, 0, 0, 0.3); }
       #render .task-container > .taskLarge > div.info > div > label {
@@ -314,11 +317,10 @@
           #render .task-container > .taskLarge > div.info > div.labels > #labels > div {
             background-color: rgba(0, 0, 0, 0.15);
             padding: 5px 10px;
-            border-radius: 5px; }
-          #render .task-container > .taskLarge > div.info > div.labels > #labels > button {
             border-radius: 5px;
-            min-height: 31px;
-            min-width: 31px; }
+            font-size: 12px; }
+          #render .task-container > .taskLarge > div.info > div.labels > #labels > button {
+            border-radius: 5px; }
     #render .task-container > .taskLarge > .editor-container {
       grid-area: description; }
   #render .task-container > #taskShadow {
@@ -375,7 +377,7 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container, #render .task-container > .taskLarge > .editor-container, .editor-container > .toolbar > div:first-child > button, #render .task-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, #render .task-container > .taskLarge > .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, #render .task-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .task-container > .taskLarge > textarea:nth-child(1), #render .task-container > .taskLarge > div.info > div.members > div > button, #render .task-container > .taskLarge > div.info > div.labels > #labels > button, #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(1), .darkModeToggle > button {
+.pointer, .editor-container, #render .task-container > .taskLarge > .editor-container, .editor-container > .toolbar > div:first-child > button, #render .task-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, #render .task-container > .taskLarge > .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, #render .task-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .task-container > .taskLarge > textarea:nth-child(1), #render .task-container > .taskLarge > div.info > div.members > div > button, #render .task-container > .taskLarge > div.info > div.labels > #labels > button, #render .task-container > .taskLarge > div.info > div.color > button, #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(1), .darkModeToggle > button {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor, #render .task-container > .taskLarge > .editor-container > .editor, #render textarea.active, #render .task-container > .taskLarge > textarea.active:nth-child(1) {

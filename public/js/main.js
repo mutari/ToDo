@@ -1093,14 +1093,12 @@ function Frame(frame) {
 	this.getData = () => data
 	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.find(box => data.boxId === box.id)
+	this.addTask = data => boxes.find(box => data.boxId == box.id)
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		
 		let task = boxes.find(box => data.boxId == box.id) //! ===
 			.tasks.find(task => data.id == task.id) //! ===
-		console.log(task)
 		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 	
@@ -1173,9 +1171,9 @@ function Render() {
 	}
 	this.taskLarge = async (data) => {
 		const boxes = frame.getBoxes()
-		console.log(boxes,data)
-		const box = boxes.find(box => box.id === parseInt(data.boxId))
-		const task = {...box.tasks.find(task => task.id === parseInt(data.id)), parent: box.text}
+		const box = boxes.find(box => box.id == data.boxId)
+		const task = {...box.tasks.find(task => task.id == data.id), parent: box.text}
+		console.log(task)
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
 		return Promise.resolve()

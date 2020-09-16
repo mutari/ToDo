@@ -156,6 +156,7 @@ $taskHeight: 400px
 				grid-area: title
 				font-size: 28px
 				font-weight: 700
+				margin: 0 0 5px 0
 				&.active
 					@extend .cursor-text
 				
@@ -168,6 +169,7 @@ $taskHeight: 400px
 				display: flex
 				flex-wrap: wrap
 				gap: 15px
+				margin: 0 0 10px 0
 				
 				$circleHeight: 25px
 				%circle
@@ -182,6 +184,7 @@ $taskHeight: 400px
 					color: inherit
 					&::after
 						content: '+'
+						font-size: 18px*1.1
 					&:hover
 						background-color: rgba(black, .3)
 
@@ -196,6 +199,7 @@ $taskHeight: 400px
 					display: grid
 					place-content: start
 					& > button
+						@extend .pointer
 						padding: 5px
 						border-radius: 5px
 						background-color: transparent
@@ -248,11 +252,10 @@ $taskHeight: 400px
 							background-color: rgba(black, .15)
 							padding: 5px 10px
 							border-radius: $boxContentBorderRadius
+							font-size: 12px
 						& > button
 							@extend %circleButton
 							border-radius: 5px
-							min-height: 31px
-							min-width: 31px
 							
 
 
