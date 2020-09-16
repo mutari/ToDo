@@ -88,7 +88,7 @@ document.addEventListener("click", e => {
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
     if(['box', 'frameNav'].includes(id)) toggleTextarea(e, true)
-    if(parentId(e) === 'taskLarge') toggleTextarea(e, true)
+    if(['taskLarge'].includes(parentId(e))) toggleTextarea(e, true)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)

@@ -6,13 +6,14 @@ function Frame(frame) {
 	this.getData = () => data
 	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.find(box => parseInt(data.boxId) === box.id)
+	this.addTask = data => boxes.find(box => data.boxId === box.id)
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.find(box => parseInt(data.boxId) === box.id)
-			.tasks.find(task => parseInt(data.id) === task.id)
-
+		
+		let task = boxes.find(box => data.boxId == box.id) //! ===
+			.tasks.find(task => data.id == task.id) //! ===
+		console.log(task)
 		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 	

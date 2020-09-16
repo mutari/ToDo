@@ -1,0 +1,1 @@
+const fetchUrl = 'http://98.128.142.46'

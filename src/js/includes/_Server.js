@@ -36,5 +36,5 @@ function Server() {
 		},
 		body: JSON.stringify(data),
 	})
-	const getUrl = dest => `http://98.128.142.46/ToDo${action[dest]}` //https://98.128.142.46/
+	const getUrl = dest => `${fetchUrl}/ToDo${action[dest]}` //https://98.128.142.46/
 }

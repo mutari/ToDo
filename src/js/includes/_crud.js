@@ -1,6 +1,5 @@
 function CRUD() {
     this.run = async (method, type, e) => {
-        console.log(method)
         try {
             if(!frame.getData()) return
             let input = this.getData(method, type, e)
@@ -107,7 +106,9 @@ function CRUD() {
     }
 
     function updateStoredValues(method, type, input) {
-        if(method === 'create') frame.addTask({id: input.createdId, boxId: input.id})
+        if(method === 'create') {
+            if(type === 'task') frame.addTask({id: input.createdId, boxId: input.id})
+        }
         if(method === 'update') frame.updateTask({id: input.id, boxId: input.boxId, data: input.data})
     }
 }

@@ -21,9 +21,33 @@ function Themplates() {
 	this.taskLarge = task => `
 		<div class="task-container">
 			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${task.text ? task.text : ''}</textarea>
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
 				<p>In <b>${task.parent}</b></p>
-				<div></div>
+				<div class="info">
+					<div class="color">
+						<label>Color</label>
+						<button><span class="circle"></span><span>Yellow</span></button>
+					</div>
+					<div class="members">
+						<label>Members</label>
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<button />
+						</div>
+					</div>
+					<div class="labels">
+						<label>Labels</label>
+						<div id="labels">
+							<div>Project-x</div>
+							<div>Design</div>
+							<div>Design</div>
+							<button />
+						</div>
+					</div>
+				</div>
 				${task.description ? this.editor(task.description) : ''}
 			</div>
 			<span id="taskShadow"></span>

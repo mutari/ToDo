@@ -113,25 +113,26 @@
       .context-menu > ul > li#delete::before {
         content: '\f2ed'; }
 
+#render textarea {
+  user-select: contain;
+  width: 100%;
+  resize: none;
+  background: none;
+  color: inherit;
+  padding: 5px 0;
+  height: 0;
+  min-height: 30px;
+  transition: background .05s linear, padding .1s ease-in-out, border .1s ease-in;
+  overflow-y: hidden; }
+  #render textarea.active {
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.1); }
+
 #render {
   display: grid;
   grid-auto-rows: 120px auto;
   grid-auto-columns: auto;
   grid-template-areas: "frameNav" "frame"; }
-  #render textarea {
-    user-select: contain;
-    width: 100%;
-    resize: none;
-    background: none;
-    color: inherit;
-    padding: 5px 0;
-    height: 0;
-    min-height: 18px;
-    border-radius: inherit;
-    transition: background .05s linear, padding .1s ease-in-out; }
-    #render textarea.active {
-      padding: 5px;
-      background: rgba(0, 0, 0, 0.15); }
   #render > nav {
     grid-area: frameNav;
     display: grid;
@@ -227,15 +228,15 @@
     top: calc( 50vh - 400px/2);
     right: calc( 50vw - 600px/2);
     width: 600px;
-    height: 400px;
+    min-height: 400px;
     background-color: #494949;
     border-radius: 5px;
     z-index: 2;
     padding: 20px;
     font-size: 18px;
     display: grid;
-    grid-auto-columns: auto;
-    grid-auto-rows: 50px 25px 40px auto;
+    grid-auto-columns: calc( 600px - 20px*2);
+    grid-auto-rows: minmax(40px, min-content) 30px min-content auto;
     grid-template-areas: "title" "owner" "info" "description"; }
     #render .task-container > .taskLarge > textarea:nth-child(1) {
       grid-area: title;
@@ -244,8 +245,80 @@
     #render .task-container > .taskLarge > p:nth-child(2) {
       grid-area: owner;
       color: #E3E3E3; }
-    #render .task-container > .taskLarge > div:nth-child(3) {
-      grid-area: info; }
+    #render .task-container > .taskLarge > div.info {
+      grid-area: info;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px; }
+      #render .task-container > .taskLarge > div.info > div.members > div > button, #render .task-container > .taskLarge > div.info > div.labels > #labels > button, #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .task-container > .taskLarge > div.info > div.members > div > div.img {
+        display: block;
+        height: 25px;
+        width: 25px;
+        border-radius: 50%; }
+      #render .task-container > .taskLarge > div.info > div.members > div > button, #render .task-container > .taskLarge > div.info > div.labels > #labels > button {
+        background-color: rgba(0, 0, 0, 0.15);
+        color: inherit; }
+        #render .task-container > .taskLarge > div.info > div.members > div > button::after, #render .task-container > .taskLarge > div.info > div.labels > #labels > button::after {
+          content: '+'; }
+        #render .task-container > .taskLarge > div.info > div.members > div > button:hover, #render .task-container > .taskLarge > div.info > div.labels > #labels > button:hover {
+          background-color: rgba(0, 0, 0, 0.3); }
+      #render .task-container > .taskLarge > div.info > div > label {
+        margin: 0 0 5px 0;
+        height: 20px; }
+      #render .task-container > .taskLarge > div.info > div.color {
+        grid-area: color;
+        display: grid;
+        place-content: start; }
+        #render .task-container > .taskLarge > div.info > div.color > button {
+          padding: 5px;
+          border-radius: 5px;
+          background-color: transparent;
+          display: flex;
+          gap: 10px;
+          color: inherit;
+          align-self: start; }
+          #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(1) {
+            height: 15px;
+            width: 15px;
+            background-color: yellow; }
+          #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
+            color: inherit;
+            align-self: center; }
+          #render .task-container > .taskLarge > div.info > div.color > button:hover {
+            background-color: rgba(0, 0, 0, 0.15); }
+      #render .task-container > .taskLarge > div.info > div.members {
+        grid-area: members;
+        display: grid;
+        place-content: start; }
+        #render .task-container > .taskLarge > div.info > div.members > div {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 2px; }
+          #render .task-container > .taskLarge > div.info > div.members > div > div.img {
+            overflow: hidden;
+            display: grid;
+            place-content: center; }
+            #render .task-container > .taskLarge > div.info > div.members > div > div.img > img {
+              height: 25px; }
+          #render .task-container > .taskLarge > div.info > div.members > div > button {
+            min-width: 25px; }
+      #render .task-container > .taskLarge > div.info > div.labels {
+        grid-area: labels;
+        display: grid;
+        place-content: start; }
+        #render .task-container > .taskLarge > div.info > div.labels > #labels {
+          align-self: start;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px; }
+          #render .task-container > .taskLarge > div.info > div.labels > #labels > div {
+            background-color: rgba(0, 0, 0, 0.15);
+            padding: 5px 10px;
+            border-radius: 5px; }
+          #render .task-container > .taskLarge > div.info > div.labels > #labels > button {
+            border-radius: 5px;
+            min-height: 31px;
+            min-width: 31px; }
     #render .task-container > .taskLarge > .editor-container {
       grid-area: description; }
   #render .task-container > #taskShadow {
@@ -302,7 +375,7 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container, #render .task-container > .taskLarge > .editor-container, .editor-container > .toolbar > div:first-child > button, #render .task-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, #render .task-container > .taskLarge > .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, #render .task-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .task-container > .taskLarge > textarea:nth-child(1), .darkModeToggle > button {
+.pointer, .editor-container, #render .task-container > .taskLarge > .editor-container, .editor-container > .toolbar > div:first-child > button, #render .task-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > a:hover, #render .task-container > .taskLarge > .editor-container > .toolbar > div:last-child > a:hover, .editor-container > .optionbar > button, #render .task-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .task-container > .taskLarge > textarea:nth-child(1), #render .task-container > .taskLarge > div.info > div.members > div > button, #render .task-container > .taskLarge > div.info > div.labels > #labels > button, #render .task-container > .taskLarge > div.info > div.color > button > span:nth-child(1), .darkModeToggle > button {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor, #render .task-container > .taskLarge > .editor-container > .editor, #render textarea.active, #render .task-container > .taskLarge > textarea.active:nth-child(1) {

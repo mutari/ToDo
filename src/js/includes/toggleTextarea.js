@@ -3,9 +3,9 @@ async function toggleTextarea(e, state, save) {
         dragAndDrop.stopDndOfActiveTextarea = true
         const parent = contextMenu ? contextMenu.extractTarget()
             : queryTarget(`[data-id="${e}"]`) ? queryTarget(`[data-id="${e}"]`)
-            : parentId(e) === 'taskLarge' ? e.target.parentElement
+            : ['taskLarge', 'label'] ? e.target.parentElement
             : e.target
-            
+
         const textarea = parent.children.textarea
         toggle(textarea, state)
         frame.previousText = textarea.value

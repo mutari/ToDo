@@ -7,6 +7,24 @@ $boxContentBorderRadius: 5px
 $taskWidth: 600px
 $taskHeight: 400px
 
+%textarea
+	@extend .inactive-link
+	user-select: contain
+	width: 100%
+	resize: none
+	background: none
+	color: inherit
+	padding: 5px 0
+	height: 0
+	min-height: 30px
+	transition: background .05s linear, padding .1s ease-in-out, border .1s ease-in
+	overflow-y: hidden
+	&.active
+		padding: 5px
+		@extend .active-link
+		@extend .cursor-text
+		background: rgba(black , .1)
+
 #render
 	display: grid
 	grid-auto-rows: $navHeight auto
@@ -14,22 +32,8 @@ $taskHeight: 400px
 	grid-template-areas: "frameNav" "frame"
 
 	textarea
-		@extend .inactive-link
-		user-select: contain
-		width: 100%
-		resize: none
-		background: none
-		color: inherit
-		padding: 5px 0
-		height: 0
-		min-height: 18px
-		border-radius: inherit
-		transition: background .05s linear, padding .1s ease-in-out
-		&.active
-			padding: 5px
-			@extend .active-link
-			@extend .cursor-text
-			background: rgba(black , .15)
+		@extend %textarea
+		
 
 	& > nav
 		grid-area: frameNav
@@ -129,21 +133,23 @@ $taskHeight: 400px
 	
 	.task-container
 		& > .taskLarge
+			$taskContainerPadding: 20px
 			position: absolute
 			top: calc( 50vh - #{$taskHeight}/2 )
 			right: calc( 50vw - #{$taskWidth}/2 )
 			width: $taskWidth
-			height: $taskHeight
+			min-height: $taskHeight
 			background-color: #494949
 			border-radius: $boxContentBorderRadius
 			z-index: 2
-			padding: 20px
+			padding: $taskContainerPadding
 			font-size: 18px
 
 			display: grid
-			grid-auto-columns: auto
-			grid-auto-rows: 50px 25px 40px auto
+			grid-auto-columns: calc( #{$taskWidth} - #{$taskContainerPadding}*2 )
+			grid-auto-rows: minmax(40px, min-content) 30px min-content auto
 			grid-template-areas: "title" "owner" "info" "description"
+
 			& > textarea:nth-child(1)
 				@extend .active-link
 				@extend .pointer
@@ -157,8 +163,101 @@ $taskHeight: 400px
 				grid-area: owner
 				color: #E3E3E3
 
-			& > div:nth-child(3)
+			& > div.info
 				grid-area: info
+				display: flex
+				flex-wrap: wrap
+				gap: 15px
+				
+				$circleHeight: 25px
+				%circle
+					display: block
+					height: $circleHeight
+					width: $circleHeight
+					border-radius: 50%
+				%circleButton
+					@extend %circle
+					@extend .pointer
+					background-color: rgba(black, .15)
+					color: inherit
+					&::after
+						content: '+'
+					&:hover
+						background-color: rgba(black, .3)
+
+				& > div
+					& > label
+						margin: 0 0 5px 0
+						height: 20px
+					
+				
+				& > div.color
+					grid-area: color
+					display: grid
+					place-content: start
+					& > button
+						padding: 5px
+						border-radius: 5px
+						background-color: transparent
+						display: flex
+						gap: 10px
+						color: inherit
+						align-self: start
+						& > span:nth-child(1)
+							@extend %circle
+							@extend .pointer
+							height: $circleHeight*3/5
+							width: $circleHeight*3/5
+							background-color: yellow
+						& > span:nth-child(2)
+							color: inherit
+							align-self: center
+						&:hover
+							background-color: rgba(black, .15)
+							
+				$gap: 2px
+				& > div.members
+					grid-area: members
+					display: grid
+					place-content: start
+					& > div
+						display: flex
+						flex-wrap: wrap
+						gap: $gap
+						& > div.img
+							@extend %circle
+							overflow: hidden
+							display: grid
+							place-content: center
+							& > img
+								height: $circleHeight
+						& > button
+							@extend %circleButton
+							min-width: $circleHeight
+
+				& > div.labels
+					grid-area: labels
+					display: grid
+					place-content: start
+					& > #labels
+						align-self: start
+						display: flex
+						flex-wrap: wrap
+						gap: $gap * 3
+						& > div
+							background-color: rgba(black, .15)
+							padding: 5px 10px
+							border-radius: $boxContentBorderRadius
+						& > button
+							@extend %circleButton
+							border-radius: 5px
+							min-height: 31px
+							min-width: 31px
+							
+
+
+
+
 
 			& > .editor-container
 				@extend .editor-container

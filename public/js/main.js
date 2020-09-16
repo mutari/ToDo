@@ -88,7 +88,7 @@ document.addEventListener("click", e => {
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
     if(['box', 'frameNav'].includes(id)) toggleTextarea(e, true)
-    if(parentId(e) === 'taskLarge') toggleTextarea(e, true)
+    if(['taskLarge'].includes(parentId(e))) toggleTextarea(e, true)
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
@@ -669,9 +669,9 @@ async function toggleTextarea(e, state, save) {
         dragAndDrop.stopDndOfActiveTextarea = true
         const parent = contextMenu ? contextMenu.extractTarget()
             : queryTarget(`[data-id="${e}"]`) ? queryTarget(`[data-id="${e}"]`)
-            : parentId(e) === 'taskLarge' ? e.target.parentElement
+            : ['taskLarge', 'label'] ? e.target.parentElement
             : e.target
-            
+
         const textarea = parent.children.textarea
         toggle(textarea, state)
         frame.previousText = textarea.value
@@ -785,7 +785,6 @@ function Cookie() {
 }
 function CRUD() {
     this.run = async (method, type, e) => {
-        console.log(method)
         try {
             if(!frame.getData()) return
             let input = this.getData(method, type, e)
@@ -892,7 +891,9 @@ function CRUD() {
     }
 
     function updateStoredValues(method, type, input) {
-        if(method === 'create') frame.addTask({id: input.createdId, boxId: input.id})
+        if(method === 'create') {
+            if(type === 'task') frame.addTask({id: input.createdId, boxId: input.id})
+        }
         if(method === 'update') frame.updateTask({id: input.id, boxId: input.boxId, data: input.data})
     }
 }
@@ -1092,13 +1093,14 @@ function Frame(frame) {
 	this.getData = () => data
 	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.find(box => parseInt(data.boxId) === box.id)
+	this.addTask = data => boxes.find(box => data.boxId === box.id)
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.find(box => parseInt(data.boxId) === box.id)
-			.tasks.find(task => parseInt(data.id) === task.id)
-
+		
+		let task = boxes.find(box => data.boxId == box.id) //! ===
+			.tasks.find(task => data.id == task.id) //! ===
+		console.log(task)
 		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 	
@@ -1173,7 +1175,7 @@ function Render() {
 		const boxes = frame.getBoxes()
 		console.log(boxes,data)
 		const box = boxes.find(box => box.id === parseInt(data.boxId))
-		const task = {...box.tasks.find(task => task.id === parseInt(data.id)), parent: box.title}
+		const task = {...box.tasks.find(task => task.id === parseInt(data.id)), parent: box.text}
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
 		return Promise.resolve()
@@ -1236,7 +1238,7 @@ function Server() {
 		},
 		body: JSON.stringify(data),
 	})
-	const getUrl = dest => `http://98.128.142.46/ToDo${action[dest]}` //https://98.128.142.46/
+	const getUrl = dest => `${fetchUrl}/ToDo${action[dest]}` //https://98.128.142.46/
 }
 function Themplates() {
 	this.frame = frame => `
@@ -1261,9 +1263,33 @@ function Themplates() {
 	this.taskLarge = task => `
 		<div class="task-container">
 			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${task.text ? task.text : ''}</textarea>
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
 				<p>In <b>${task.parent}</b></p>
-				<div></div>
+				<div class="info">
+					<div class="color">
+						<label>Color</label>
+						<button><span class="circle"></span><span>Yellow</span></button>
+					</div>
+					<div class="members">
+						<label>Members</label>
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<button />
+						</div>
+					</div>
+					<div class="labels">
+						<label>Labels</label>
+						<div id="labels">
+							<div>Project-x</div>
+							<div>Design</div>
+							<div>Design</div>
+							<button />
+						</div>
+					</div>
+				</div>
 				${task.description ? this.editor(task.description) : ''}
 			</div>
 			<span id="taskShadow"></span>
@@ -1448,8 +1474,6 @@ function User(datas) {
 	init(datas)
 	async function init(datas) {
 		if(datas) {
-			console.log(datas)
-			console.log(datas.user)
 			hide()
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
