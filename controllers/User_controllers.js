@@ -9,7 +9,7 @@ module.exports = {
             //get user data
             let user = await req.db.userCol.findOne({"email": req.body.email})
             if (user) data.user = user
-            else {res.json({message: "Could not find a user white that email in the database", status: 400}); return}
+            else return res.json({message: "Could not find a user white that email in the database", status: 400})
 
             //get frame data
             let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
@@ -31,7 +31,7 @@ module.exports = {
                 delete req.body.password
                 req.body.hash = hash
                 req.body.frames = []
-                await req.db.userCol.insertOne(req.body)
+                let result = await req.db.userCol.insertOne(req.body)
                 res.redirect(307, '/ToDo/login')
             }) 
         } catch (error) {
@@ -45,16 +45,11 @@ module.exports = {
 
             let user = await req.db.userCol.findOne({"_id": ObjectID(req.token.id)})
             if(user) data.user = user;
-            else {
-                res.json({message: "could not fin user", status: 400})
-            }
+            else return res.json({message: "could not fin user", status: 400})
 
             let frame = await req.db.frameCol.findOne({"_id": ObjectID(user.selected_frame)})
             if(frame) data.frame = frame;
-            else {
-                res.json({message: "could not fin frame", status: 400})
-            }
-            data.frame = frame;
+            else return res.json({message: "could not fin frame", status: 400})
 
             res.json({...data, status: 200})
         } catch (error) {
