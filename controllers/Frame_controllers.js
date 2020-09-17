@@ -272,32 +272,19 @@ module.exports = {
         }
     },
     postUpdateFramePosition: async (req, res) => {
-        /*
-            {
-                frameId:
-                boxes: [
-                    {
-                        id:
-                        pos:
-                        tasks: [
-                            {
-                                id:
-                                pos:
-                            }
-                        ]
-                    }
-                ]
-            }
-        */
-        
         try {
-            let respons = await req.db.frameCol.findOne({'_id': ObjectID(req.token.frameId)})
+            let respons = await req.db.frameCol.findOne({'_id': ObjectID(req.body.frameId)})
             if(!respons)
-                return res.json({message: `did not find a frame white that id: ${req.body.id}`, status: 400})
+                return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
             
-            respons.boxes.forEach(e => {
 
+
+
+            req.body.boxes.forEach(e => {
+                    
             })
+
+
 
 
             let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
@@ -309,7 +296,7 @@ module.exports = {
         }
 
 
-        function moveAndUpdate(NewData, OldData) {
+        function findById(array, id) {
             return OldData.map(e => {
                 for(let i = 0; NewData.length; i++) {
                     if(e.id == NewData[i].id)
