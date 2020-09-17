@@ -3,9 +3,8 @@ async function toggleTextarea(e, state, save) {
         dragAndDrop.stopDndOfActiveTextarea = true
         const parent = contextMenu ? contextMenu.extractTarget()
             : queryTarget(`[data-id="${e}"]`) ? queryTarget(`[data-id="${e}"]`)
-            : ['taskLarge', 'label'] ? e.target.parentElement
+            : ['taskLarge', 'label'].includes(parentId(e)) ? e.target.parentElement
             : e.target
-
         const textarea = parent.children.textarea
         toggle(textarea, state)
         frame.previousText = textarea.value
@@ -18,7 +17,6 @@ async function toggleTextarea(e, state, save) {
                 const type = parent.id
                 await crud.run('update', type)
                 textarea.innerHTML = textarea.value
-                console.log(type)
                 if(type === 'taskLarge') {
                     const task = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)
                     task.children.textarea.innerHTML = textarea.value

@@ -4,7 +4,6 @@ function CRUD() {
             if(!frame.getData()) return
             let input = this.getData(method, type, e)
             if(!input) throw 'No input where gathered'
-            console.log(input)
     
             if(method !== 'read') {
                 const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})

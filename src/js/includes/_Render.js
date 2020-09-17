@@ -12,7 +12,6 @@ function Render() {
 		}
 	}
 	this.box = async data => {
-		console.log('hej')
 		await renderBox()
 		toggleTextarea(5, true)
 		return Promise.resolve()
@@ -26,9 +25,13 @@ function Render() {
 		const boxes = frame.getBoxes()
 		const box = boxes.find(box => box.id == data.boxId)
 		const task = {...box.tasks.find(task => task.id == data.id), parent: box.text}
-		console.log(task)
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
+		if(task.description) {
+			const {formated} = tools.cleanAndFormat(task.description)
+			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
+		}
+		//queryTarget('.taskLarge-container').addEventListener('overflowchanged', frame.toggleTaskLargeScreenPosition, false)
 		return Promise.resolve()
 
 		function renderTaskLarge() {

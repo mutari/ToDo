@@ -1,1 +1,1 @@
-const fetchUrl = 'http://localhost'
+const fetchUrl = 'http://98.128.142.46'

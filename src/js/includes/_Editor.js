@@ -7,65 +7,50 @@ function Editor(e) {
 	let beforeWrite
 	this.shouldWriteButtonEnable = false
 
-	this.activate = () => container.classList.add('active-editor')
-	this.deactivate = cancel => {
+	this.activate = init => {
+		container.classList.add('active-editor')
+		tools.resizeAreaToFitContent(textarea)
+		if(init) tools.focusAndputCursorAtEnd(textarea)
+	}
+	this.deactivate = save => {
 		const editorContainer = container
-		if(!cancel) {
-			this.format(textarea.value)
-			tools.setAreaHeight(textarea)
-		} else {
-			textarea.value = previousText
-			formatedArea.classList.remove('editor')
-		}
 		editorContainer.classList.remove('active-editor')
 		container.removeEventListener('click', containerOnClick)
+		if(save) {
+			this.format(textarea.value)
+			tools.setAreaHeight(textarea)
+			return 
+		}
+		textarea.value = previousText
+		formatedArea.classList.remove('editor')
 	}
 
-	this.disableWrite = () => {
+	this.format = text => {
+		const {cleaned, formated} = tools.cleanAndFormat(text)
+		textarea.value = cleaned
+		formatedArea.innerHTML = formated
+	}
+
+	this.preview = () => {
 		this.shouldWriteButtonEnable = true
 		beforeWrite = textarea.value
 		this.format(beforeWrite)
 		textarea.classList.add('hide')
 		formatedArea.classList.add('editor')
 	}
-	this.enableWrite = () => {
+	this.write = () => {
 		textarea.value = beforeWrite
 		formatedArea.innerHTML = previousText
 		textarea.classList.remove('hide')
 		formatedArea.classList.remove('editor')
 	}
 
-	this.format = text => {
-		text = tools.removeBlacklistedChars(text, blacklist)
-		textarea.value = text
-		formatedArea.innerHTML = tools.replaceAllRequestedSymbolsWithSpanTags(text, symbolStyling)
-	}
-
-	const symbolStyling = [
-		{
-			symbol: '*',
-			class: 'bold',
-		},
-		{
-			symbol: '|',
-			class: 'italic',
-		},
-		{
-			symbol: '_',
-			class: 'underline',
-		},
-		{
-			symbol: '~',
-			class: 'strikeThrough',
-		},
-	]
-	const blacklist = [`<`, `>`, `'`, `"`, '`']
 	const containerOnClick = e => {
 		e.stopPropagation()
 		this.activate()
 		tools.resizeAreaToFitContent(textarea)
 	}
-	container.addEventListener('click', containerOnClick);
+	container.addEventListener('click', containerOnClick)
 
-	this.activate()
+	this.activate(true)
 }

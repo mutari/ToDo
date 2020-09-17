@@ -1,8 +1,8 @@
 function Tools() {
 	let throttle
-	this.getPositionY = () => window.scrollY
+	this.getScreenHeight = () => window.scrollY
 	this.keepPositionY = func => {
-		y = this.getPositionY()
+		y = this.getScreenHeight()
 		func()
 		this.scrollToInstantly({top: y})
 	}
@@ -25,7 +25,25 @@ function Tools() {
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsWithSpanTags = (input, translations) => {
+	this.replaceAllRequestedSymbolsWithSpanTags = input => {
+		const translations = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+		]
 		let output = ''
 		let classes
 		let notSymbol = true
@@ -58,10 +76,17 @@ function Tools() {
 		return output
 	}
 
-	this.removeBlacklistedChars = (text, blacklist) => {
+	this.removeBlacklistedChars = (text) => {
+		const blacklist = [`<`, `>`, `'`, `"`, '`']
 		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
 		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
 		return text
+	}
+
+	this.cleanAndFormat = text => {
+		text = this.removeBlacklistedChars(text)
+		const formated = this.replaceAllRequestedSymbolsWithSpanTags(text)
+		return {cleaned: text, formated: formated}
 	}
 
 	this.resizeAreaToFitContent = targetEl => {

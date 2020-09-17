@@ -76,7 +76,7 @@ document.addEventListener("click", e => {
     }
 
     if(id === 'task') crud.run('read', id, e)
-    else if(id === 'taskShadow') render.eject('.task-container')
+    else if(id === 'taskLarge-container') render.eject(`#${id}`)
     else if(id === 'boxAdd') {
         crud.run('create', 'box', e)
         hoverBetweenBoxes.remove(e)
@@ -92,30 +92,31 @@ document.addEventListener("dblclick", e => {
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
-    
-    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].includes(id)) {
-
-        // ? why??? e = e || window.event e.preventDefault()
-        
-        const input = queryTarget('.active-editor').children.editor
-        if(id === 'bold') tools.wrapSelectedText(input, '*')
-        if(id === 'italic') tools.wrapSelectedText(input, '|')
-        if(id === 'underline') tools.wrapSelectedText(input, '_')
-    }
 
     if(queryTarget('.active-editor')) {
-        if(id === 'write' && editor.shouldWriteButtonEnable) editor.enableWrite()
-        if(id === 'preview') editor.disableWrite()
-        if(id === 'save') editor.deactivate()
-        if(id === 'cancel') editor.deactivate(true)
+        if(id === 'write' && editor.shouldWriteButtonEnable) editor.write()
+        else if(id === 'preview') editor.preview()
+        else if(id === 'save') editor.deactivate(true)
+        else if(id === 'cancel') editor.deactivate()
+
+        const input = queryTarget('.active-editor').children.editor
+        if(id === 'bold') tools.wrapSelectedText(input, '*')
+        else if(id === 'italic') tools.wrapSelectedText(input, '|')
+        else if(id === 'underline') tools.wrapSelectedText(input, '_')
+        else if(id === 'strikethrough') tools.wrapSelectedText(input, '~')
     }
 })
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
+    const id = targetId(e)
     if([13, 27].includes(key)) {
-        e.preventDefault()
-        if(key == 13) toggleTextarea(e, false, true) //key 13 enter
-        if(key === 27) toggleTextarea(e, false) //key 27 esc
+        if(id === 'textarea') {
+            if(key === 13) toggleTextarea(e, false, true) //key 13 enter
+            else if(key === 27) toggleTextarea(e, false) //key 27 esc
+        } else if(id === 'editor' && key === 27) {
+            e.preventDefault()
+            editor.deactivate()
+        }
     }
     if(parentId(e) === 'frameNav') 
         if(e.target.value.length > 33 && ![8,16,17,37,38,39,40].includes(key)) e.preventDefault() //8 backspace & 16 shift & 17 ctrl & 37,38,39,40 arrowkeys
@@ -133,7 +134,7 @@ document.addEventListener( 'contextmenu', e => {
         contextMenu.toggleMenu(true) 
     }
 })
-document.addEventListener( 'resize', () => {
+document.addEventListener( 'resize', e => {
     if(!contextMenu) return
     contextMenu.toggleMenu(false)
 })
@@ -175,12 +176,12 @@ function toggleDarkmode(bool) {
 }
 
 function hide() {
-    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+    ;[queryTarget('#signUp'), queryTarget('#login')].forEach(target => {
         target.style.display = 'none'
     })
 }
 function show() {
-    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+    ;[queryTarget('#signUp'), queryTarget('#login')].forEach(target => {
         target.style.display = 'block'
     })
 }

@@ -46,13 +46,18 @@ function Frame(frame) {
 			})),
 		})),
 	}))
+
+	this.toggleTaskLargeScreenPosition = function(e) {
+		y = tools.getScreenHeight()
+		const taskLargeHeight = queryTarget('.taskLarge').height
+		console.log(e)
+	}
 	
 	init()
 	async function init() {
 		try {
 			await render.frame({data, boxes})
 			dragAndDrop = new DragAndDrop()
-			// toggleLoadingscreen()
 		} catch (error) {
 			console.log(error)
 		}

@@ -76,7 +76,7 @@ document.addEventListener("click", e => {
     }
 
     if(id === 'task') crud.run('read', id, e)
-    else if(id === 'taskShadow') render.eject('.task-container')
+    else if(id === 'taskLarge-container') render.eject(`#${id}`)
     else if(id === 'boxAdd') {
         crud.run('create', 'box', e)
         hoverBetweenBoxes.remove(e)
@@ -92,30 +92,31 @@ document.addEventListener("dblclick", e => {
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
-    
-    if(['bold', 'italic', 'insertunorderedlist', 'link', 'underline'].includes(id)) {
-
-        // ? why??? e = e || window.event e.preventDefault()
-        
-        const input = queryTarget('.active-editor').children.editor
-        if(id === 'bold') tools.wrapSelectedText(input, '*')
-        if(id === 'italic') tools.wrapSelectedText(input, '|')
-        if(id === 'underline') tools.wrapSelectedText(input, '_')
-    }
 
     if(queryTarget('.active-editor')) {
-        if(id === 'write' && editor.shouldWriteButtonEnable) editor.enableWrite()
-        if(id === 'preview') editor.disableWrite()
-        if(id === 'save') editor.deactivate()
-        if(id === 'cancel') editor.deactivate(true)
+        if(id === 'write' && editor.shouldWriteButtonEnable) editor.write()
+        else if(id === 'preview') editor.preview()
+        else if(id === 'save') editor.deactivate(true)
+        else if(id === 'cancel') editor.deactivate()
+
+        const input = queryTarget('.active-editor').children.editor
+        if(id === 'bold') tools.wrapSelectedText(input, '*')
+        else if(id === 'italic') tools.wrapSelectedText(input, '|')
+        else if(id === 'underline') tools.wrapSelectedText(input, '_')
+        else if(id === 'strikethrough') tools.wrapSelectedText(input, '~')
     }
 })
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
+    const id = targetId(e)
     if([13, 27].includes(key)) {
-        e.preventDefault()
-        if(key == 13) toggleTextarea(e, false, true) //key 13 enter
-        if(key === 27) toggleTextarea(e, false) //key 27 esc
+        if(id === 'textarea') {
+            if(key === 13) toggleTextarea(e, false, true) //key 13 enter
+            else if(key === 27) toggleTextarea(e, false) //key 27 esc
+        } else if(id === 'editor' && key === 27) {
+            e.preventDefault()
+            editor.deactivate()
+        }
     }
     if(parentId(e) === 'frameNav') 
         if(e.target.value.length > 33 && ![8,16,17,37,38,39,40].includes(key)) e.preventDefault() //8 backspace & 16 shift & 17 ctrl & 37,38,39,40 arrowkeys
@@ -133,7 +134,7 @@ document.addEventListener( 'contextmenu', e => {
         contextMenu.toggleMenu(true) 
     }
 })
-document.addEventListener( 'resize', () => {
+document.addEventListener( 'resize', e => {
     if(!contextMenu) return
     contextMenu.toggleMenu(false)
 })
@@ -175,12 +176,12 @@ function toggleDarkmode(bool) {
 }
 
 function hide() {
-    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+    ;[queryTarget('#signUp'), queryTarget('#login')].forEach(target => {
         target.style.display = 'none'
     })
 }
 function show() {
-    ;[queryTarget('#signUp'), queryTarget('#login'), queryTarget('#editor-container')].forEach(target => {
+    ;[queryTarget('#signUp'), queryTarget('#login')].forEach(target => {
         target.style.display = 'block'
     })
 }
@@ -669,9 +670,8 @@ async function toggleTextarea(e, state, save) {
         dragAndDrop.stopDndOfActiveTextarea = true
         const parent = contextMenu ? contextMenu.extractTarget()
             : queryTarget(`[data-id="${e}"]`) ? queryTarget(`[data-id="${e}"]`)
-            : ['taskLarge', 'label'] ? e.target.parentElement
+            : ['taskLarge', 'label'].includes(parentId(e)) ? e.target.parentElement
             : e.target
-
         const textarea = parent.children.textarea
         toggle(textarea, state)
         frame.previousText = textarea.value
@@ -684,7 +684,6 @@ async function toggleTextarea(e, state, save) {
                 const type = parent.id
                 await crud.run('update', type)
                 textarea.innerHTML = textarea.value
-                console.log(type)
                 if(type === 'taskLarge') {
                     const task = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)
                     task.children.textarea.innerHTML = textarea.value
@@ -789,7 +788,6 @@ function CRUD() {
             if(!frame.getData()) return
             let input = this.getData(method, type, e)
             if(!input) throw 'No input where gathered'
-            console.log(input)
     
             if(method !== 'read') {
                 const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})
@@ -980,67 +978,52 @@ function Editor(e) {
 	let beforeWrite
 	this.shouldWriteButtonEnable = false
 
-	this.activate = () => container.classList.add('active-editor')
-	this.deactivate = cancel => {
+	this.activate = init => {
+		container.classList.add('active-editor')
+		tools.resizeAreaToFitContent(textarea)
+		if(init) tools.focusAndputCursorAtEnd(textarea)
+	}
+	this.deactivate = save => {
 		const editorContainer = container
-		if(!cancel) {
-			this.format(textarea.value)
-			tools.setAreaHeight(textarea)
-		} else {
-			textarea.value = previousText
-			formatedArea.classList.remove('editor')
-		}
 		editorContainer.classList.remove('active-editor')
 		container.removeEventListener('click', containerOnClick)
+		if(save) {
+			this.format(textarea.value)
+			tools.setAreaHeight(textarea)
+			return 
+		}
+		textarea.value = previousText
+		formatedArea.classList.remove('editor')
 	}
 
-	this.disableWrite = () => {
+	this.format = text => {
+		const {cleaned, formated} = tools.cleanAndFormat(text)
+		textarea.value = cleaned
+		formatedArea.innerHTML = formated
+	}
+
+	this.preview = () => {
 		this.shouldWriteButtonEnable = true
 		beforeWrite = textarea.value
 		this.format(beforeWrite)
 		textarea.classList.add('hide')
 		formatedArea.classList.add('editor')
 	}
-	this.enableWrite = () => {
+	this.write = () => {
 		textarea.value = beforeWrite
 		formatedArea.innerHTML = previousText
 		textarea.classList.remove('hide')
 		formatedArea.classList.remove('editor')
 	}
 
-	this.format = text => {
-		text = tools.removeBlacklistedChars(text, blacklist)
-		textarea.value = text
-		formatedArea.innerHTML = tools.replaceAllRequestedSymbolsWithSpanTags(text, symbolStyling)
-	}
-
-	const symbolStyling = [
-		{
-			symbol: '*',
-			class: 'bold',
-		},
-		{
-			symbol: '|',
-			class: 'italic',
-		},
-		{
-			symbol: '_',
-			class: 'underline',
-		},
-		{
-			symbol: '~',
-			class: 'strikeThrough',
-		},
-	]
-	const blacklist = [`<`, `>`, `'`, `"`, '`']
 	const containerOnClick = e => {
 		e.stopPropagation()
 		this.activate()
 		tools.resizeAreaToFitContent(textarea)
 	}
-	container.addEventListener('click', containerOnClick);
+	container.addEventListener('click', containerOnClick)
 
-	this.activate()
+	this.activate(true)
 }
 function Form() {
 
@@ -1133,13 +1116,18 @@ function Frame(frame) {
 			})),
 		})),
 	}))
+
+	this.toggleTaskLargeScreenPosition = function(e) {
+		y = tools.getScreenHeight()
+		const taskLargeHeight = queryTarget('.taskLarge').height
+		console.log(e)
+	}
 	
 	init()
 	async function init() {
 		try {
 			await render.frame({data, boxes})
 			dragAndDrop = new DragAndDrop()
-			// toggleLoadingscreen()
 		} catch (error) {
 			console.log(error)
 		}
@@ -1159,7 +1147,6 @@ function Render() {
 		}
 	}
 	this.box = async data => {
-		console.log('hej')
 		await renderBox()
 		toggleTextarea(5, true)
 		return Promise.resolve()
@@ -1173,9 +1160,13 @@ function Render() {
 		const boxes = frame.getBoxes()
 		const box = boxes.find(box => box.id == data.boxId)
 		const task = {...box.tasks.find(task => task.id == data.id), parent: box.text}
-		console.log(task)
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
+		if(task.description) {
+			const {formated} = tools.cleanAndFormat(task.description)
+			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
+		}
+		//queryTarget('.taskLarge-container').addEventListener('overflowchanged', frame.toggleTaskLargeScreenPosition, false)
 		return Promise.resolve()
 
 		function renderTaskLarge() {
@@ -1259,36 +1250,38 @@ function Themplates() {
 		</li>
 	`
 	this.taskLarge = task => `
-		<div class="task-container">
-			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
-				<p>In <b>${task.parent}</b></p>
-				<div class="info">
-					<div class="color">
-						<label>Color</label>
-						<button><span class="circle"></span><span>Yellow</span></button>
-					</div>
-					<div class="members">
-						<label>Members</label>
-						<div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<button />
+		<div class="taskLarge-container" id="taskLarge-container">
+			<div>
+				<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
+					<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
+					<p>In <b>${task.parent}</b></p>
+					<div class="info">
+						<div class="color">
+							<label>Color</label>
+							<button><span class="circle"></span><span>Yellow</span></button>
+						</div>
+						<div class="members">
+							<label>Members</label>
+							<div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<button />
+							</div>
+						</div>
+						<div class="labels">
+							<label>Labels</label>
+							<div id="labels">
+								<div>Project-x</div>
+								<div>Design</div>
+								<div>Design</div>
+								<button />
+							</div>
 						</div>
 					</div>
-					<div class="labels">
-						<label>Labels</label>
-						<div id="labels">
-							<div>Project-x</div>
-							<div>Design</div>
-							<div>Design</div>
-							<button />
-						</div>
-					</div>
+					${task.description ? this.editor(task.description) : ''}
 				</div>
-				${task.description ? this.editor(task.description) : ''}
 			</div>
 			<span id="taskShadow"></span>
 		</div>
@@ -1315,11 +1308,10 @@ function Themplates() {
 					<button id="preview">Preview</button>
 				</div>
 				<div>
-					<a class="fa fa-bold fa-fw" id="bold" unselectable="on"></a>
-					<a class="fa fa-italic fa-fw" id="italic"></a>
-					<a class="fa fa-underline fa-fw" id="underline"></a>
-					<a class="fa fa-list fa-fw" id="list"></a>
-					<a class="fa fa-link fa-fw" id="link"></a>
+					<span id="bold"></span>
+					<span id="italic"></span>
+					<span id="underline"></span>
+					<span id="strikethrough"></span>
 				</div>
 			</div>
 			<textarea class="editor" id="editor" spellcheck="false" data-enablewrite="true">${description}</textarea>
@@ -1332,9 +1324,9 @@ function Themplates() {
 }
 function Tools() {
 	let throttle
-	this.getPositionY = () => window.scrollY
+	this.getScreenHeight = () => window.scrollY
 	this.keepPositionY = func => {
-		y = this.getPositionY()
+		y = this.getScreenHeight()
 		func()
 		this.scrollToInstantly({top: y})
 	}
@@ -1357,7 +1349,25 @@ function Tools() {
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsWithSpanTags = (input, translations) => {
+	this.replaceAllRequestedSymbolsWithSpanTags = input => {
+		const translations = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+		]
 		let output = ''
 		let classes
 		let notSymbol = true
@@ -1390,10 +1400,17 @@ function Tools() {
 		return output
 	}
 
-	this.removeBlacklistedChars = (text, blacklist) => {
+	this.removeBlacklistedChars = (text) => {
+		const blacklist = [`<`, `>`, `'`, `"`, '`']
 		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
 		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
 		return text
+	}
+
+	this.cleanAndFormat = text => {
+		text = this.removeBlacklistedChars(text)
+		const formated = this.replaceAllRequestedSymbolsWithSpanTags(text)
+		return {cleaned: text, formated: formated}
 	}
 
 	this.resizeAreaToFitContent = targetEl => {

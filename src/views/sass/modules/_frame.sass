@@ -108,6 +108,7 @@ $taskHeight: 400px
 					place-content: center
 					content: '+'
 					font-size: 0
+
 					background-color: #222
 					width: $spanBetweenBoxesWidth*3
 					height: $spanBetweenBoxesWidth*3
@@ -131,146 +132,145 @@ $taskHeight: 400px
 					opacity: .9
 					border: $boxBorder dotted red
 	
-	.task-container
-		& > .taskLarge
-			$taskContainerPadding: 20px
-			position: absolute
-			top: calc( 50vh - #{$taskHeight}/2 )
-			right: calc( 50vw - #{$taskWidth}/2 )
-			width: $taskWidth
-			min-height: $taskHeight
-			background-color: #494949
-			border-radius: $boxContentBorderRadius
-			z-index: 2
-			padding: $taskContainerPadding
-			font-size: 18px
+	.taskLarge-container
+		position: absolute
+		top: 0
+		left: 0
+		height: 100vh
+		width: 100vw
+		overflow-y: auto
+		overflow-x: hidden
+		display: flex
+		align-items: center
+		justify-content: center
+		background-color: rgba( black, .5)
+		& > div
+			display: flex
+			align-self: center
 
-			display: grid
-			grid-auto-columns: calc( #{$taskWidth} - #{$taskContainerPadding}*2 )
-			grid-auto-rows: minmax(40px, min-content) 30px min-content auto
-			grid-template-areas: "title" "owner" "info" "description"
+			& > .taskLarge
+				$taskContainerPadding: 20px
+				width: $taskWidth
+				min-height: $taskHeight
+				background-color: #494949
+				border-radius: $boxContentBorderRadius
+				z-index: 2
+				padding: $taskContainerPadding
+				font-size: 18px
 
-			& > textarea:nth-child(1)
-				@extend .active-link
-				@extend .pointer
-				grid-area: title
-				font-size: 28px
-				font-weight: 700
-				margin: 0 0 5px 0
-				&.active
-					@extend .cursor-text
-				
-			& > p:nth-child(2)
-				grid-area: owner
-				color: #E3E3E3
+				display: grid
+				grid-auto-columns: calc( #{$taskWidth} - #{$taskContainerPadding}*2 )
+				grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) auto
+				grid-template-areas: "title" "owner" "info" "description"
 
-			& > div.info
-				grid-area: info
-				display: flex
-				flex-wrap: wrap
-				gap: 15px
-				margin: 0 0 10px 0
-				
-				$circleHeight: 25px
-				%circle
-					display: block
-					height: $circleHeight
-					width: $circleHeight
-					border-radius: 50%
-				%circleButton
-					@extend %circle
+				& > textarea:nth-child(1)
+					@extend .active-link
 					@extend .pointer
-					background-color: rgba(black, .15)
-					color: inherit
-					&::after
-						content: '+'
-						font-size: 18px*1.1
-					&:hover
-						background-color: rgba(black, .3)
-
-				& > div
-					& > label
-						margin: 0 0 5px 0
-						height: 20px
+					grid-area: title
+					font-size: 28px
+					font-weight: 700
+					margin: 0 0 5px 0
+					&.active
+						@extend .cursor-text
 					
-				
-				& > div.color
-					grid-area: color
-					display: grid
-					place-content: start
-					& > button
+				& > p:nth-child(2)
+					grid-area: owner
+					color: #E3E3E3
+
+				& > div.info
+					grid-area: info
+					display: flex
+					flex-wrap: wrap
+					gap: 15px
+					margin: 0 0 10px 0
+					
+					$circleHeight: 25px
+					%circle
+						display: block
+						height: $circleHeight
+						width: $circleHeight
+						border-radius: 50%
+					%circleButton
+						@extend %circle
 						@extend .pointer
-						padding: 5px
-						border-radius: 5px
-						background-color: transparent
-						display: flex
-						gap: 10px
+						background-color: rgba(black, .15)
 						color: inherit
-						align-self: start
-						& > span:nth-child(1)
-							@extend %circle
-							@extend .pointer
-							height: $circleHeight*3/5
-							width: $circleHeight*3/5
-							background-color: yellow
-						& > span:nth-child(2)
-							color: inherit
-							align-self: center
+						&::after
+							content: '+'
+							font-size: 18px*1.1
 						&:hover
-							background-color: rgba(black, .15)
-							
-				$gap: 2px
-				& > div.members
-					grid-area: members
-					display: grid
-					place-content: start
+							background-color: rgba(black, .3)
+
 					& > div
-						display: flex
-						flex-wrap: wrap
-						gap: $gap
-						& > div.img
-							@extend %circle
-							overflow: hidden
-							display: grid
-							place-content: center
-							& > img
-								height: $circleHeight
+						& > label
+							margin: 0 0 5px 0
+							height: 20px
+						
+					
+					& > div.color
+						grid-area: color
+						display: grid
+						place-content: start
 						& > button
-							@extend %circleButton
-							min-width: $circleHeight
-
-				& > div.labels
-					grid-area: labels
-					display: grid
-					place-content: start
-					& > #labels
-						align-self: start
-						display: flex
-						flex-wrap: wrap
-						gap: $gap * 3
-						& > div
-							background-color: rgba(black, .15)
-							padding: 5px 10px
-							border-radius: $boxContentBorderRadius
-							font-size: 12px
-						& > button
-							@extend %circleButton
+							@extend .pointer
+							padding: 5px
 							border-radius: 5px
-							
+							background-color: transparent
+							display: flex
+							gap: 10px
+							color: inherit
+							align-self: start
+							& > span:nth-child(1)
+								@extend %circle
+								@extend .pointer
+								height: $circleHeight*3/5
+								width: $circleHeight*3/5
+								background-color: yellow
+							& > span:nth-child(2)
+								color: inherit
+								align-self: center
+							&:hover
+								background-color: rgba(black, .15)
+								
+					$gap: 2px
+					& > div.members
+						grid-area: members
+						display: grid
+						place-content: start
+						& > div
+							display: flex
+							flex-wrap: wrap
+							gap: $gap
+							& > div.img
+								@extend %circle
+								overflow: hidden
+								display: grid
+								place-content: center
+								& > img
+									height: $circleHeight
+							& > button
+								@extend %circleButton
+								min-width: $circleHeight
 
-
-
-
-
-			& > .editor-container
-				@extend .editor-container
-				grid-area: description
-
-		& > #taskShadow
-			position: absolute
-			display: block
-			background-color: rgba( black, .5)
-			height: 100vh
-			width: 100vw
-			top: 0
-			right: 0
+					& > div.labels
+						grid-area: labels
+						display: grid
+						place-content: start
+						& > #labels
+							align-self: start
+							display: flex
+							flex-wrap: wrap
+							gap: $gap * 3
+							& > div
+								background-color: rgba(black, .15)
+								padding: 5px 10px
+								border-radius: $boxContentBorderRadius
+								font-size: 12px
+								overflow-wrap: anywhere
+							& > button
+								@extend %circleButton
+								border-radius: 5px
+								
+				& > .editor-container
+					@extend .editor-container
+					grid-area: description
