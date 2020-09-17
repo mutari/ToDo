@@ -1,9 +1,7 @@
 module.exports = {
-    readFile: (path, _callback) => {
+    readFile: async (path, _callback) => {
         const fs = require('fs')
-        fs.readFile(__dirname + path, 'utf8', (err, jsonString) => {
-            if(err) throw `File read failed: ${err}`
-            _callback(JSON.parse(jsonString))
-        })
+        let data = await fs.readFileSync(__dirname + path, 'utf8')
+        return _callback(JSON.parse(data))
     }
 }

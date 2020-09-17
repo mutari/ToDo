@@ -1,6 +1,6 @@
 module.exports = async function(req, user, data) {
     try {
-        require('./rwFiles.js').readFile('/../dataSchema/frame_start.json', async out => { 
+        return await require('./rwFiles.js').readFile('/../dataSchema/frame_start.json', async out => { 
             data.frame = out
             data.frame.author = user._id
             data.frame.members.push({id: user._id, name: user.name}) // add user images
@@ -12,9 +12,9 @@ module.exports = async function(req, user, data) {
                 if (err) throw err;
                 console.log("1 document updated");
             })
+            return data;
         })
     } catch (error) {
         console.error(error)
     }
-    return data
 }

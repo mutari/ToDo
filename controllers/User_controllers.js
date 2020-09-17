@@ -12,10 +12,13 @@ module.exports = {
             else return res.json({message: "Could not find a user white that email in the database", status: 400})
 
             //get frame data
+            console.log("befor: .", data)
+
             let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
             if (frame) data.frame = frame
             else data = await require('../modules/generateStartFrame.js')(req, user, data) //generates a new frame
 
+            console.log("after: .", data)
             data.token = req.token
             console.log(data)
 
@@ -32,7 +35,8 @@ module.exports = {
                 req.body.hash = hash
                 req.body.frames = []
                 let result = await req.db.userCol.insertOne(req.body)
-                res.redirect(307, '/ToDo/login')
+                if(result) res.redirect(307, '/ToDo/login')
+                else return res.json({message: "problem inserting into the database", status: 400})
             }) 
         } catch (error) {
             console.log(error)
