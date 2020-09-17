@@ -5,6 +5,8 @@ const mongo = require('mongodb').MongoClient;
 
 (async () => {
     try {
+        console.clear();
+
         const con = await mongo.connect(process.env.CONSTRING, {useNewUrlParser: true, useUnifiedTopology: true});
         const port = process.env.PORT || 3000
 
