@@ -77,13 +77,12 @@ document.addEventListener("click", e => {
 
     if(id === 'task') crud.run('read', id, e)
     else if(id === 'taskLarge-container') render.eject(`#${id}`)
-    else if(id === 'boxAdd') {
+    else if(id === 'boxAdd' && queryTarget('.hover')) {
         crud.run('create', 'box', e)
         hoverBetweenBoxes.remove(e)
     }
 
-    if(id === 'dark') toggleDarkmode(true)
-    else if(id === 'light') toggleDarkmode(false)
+    if(id === 'darkmode') toggleDarkmode()
 })
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
@@ -111,6 +110,7 @@ document.addEventListener( 'keydown', e => {
     const id = targetId(e)
     if([13, 27].includes(key)) {
         if(id === 'textarea') {
+            e.preventDefault()
             if(key === 13) toggleTextarea(e, false, true) //key 13 enter
             else if(key === 27) toggleTextarea(e, false) //key 27 esc
         } else if(id === 'editor' && key === 27) {
@@ -168,10 +168,10 @@ document.addEventListener("mouseout", e => {
 
 
 
-function toggleDarkmode(bool) {
+function toggleDarkmode() {
     const targets = [queryTarget('body'), queryTarget('#frame'), queryTarget('.darkModeToggle')]
     targets.forEach(target => {
-        bool ? target.classList.remove('light') : target.classList.add('light')
+       target.classList.toggle('light')
     })
 }
 
@@ -706,7 +706,7 @@ async function toggleTextarea(e, state, save) {
         
         function reveal() {
             if(queryTarget('textarea.active')) toggleTextarea()
-            tools.focusAndputCursorAtEnd(textarea)
+            tools.focusAndPutCursorAtEnd(textarea)
             textarea.classList.add('active')
         }
         function hide() {
@@ -794,7 +794,7 @@ function CRUD() {
                 if(validate.status(response.status) || !response.status) throw ''
         
                 if(method === 'create') {
-                    if(!response.id) throw 'No server response on creation request'
+                    if(!response.id) throw 'No server response to creation request'
                     input = {...input, createdId: response.id}
                 }
                 if(['create', 'update'].includes(method)) updateStoredValues(method, type, input)
@@ -978,11 +978,6 @@ function Editor(e) {
 	let beforeWrite
 	this.shouldWriteButtonEnable = false
 
-	this.activate = init => {
-		container.classList.add('active-editor')
-		tools.resizeAreaToFitContent(textarea)
-		if(init) tools.focusAndputCursorAtEnd(textarea)
-	}
 	this.deactivate = save => {
 		const editorContainer = container
 		editorContainer.classList.remove('active-editor')
@@ -990,14 +985,14 @@ function Editor(e) {
 		if(save) {
 			this.format(textarea.value)
 			tools.setAreaHeight(textarea)
-			return 
+			return
 		}
 		textarea.value = previousText
 		formatedArea.classList.remove('editor')
 	}
 
 	this.format = text => {
-		const {cleaned, formated} = tools.cleanAndFormat(text)
+		const {cleaned, formated} = Sanitize.cleanAndFormat(text)
 		textarea.value = cleaned
 		formatedArea.innerHTML = formated
 	}
@@ -1018,12 +1013,13 @@ function Editor(e) {
 
 	const containerOnClick = e => {
 		e.stopPropagation()
-		this.activate()
 		tools.resizeAreaToFitContent(textarea)
 	}
+	
 	container.addEventListener('click', containerOnClick)
-
-	this.activate(true)
+	container.classList.add('active-editor')
+	tools.resizeAreaToFitContent(textarea)
+	if(init) tools.focusAndPutCursorAtEnd(textarea)
 }
 function Form() {
 
@@ -1116,12 +1112,6 @@ function Frame(frame) {
 			})),
 		})),
 	}))
-
-	this.toggleTaskLargeScreenPosition = function(e) {
-		y = tools.getScreenHeight()
-		const taskLargeHeight = queryTarget('.taskLarge').height
-		console.log(e)
-	}
 	
 	init()
 	async function init() {
@@ -1146,16 +1136,19 @@ function Render() {
 			return Promise.resolve()
 		}
 	}
+	
 	this.box = async data => {
 		await renderBox()
 		toggleTextarea(5, true)
 		return Promise.resolve()
 		
 		function renderBox() {
-			queryTarget(`.box[data-id="${data.idToRenderAt}"`).insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
+			const parent = queryTarget(`.box[data-id="${data.idToRenderAt}"`)
+			parent.insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
 			return Promise.resolve()
 		}
 	}
+	
 	this.taskLarge = async (data) => {
 		const boxes = frame.getBoxes()
 		const box = boxes.find(box => box.id == data.boxId)
@@ -1166,7 +1159,6 @@ function Render() {
 			const {formated} = tools.cleanAndFormat(task.description)
 			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
 		}
-		//queryTarget('.taskLarge-container').addEventListener('overflowchanged', frame.toggleTaskLargeScreenPosition, false)
 		return Promise.resolve()
 
 		function renderTaskLarge() {
@@ -1180,7 +1172,8 @@ function Render() {
 		return Promise.resolve()
 
 		function renderTask() {
-			queryTarget(`.box[data-id="${data.id}"]`).insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
+			const parent = queryTarget(`.box[data-id="${data.id}"]`)
+			parent.insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
 			return Promise.resolve()
 		}
 	}
@@ -1189,6 +1182,68 @@ function Render() {
 	}
 	this.eject = param => queryTarget(param).remove()
  }
+class Sanitize {
+    static removeBlacklistedChars = text => {
+        const blacklist = [`<`, `>`, `'`, `"`, '`']
+		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
+		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
+		return text
+    }
+
+
+
+    static replaceAllRequestedSymbolsWithSpanTags = input => {
+		const translations = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+        ]
+        
+		let output = ''
+		let classes
+		let notSymbol = true
+		const charArr = input.split('')
+		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
+
+		charArr.map(char => {
+			notSymbol = true
+			translations.map(data => {
+				if(char !== data.symbol) return
+				notSymbol = false
+				classes = ''
+
+				if(!data.live) {
+					setActiveClasses()
+					data.live = true
+				} else {
+					data.live = false
+					setActiveClasses()
+				}
+
+				if(classes) {
+					if(data.live) classes += data.class
+					output += `</span><span class="${classes}">`
+				} else if(data.live) output += `<span class="${data.class}">`
+				else output += `</span>`
+			})
+			if(notSymbol) output += char
+		})
+		return output
+	}
+}
 function Server() {
 	this.fetch = async dest => {
 		try {
@@ -1251,55 +1306,61 @@ function Themplates() {
 	`
 	this.taskLarge = task => `
 		<div class="taskLarge-container" id="taskLarge-container">
-			<div>
-				<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-					<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
-					<p>In <b>${task.parent}</b></p>
-					<div class="info">
-						<div class="color">
-							<label>Color</label>
-							<button><span class="circle"></span><span>Yellow</span></button>
+			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
+				<p>In <b>${task.parent}</b></p>
+				<div class="info">
+					<div class="color">
+						<label>Color</label>
+						<button><span class="circle"></span><span>Yellow</span></button>
+					</div>
+					<div class="members">
+						<label>Members</label>
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<button />
 						</div>
-						<div class="members">
-							<label>Members</label>
-							<div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<button />
-							</div>
+					</div>
+					<div class="labels">
+						<label>Labels</label>
+						<div id="labels">
+							<div>Project-x</div>
+							<div>Design</div>
+							<div>Design</div>
+							<button />
 						</div>
-						<div class="labels">
-							<label>Labels</label>
-							<div id="labels">
-								<div>Project-x</div>
-								<div>Design</div>
-								<div>Design</div>
-								<button />
+					</div>
+				</div>
+				${task.description ? this.editor(task.description) : ''}
+				${task.subtasks.length ? `
+					<div class="subtask-container">
+						<div id="subtaskInfo">
+							<p>Subtasks</p>
+							<p id="numberOfSubtasks">${task.subtasks.length}</p>
+							<button><span></span></button>
+						</div>
+						<div id="subtasks">
+							${task.subtasks.map(subtask => this.subtask(subtask))}
+							<div id="addSubtask">
+								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
 							</div>
 						</div>
 					</div>
-					${task.description ? this.editor(task.description) : ''}
-				</div>
+				` : ''}
 			</div>
-			<span id="taskShadow"></span>
 		</div>
 	`
-	this.subtask = () => `
+	this.subtask = (subtask) => `
+		<div class="subtask" id="${subtask.id}">
+			<input type="checkbox">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${subtask.text}</textarea>
+			<button><span></span></button>
+		</div>
+	`
 	
-	`
-	this.contextMenu = (id, type) => `
-		<nav class="context-menu" id="context-menu">
-			<ul data-id="${id}" data-type="${type}">
-				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
-				${type === 'box' ? '<li id="create">Add</li>' : ''}
-				<li id="update">Edit</li>
-				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
-			</ul>
-		</nav>
-	`
-
 	this.editor = description => `
 		<div class="editor-container" id="editor-container">
 			<div class="toolbar">
@@ -1321,6 +1382,18 @@ function Themplates() {
 			</div>
 		</div>
 	`
+	this.contextMenu = (id, type) => `
+		<nav class="context-menu" id="context-menu">
+			<ul data-id="${id}" data-type="${type}">
+				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
+				${type === 'box' ? '<li id="create">Add</li>' : ''}
+				<li id="update">Edit</li>
+				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
+			</ul>
+		</nav>
+	`
+
+	
 }
 function Tools() {
 	let throttle
@@ -1349,67 +1422,9 @@ function Tools() {
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsWithSpanTags = input => {
-		const translations = [
-			{
-				symbol: '*',
-				class: 'bold',
-			},
-			{
-				symbol: '|',
-				class: 'italic',
-			},
-			{
-				symbol: '_',
-				class: 'underline',
-			},
-			{
-				symbol: '~',
-				class: 'strikeThrough',
-			},
-		]
-		let output = ''
-		let classes
-		let notSymbol = true
-		const charArr = input.split('')
-		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
-
-		charArr.map(char => {
-			notSymbol = true
-			translations.map(data => {
-				if(char !== data.symbol) return
-				notSymbol = false
-				classes = ''
-
-				if(!data.live) {
-					setActiveClasses()
-					data.live = true
-				} else {
-					data.live = false
-					setActiveClasses()
-				}
-
-				if(classes) {
-					if(data.live) classes += data.class
-					output += `</span><span class="${classes}">`
-				} else if(data.live) output += `<span class="${data.class}">`
-				else output += `</span>`
-			})
-			if(notSymbol) output += char
-		})
-		return output
-	}
-
-	this.removeBlacklistedChars = (text) => {
-		const blacklist = [`<`, `>`, `'`, `"`, '`']
-		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
-		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
-		return text
-	}
-
 	this.cleanAndFormat = text => {
-		text = this.removeBlacklistedChars(text)
-		const formated = this.replaceAllRequestedSymbolsWithSpanTags(text)
+		text = Sanitize.removeBlacklistedChars(text)
+		const formated = Sanitize.replaceAllRequestedSymbolsWithSpanTags(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -1460,12 +1475,12 @@ function Tools() {
 		return arr.length === ids.length ? arr : ''
 	}
 
-	this.focusAndputCursorAtEnd = target => {
+	this.focusAndPutCursorAtEnd = target => {
 		if(document.activeElement !== target) target.focus()
 		let len = target.value.length * 2
 		
 		setTimeout(function() {
-		target.setSelectionRange(len, len);
+			target.setSelectionRange(len, len)
 		}, 1)
 		target.scrollTop = 999999
 	}
@@ -1519,6 +1534,7 @@ function User(datas) {
 }
 function Validate() {
     let password
+    this.hasScrollbar = target => target.scrollHeight > target.clientHeight
 
     this.form = (inputs, errorMessages) => {
         for(let key in inputs) {

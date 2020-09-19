@@ -39,7 +39,7 @@ async function toggleTextarea(e, state, save) {
         
         function reveal() {
             if(queryTarget('textarea.active')) toggleTextarea()
-            tools.focusAndputCursorAtEnd(textarea)
+            tools.focusAndPutCursorAtEnd(textarea)
             textarea.classList.add('active')
         }
         function hide() {

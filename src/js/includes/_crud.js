@@ -10,7 +10,7 @@ function CRUD() {
                 if(validate.status(response.status) || !response.status) throw ''
         
                 if(method === 'create') {
-                    if(!response.id) throw 'No server response on creation request'
+                    if(!response.id) throw 'No server response to creation request'
                     input = {...input, createdId: response.id}
                 }
                 if(['create', 'update'].includes(method)) updateStoredValues(method, type, input)

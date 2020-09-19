@@ -77,13 +77,12 @@ document.addEventListener("click", e => {
 
     if(id === 'task') crud.run('read', id, e)
     else if(id === 'taskLarge-container') render.eject(`#${id}`)
-    else if(id === 'boxAdd') {
+    else if(id === 'boxAdd' && queryTarget('.hover')) {
         crud.run('create', 'box', e)
         hoverBetweenBoxes.remove(e)
     }
 
-    if(id === 'dark') toggleDarkmode(true)
-    else if(id === 'light') toggleDarkmode(false)
+    if(id === 'darkmode') toggleDarkmode()
 })
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
@@ -111,6 +110,7 @@ document.addEventListener( 'keydown', e => {
     const id = targetId(e)
     if([13, 27].includes(key)) {
         if(id === 'textarea') {
+            e.preventDefault()
             if(key === 13) toggleTextarea(e, false, true) //key 13 enter
             else if(key === 27) toggleTextarea(e, false) //key 27 esc
         } else if(id === 'editor' && key === 27) {
@@ -168,10 +168,10 @@ document.addEventListener("mouseout", e => {
 
 
 
-function toggleDarkmode(bool) {
+function toggleDarkmode() {
     const targets = [queryTarget('body'), queryTarget('#frame'), queryTarget('.darkModeToggle')]
     targets.forEach(target => {
-        bool ? target.classList.remove('light') : target.classList.add('light')
+       target.classList.toggle('light')
     })
 }
 

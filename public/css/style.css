@@ -1,13 +1,13 @@
-.editor-container, #render .taskLarge-container > div > .taskLarge > .editor-container {
+.editor-container, #render .taskLarge-container > .taskLarge > .editor-container {
   word-break: break-all;
   grid-template-columns: auto;
   grid-template-rows: 40px auto 30px;
   grid-template-areas: "tool-bar" "editor" "optionbar";
   cursor: default;
   border-radius: 5px; }
-  .editor-container > div, #render .taskLarge-container > div > .taskLarge > .editor-container > div {
+  .editor-container > div, #render .taskLarge-container > .taskLarge > .editor-container > div {
     padding: 0 10px; }
-  .editor-container > .toolbar, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar {
+  .editor-container > .toolbar, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar {
     grid-area: tool-bar;
     display: none;
     justify-content: space-between;
@@ -15,88 +15,88 @@
     grid-template-areas: "one two";
     background-color: rgba(0, 0, 0, 0.15);
     border-radius: 5px 5px 0 0; }
-    .editor-container > .toolbar > div:first-child, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:first-child {
+    .editor-container > .toolbar > div:first-child, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child {
       grid-area: one;
       display: flex; }
-      .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:first-child > button {
+      .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button {
         background-color: transparent;
         color: white;
         padding: 12px; }
-        .editor-container > .toolbar > div:first-child > button:hover, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:first-child > button:hover {
+        .editor-container > .toolbar > div:first-child > button:hover, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button:hover {
           background-color: rgba(0, 0, 0, 0.15); }
-    .editor-container > .toolbar > div:last-child, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child {
+    .editor-container > .toolbar > div:last-child, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child {
       grid-area: two;
       display: flex;
       align-self: center; }
-      .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span {
+      .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span {
         padding: 10px; }
-        .editor-container > .toolbar > div:last-child > span::before, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span::before {
+        .editor-container > .toolbar > div:last-child > span::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span::before {
           font-weight: 700; }
-        .editor-container > .toolbar > div:last-child > span#underline::before, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span#underline::before {
+        .editor-container > .toolbar > div:last-child > span#underline::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span#underline::before {
           content: '\f0cd'; }
-        .editor-container > .toolbar > div:last-child > span#bold::before, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span#bold::before {
+        .editor-container > .toolbar > div:last-child > span#bold::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span#bold::before {
           content: '\f032'; }
-        .editor-container > .toolbar > div:last-child > span#italic::before, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span#italic::before {
+        .editor-container > .toolbar > div:last-child > span#italic::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span#italic::before {
           content: '\f033'; }
-        .editor-container > .toolbar > div:last-child > span#strikethrough::before, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span#strikethrough::before {
+        .editor-container > .toolbar > div:last-child > span#strikethrough::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span#strikethrough::before {
           content: '\f0cc'; }
-        .editor-container > .toolbar > div:last-child > span:hover, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span:hover {
+        .editor-container > .toolbar > div:last-child > span:hover, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span:hover {
           background-color: rgba(0, 0, 0, 0.15); }
-  .editor-container > .editor, #render .taskLarge-container > div > .taskLarge > .editor-container > .editor {
+  .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor {
     grid-area: editor;
     display: none;
     min-height: 100px;
     font-size: 18px;
     resize: none;
     padding: 10px; }
-    .editor-container > .editor.hide, #render .taskLarge-container > div > .taskLarge > .editor-container > .editor.hide {
+    .editor-container > .editor.hide, #render .taskLarge-container > .taskLarge > .editor-container > .editor.hide {
       display: none; }
-  .editor-container > p, #render .taskLarge-container > div > .taskLarge > .editor-container > p {
+  .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p {
     display: block;
     min-height: 40px;
     max-height: 200px;
     padding: 10px; }
-  .editor-container > p.editor, #render .taskLarge-container > div > .taskLarge > .editor-container > p.editor {
+  .editor-container > p.editor, #render .taskLarge-container > .taskLarge > .editor-container > p.editor {
     padding: 0; }
-  .editor-container > .optionbar, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar {
+  .editor-container > .optionbar, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar {
     display: none;
     justify-content: right;
     align-content: center;
     gap: 5px;
     background-color: rgba(0, 0, 0, 0.15); }
-    .editor-container > .optionbar > button, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar > button {
+    .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button {
       padding: 5px 20px;
       color: white; }
-    .editor-container > .optionbar > button:first-child, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar > button:first-child {
+    .editor-container > .optionbar > button:first-child, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button:first-child {
       order: 2;
       background-color: rgba(0, 0, 0, 0.15); }
-      .editor-container > .optionbar > button:first-child:hover, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar > button:first-child:hover {
+      .editor-container > .optionbar > button:first-child:hover, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button:first-child:hover {
         background-color: rgba(0, 0, 0, 0.3); }
-    .editor-container > .optionbar > button:last-child, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar > button:last-child {
+    .editor-container > .optionbar > button:last-child, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button:last-child {
       order: 1;
       background-color: transparent; }
-      .editor-container > .optionbar > button:last-child:hover, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar > button:last-child:hover {
+      .editor-container > .optionbar > button:last-child:hover, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button:last-child:hover {
         background-color: rgba(0, 0, 0, 0.15); }
-  .editor-container.active-editor, #render .taskLarge-container > div > .taskLarge > .active-editor.editor-container {
+  .editor-container.active-editor, #render .taskLarge-container > .taskLarge > .active-editor.editor-container {
     display: grid;
     background-color: rgba(0, 0, 0, 0.15); }
-    .editor-container.active-editor > .toolbar, #render .taskLarge-container > div > .taskLarge > .active-editor.editor-container > .toolbar {
+    .editor-container.active-editor > .toolbar, #render .taskLarge-container > .taskLarge > .active-editor.editor-container > .toolbar {
       display: grid; }
-    .editor-container.active-editor > .editor, #render .taskLarge-container > div > .taskLarge > .active-editor.editor-container > .editor {
+    .editor-container.active-editor > .editor, #render .taskLarge-container > .taskLarge > .active-editor.editor-container > .editor {
       display: block; }
-    .editor-container.active-editor > .optionbar, #render .taskLarge-container > div > .taskLarge > .active-editor.editor-container > .optionbar {
+    .editor-container.active-editor > .optionbar, #render .taskLarge-container > .taskLarge > .active-editor.editor-container > .optionbar {
       display: flex; }
-    .editor-container.active-editor p, #render .taskLarge-container > div > .taskLarge > .active-editor.editor-container p {
+    .editor-container.active-editor p, #render .taskLarge-container > .taskLarge > .active-editor.editor-container p {
       display: none; }
-  .editor-container > .editor.hide, #render .taskLarge-container > div > .taskLarge > .editor-container > .editor.hide {
+  .editor-container > .editor.hide, #render .taskLarge-container > .taskLarge > .editor-container > .editor.hide {
     display: none; }
-  .editor-container .bold, #render .taskLarge-container > div > .taskLarge > .editor-container .bold {
+  .editor-container .bold, #render .taskLarge-container > .taskLarge > .editor-container .bold {
     font-weight: bold; }
-  .editor-container .underline, #render .taskLarge-container > div > .taskLarge > .editor-container .underline {
+  .editor-container .underline, #render .taskLarge-container > .taskLarge > .editor-container .underline {
     text-decoration: underline; }
-  .editor-container .italic, #render .taskLarge-container > div > .taskLarge > .editor-container .italic {
+  .editor-container .italic, #render .taskLarge-container > .taskLarge > .editor-container .italic {
     font-style: italic; }
-  .editor-container .strikeThrough, #render .taskLarge-container > div > .taskLarge > .editor-container .strikeThrough {
+  .editor-container .strikeThrough, #render .taskLarge-container > .taskLarge > .editor-container .strikeThrough {
     text-decoration: line-through; }
 
 .context-menu {
@@ -257,107 +257,105 @@
     align-items: center;
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.5); }
-    #render .taskLarge-container > div {
-      display: flex;
-      align-self: center; }
-      #render .taskLarge-container > div > .taskLarge {
-        width: 600px;
-        min-height: 400px;
-        background-color: #494949;
-        border-radius: 5px;
-        z-index: 2;
-        padding: 20px;
-        font-size: 18px;
-        display: grid;
-        grid-auto-columns: calc( 600px - 20px*2);
-        grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) auto;
-        grid-template-areas: "title" "owner" "info" "description"; }
-        #render .taskLarge-container > div > .taskLarge > textarea:nth-child(1) {
-          grid-area: title;
-          font-size: 28px;
-          font-weight: 700;
-          margin: 0 0 5px 0; }
-        #render .taskLarge-container > div > .taskLarge > p:nth-child(2) {
-          grid-area: owner;
-          color: #E3E3E3; }
-        #render .taskLarge-container > div > .taskLarge > div.info {
-          grid-area: info;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 15px;
-          margin: 0 0 10px 0; }
-          #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > div > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > div.img {
-            display: block;
-            height: 25px;
-            width: 25px;
-            border-radius: 50%; }
-          #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > button {
-            background-color: rgba(0, 0, 0, 0.15);
-            color: inherit; }
-            #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > button::after, #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > button::after {
-              content: '+';
-              font-size: 19.8px; }
-            #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > button:hover, #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > button:hover {
-              background-color: rgba(0, 0, 0, 0.3); }
-          #render .taskLarge-container > div > .taskLarge > div.info > div > label {
-            margin: 0 0 5px 0;
-            height: 20px; }
-          #render .taskLarge-container > div > .taskLarge > div.info > div.color {
-            grid-area: color;
-            display: grid;
-            place-content: start; }
-            #render .taskLarge-container > div > .taskLarge > div.info > div.color > button {
-              padding: 5px;
-              border-radius: 5px;
-              background-color: transparent;
-              display: flex;
-              gap: 10px;
+    #render .taskLarge-container > .taskLarge {
+      width: 600px;
+      min-height: 400px;
+      background-color: #494949;
+      border-radius: 5px;
+      z-index: 2;
+      padding: 20px;
+      font-size: 18px;
+      display: grid;
+      align-self: safe center;
+      grid-auto-columns: calc( 600px - 20px*2);
+      grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) auto;
+      grid-template-areas: "title" "owner" "info" "description"; }
+      #render .taskLarge-container > .taskLarge > textarea:nth-child(1) {
+        grid-area: title;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 5px 0; }
+      #render .taskLarge-container > .taskLarge > p:nth-child(2) {
+        grid-area: owner;
+        color: #E3E3E3; }
+      #render .taskLarge-container > .taskLarge > div.info {
+        grid-area: info;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 0 0 10px 0; }
+        #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img {
+          display: block;
+          height: 25px;
+          width: 25px;
+          border-radius: 50%; }
+        #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button {
+          background-color: rgba(0, 0, 0, 0.15);
+          color: inherit; }
+          #render .taskLarge-container > .taskLarge > div.info > div.members > div > button::after, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button::after {
+            content: '+';
+            font-size: 19.8px; }
+          #render .taskLarge-container > .taskLarge > div.info > div.members > div > button:hover, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button:hover {
+            background-color: rgba(0, 0, 0, 0.3); }
+        #render .taskLarge-container > .taskLarge > div.info > div > label {
+          margin: 0 0 5px 0;
+          height: 20px; }
+        #render .taskLarge-container > .taskLarge > div.info > div.color {
+          grid-area: color;
+          display: grid;
+          place-content: start; }
+          #render .taskLarge-container > .taskLarge > div.info > div.color > button {
+            padding: 5px;
+            border-radius: 5px;
+            background-color: transparent;
+            display: flex;
+            gap: 10px;
+            color: inherit;
+            align-self: start; }
+            #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1) {
+              height: 15px;
+              width: 15px;
+              background-color: yellow; }
+            #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
               color: inherit;
-              align-self: start; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.color > button > span:nth-child(1) {
-                height: 15px;
-                width: 15px;
-                background-color: yellow; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.color > button > span:nth-child(2) {
-                color: inherit;
-                align-self: center; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.color > button:hover {
-                background-color: rgba(0, 0, 0, 0.15); }
-          #render .taskLarge-container > div > .taskLarge > div.info > div.members {
-            grid-area: members;
-            display: grid;
-            place-content: start; }
-            #render .taskLarge-container > div > .taskLarge > div.info > div.members > div {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 2px; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > div.img {
-                overflow: hidden;
-                display: grid;
-                place-content: center; }
-                #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > div.img > img {
-                  height: 25px; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > button {
-                min-width: 25px; }
-          #render .taskLarge-container > div > .taskLarge > div.info > div.labels {
-            grid-area: labels;
-            display: grid;
-            place-content: start; }
-            #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels {
-              align-self: start;
-              display: flex;
-              flex-wrap: wrap;
-              gap: 6px; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > div {
-                background-color: rgba(0, 0, 0, 0.15);
-                padding: 5px 10px;
-                border-radius: 5px;
-                font-size: 12px;
-                overflow-wrap: anywhere; }
-              #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > button {
-                border-radius: 5px; }
-        #render .taskLarge-container > div > .taskLarge > .editor-container {
-          grid-area: description; }
+              align-self: center; }
+            #render .taskLarge-container > .taskLarge > div.info > div.color > button:hover {
+              background-color: rgba(0, 0, 0, 0.15); }
+        #render .taskLarge-container > .taskLarge > div.info > div.members {
+          grid-area: members;
+          display: grid;
+          place-content: start; }
+          #render .taskLarge-container > .taskLarge > div.info > div.members > div {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px; }
+            #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img {
+              overflow: hidden;
+              display: grid;
+              place-content: center; }
+              #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img > img {
+                height: 25px; }
+            #render .taskLarge-container > .taskLarge > div.info > div.members > div > button {
+              min-width: 25px; }
+        #render .taskLarge-container > .taskLarge > div.info > div.labels {
+          grid-area: labels;
+          display: grid;
+          place-content: start; }
+          #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels {
+            align-self: start;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px; }
+            #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div {
+              background-color: rgba(0, 0, 0, 0.15);
+              padding: 5px 10px;
+              border-radius: 5px;
+              font-size: 12px;
+              overflow-wrap: anywhere; }
+            #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button {
+              border-radius: 5px; }
+      #render .taskLarge-container > .taskLarge > .editor-container {
+        grid-area: description; }
 
 * {
   margin: 0;
@@ -394,23 +392,23 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container > p, #render .taskLarge-container > div > .taskLarge > .editor-container > p, #render textarea {
+.inactive-link, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, #render textarea {
   pointer-events: none; }
 
-.active-link, .editor-container > .editor, #render .taskLarge-container > div > .taskLarge > .editor-container > .editor, .editor-container.active-editor, #render .taskLarge-container > div > .taskLarge > .active-editor.editor-container, #render textarea.active, #render .taskLarge-container > div > .taskLarge > textarea:nth-child(1) {
+.active-link, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, .editor-container.active-editor, #render .taskLarge-container > .taskLarge > .active-editor.editor-container, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea:nth-child(1) {
   pointer-events: auto; }
 
 .stop-scrolling {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > div > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > div > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > div > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > div > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > div > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > div > .taskLarge > div.info > div.color > button, #render .taskLarge-container > div > .taskLarge > div.info > div.color > button > span:nth-child(1), .darkModeToggle > button {
+.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), .darkModeToggle > button {
   cursor: pointer; }
 
-.cursor-text, .editor-container > .editor, #render .taskLarge-container > div > .taskLarge > .editor-container > .editor, #render textarea.active, #render .taskLarge-container > div > .taskLarge > textarea.active:nth-child(1) {
+.cursor-text, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea.active:nth-child(1) {
   cursor: text; }
 
-.no-pointer-event, .editor-container > p.editor, #render .taskLarge-container > div > .taskLarge > .editor-container > p.editor {
+.no-pointer-event, .editor-container > p.editor, #render .taskLarge-container > .taskLarge > .editor-container > p.editor {
   pointer-events: none; }
 
 .disable-higlight {
@@ -423,7 +421,7 @@ ul {
 .no-wrap {
   white-space: nowrap; }
 
-.editor-container > .toolbar > div:last-child > span::before, #render .taskLarge-container > div > .taskLarge > .editor-container > .toolbar > div:last-child > span::before, .context-menu > ul > li::before {
+.editor-container > .toolbar > div:last-child > span::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span::before, .context-menu > ul > li::before {
   display: inline-block;
   font-family: 'Font Awesome 5 Free';
   font-style: normal;
@@ -441,16 +439,9 @@ ul {
     height: 25px;
     width: 25px;
     border-radius: 50%;
-    border: 2px solid #f5f5f5; }
-  .darkModeToggle > #dark {
-    background-color: #222;
-    margin: 0 5px 0 0; }
-  .darkModeToggle > #light {
     background-color: #f5f5f5; }
-  .darkModeToggle.light > #dark {
-    border: 2px solid #222; }
-  .darkModeToggle.light > #light {
-    border: 2px solid #222; }
+  .darkModeToggle.light > button {
+    background-color: #222; }
 
 .loadingscreen {
   height: 100vh;

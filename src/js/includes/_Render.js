@@ -11,16 +11,19 @@ function Render() {
 			return Promise.resolve()
 		}
 	}
+	
 	this.box = async data => {
 		await renderBox()
 		toggleTextarea(5, true)
 		return Promise.resolve()
 		
 		function renderBox() {
-			queryTarget(`.box[data-id="${data.idToRenderAt}"`).insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
+			const parent = queryTarget(`.box[data-id="${data.idToRenderAt}"`)
+			parent.insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
 			return Promise.resolve()
 		}
 	}
+	
 	this.taskLarge = async (data) => {
 		const boxes = frame.getBoxes()
 		const box = boxes.find(box => box.id == data.boxId)
@@ -31,7 +34,6 @@ function Render() {
 			const {formated} = tools.cleanAndFormat(task.description)
 			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
 		}
-		//queryTarget('.taskLarge-container').addEventListener('overflowchanged', frame.toggleTaskLargeScreenPosition, false)
 		return Promise.resolve()
 
 		function renderTaskLarge() {
@@ -45,7 +47,8 @@ function Render() {
 		return Promise.resolve()
 
 		function renderTask() {
-			queryTarget(`.box[data-id="${data.id}"]`).insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
+			const parent = queryTarget(`.box[data-id="${data.id}"]`)
+			parent.insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
 			return Promise.resolve()
 		}
 	}

@@ -1,5 +1,6 @@
 function Validate() {
     let password
+    this.hasScrollbar = target => target.scrollHeight > target.clientHeight
 
     this.form = (inputs, errorMessages) => {
         for(let key in inputs) {

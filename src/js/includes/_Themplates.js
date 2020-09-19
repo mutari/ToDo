@@ -20,55 +20,61 @@ function Themplates() {
 	`
 	this.taskLarge = task => `
 		<div class="taskLarge-container" id="taskLarge-container">
-			<div>
-				<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-					<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
-					<p>In <b>${task.parent}</b></p>
-					<div class="info">
-						<div class="color">
-							<label>Color</label>
-							<button><span class="circle"></span><span>Yellow</span></button>
+			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
+				<p>In <b>${task.parent}</b></p>
+				<div class="info">
+					<div class="color">
+						<label>Color</label>
+						<button><span class="circle"></span><span>Yellow</span></button>
+					</div>
+					<div class="members">
+						<label>Members</label>
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<button />
 						</div>
-						<div class="members">
-							<label>Members</label>
-							<div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<button />
-							</div>
+					</div>
+					<div class="labels">
+						<label>Labels</label>
+						<div id="labels">
+							<div>Project-x</div>
+							<div>Design</div>
+							<div>Design</div>
+							<button />
 						</div>
-						<div class="labels">
-							<label>Labels</label>
-							<div id="labels">
-								<div>Project-x</div>
-								<div>Design</div>
-								<div>Design</div>
-								<button />
+					</div>
+				</div>
+				${task.description ? this.editor(task.description) : ''}
+				${task.subtasks.length ? `
+					<div class="subtask-container">
+						<div id="subtaskInfo">
+							<p>Subtasks</p>
+							<p id="numberOfSubtasks">${task.subtasks.length}</p>
+							<button><span></span></button>
+						</div>
+						<div id="subtasks">
+							${task.subtasks.map(subtask => this.subtask(subtask))}
+							<div id="addSubtask">
+								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
 							</div>
 						</div>
 					</div>
-					${task.description ? this.editor(task.description) : ''}
-				</div>
+				` : ''}
 			</div>
-			<span id="taskShadow"></span>
 		</div>
 	`
-	this.subtask = () => `
+	this.subtask = (subtask) => `
+		<div class="subtask" id="${subtask.id}">
+			<input type="checkbox">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${subtask.text}</textarea>
+			<button><span></span></button>
+		</div>
+	`
 	
-	`
-	this.contextMenu = (id, type) => `
-		<nav class="context-menu" id="context-menu">
-			<ul data-id="${id}" data-type="${type}">
-				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
-				${type === 'box' ? '<li id="create">Add</li>' : ''}
-				<li id="update">Edit</li>
-				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
-			</ul>
-		</nav>
-	`
-
 	this.editor = description => `
 		<div class="editor-container" id="editor-container">
 			<div class="toolbar">
@@ -90,4 +96,16 @@ function Themplates() {
 			</div>
 		</div>
 	`
+	this.contextMenu = (id, type) => `
+		<nav class="context-menu" id="context-menu">
+			<ul data-id="${id}" data-type="${type}">
+				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
+				${type === 'box' ? '<li id="create">Add</li>' : ''}
+				<li id="update">Edit</li>
+				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
+			</ul>
+		</nav>
+	`
+
+	
 }

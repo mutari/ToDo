@@ -7,11 +7,6 @@ function Editor(e) {
 	let beforeWrite
 	this.shouldWriteButtonEnable = false
 
-	this.activate = init => {
-		container.classList.add('active-editor')
-		tools.resizeAreaToFitContent(textarea)
-		if(init) tools.focusAndputCursorAtEnd(textarea)
-	}
 	this.deactivate = save => {
 		const editorContainer = container
 		editorContainer.classList.remove('active-editor')
@@ -19,14 +14,14 @@ function Editor(e) {
 		if(save) {
 			this.format(textarea.value)
 			tools.setAreaHeight(textarea)
-			return 
+			return
 		}
 		textarea.value = previousText
 		formatedArea.classList.remove('editor')
 	}
 
 	this.format = text => {
-		const {cleaned, formated} = tools.cleanAndFormat(text)
+		const {cleaned, formated} = Sanitize.cleanAndFormat(text)
 		textarea.value = cleaned
 		formatedArea.innerHTML = formated
 	}
@@ -47,10 +42,11 @@ function Editor(e) {
 
 	const containerOnClick = e => {
 		e.stopPropagation()
-		this.activate()
 		tools.resizeAreaToFitContent(textarea)
 	}
+	
 	container.addEventListener('click', containerOnClick)
-
-	this.activate(true)
+	container.classList.add('active-editor')
+	tools.resizeAreaToFitContent(textarea)
+	if(init) tools.focusAndPutCursorAtEnd(textarea)
 }
