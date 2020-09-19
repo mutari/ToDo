@@ -54,8 +54,9 @@
   .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p {
     display: block;
     min-height: 40px;
-    max-height: 200px;
-    padding: 10px; }
+    max-height: min-content;
+    padding: 10px;
+    white-space: pre-wrap; }
   .editor-container > p.editor, #render .taskLarge-container > .taskLarge > .editor-container > p.editor {
     padding: 0; }
   .editor-container > .optionbar, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar {
@@ -268,8 +269,8 @@
       display: grid;
       align-self: safe center;
       grid-auto-columns: calc( 600px - 20px*2);
-      grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) auto;
-      grid-template-areas: "title" "owner" "info" "description"; }
+      grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) min-content min-content;
+      grid-template-areas: "title" "owner" "info" "description" "subtasks"; }
       #render .taskLarge-container > .taskLarge > textarea:nth-child(1) {
         grid-area: title;
         font-size: 28px;
@@ -278,25 +279,27 @@
       #render .taskLarge-container > .taskLarge > p:nth-child(2) {
         grid-area: owner;
         color: #E3E3E3; }
+      #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img {
+        display: block;
+        height: 25px;
+        width: 25px;
+        border-radius: 50%; }
+      #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button {
+        background-color: rgba(0, 0, 0, 0.15);
+        color: inherit;
+        display: grid;
+        place-content: center; }
+        #render .taskLarge-container > .taskLarge > div.info > div.members > div > button::after, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button::after, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button::after {
+          content: '+';
+          font-size: 19.8px; }
+        #render .taskLarge-container > .taskLarge > div.info > div.members > div > button:hover, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button:hover, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button:hover {
+          background-color: rgba(0, 0, 0, 0.3); }
       #render .taskLarge-container > .taskLarge > div.info {
         grid-area: info;
         display: flex;
         flex-wrap: wrap;
         gap: 15px;
         margin: 0 0 10px 0; }
-        #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img {
-          display: block;
-          height: 25px;
-          width: 25px;
-          border-radius: 50%; }
-        #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button {
-          background-color: rgba(0, 0, 0, 0.15);
-          color: inherit; }
-          #render .taskLarge-container > .taskLarge > div.info > div.members > div > button::after, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button::after {
-            content: '+';
-            font-size: 19.8px; }
-          #render .taskLarge-container > .taskLarge > div.info > div.members > div > button:hover, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button:hover {
-            background-color: rgba(0, 0, 0, 0.3); }
         #render .taskLarge-container > .taskLarge > div.info > div > label {
           margin: 0 0 5px 0;
           height: 20px; }
@@ -355,7 +358,107 @@
             #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button {
               border-radius: 5px; }
       #render .taskLarge-container > .taskLarge > .editor-container {
-        grid-area: description; }
+        grid-area: description;
+        margin: 0 0 20px 0; }
+        #render .taskLarge-container > .taskLarge > .editor-container > p {
+          padding: 0; }
+      #render .taskLarge-container > .taskLarge > .subtask-container {
+        display: grid;
+        grid-auto-columns: auto;
+        grid-auto-rows: 40px min-content;
+        grid-template-areas: "info" "subtasks";
+        width: 600px;
+        margin: 0 0 0 calc( 20px * -1); }
+        #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button {
+          display: grid;
+          place-content: center;
+          background-color: transparent;
+          height: 30px;
+          width: 30px;
+          padding: 0 0 1px 0;
+          gap: 2px;
+          border-radius: 50%; }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button:hover, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button:hover {
+            background-color: rgba(0, 0, 0, 0.15); }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button > span, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button > span, #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button::after, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button::after, #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button::before, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button::before {
+            display: block;
+            height: 5px;
+            width: 5px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.3); }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button::after, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button::after, #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button::before, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button::before {
+            content: ''; }
+        #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo {
+          grid-area: info;
+          display: grid;
+          grid-auto-flow: column;
+          grid-template-columns: min-content min-content auto min-content;
+          grid-template-areas: "one two . three";
+          align-self: center;
+          align-content: center;
+          background-color: rgba(0, 0, 0, 0.3);
+          gap: 1em;
+          width: 100%;
+          height: 100%;
+          padding: 0 20px; }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > p:first-child {
+            grid-area: one;
+            display: grid;
+            grid-auto-flow: column;
+            align-self: center;
+            width: min-content;
+            height: min-content; }
+            #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > p:first-child::before {
+              content: '\f0ae';
+              font-weight: 700;
+              margin: 0 .5em 0 0; }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > #numberOfSubtasks {
+            grid-area: two;
+            align-self: center;
+            opacity: .6; }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button {
+            grid-area: three;
+            justify-self: end; }
+        #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks {
+          grid-area: subtasks;
+          padding: 10px 20px 0 20px; }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: min-content auto min-content;
+            grid-template-areas: "one two three";
+            align-items: center;
+            gap: 7.5px;
+            margin: 0 0 7.5px 0; }
+            #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > input {
+              grid-area: one;
+              height: 20px;
+              width: 20px; }
+
+@-moz-document url-prefix() {
+  #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > input {
+    height: auto;
+    width: auto; } }
+            #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > textarea {
+              grid-area: two;
+              padding: 6px 0 0 0; }
+            #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button {
+              grid-area: three; }
+          #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: calc( 20px + 7.5px) auto min-content;
+            grid-template-areas: ". one two"; }
+
+@-moz-document url-prefix() {
+  #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask {
+    grid-template-columns: calc( 13px + 7.5px) auto min-content; } }
+            #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > textarea {
+              grid-area: one; }
+            #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button {
+              grid-area: two;
+              align-self: center;
+              margin: 0 calc( (30px - 25px)/2) 0 0; }
 
 * {
   margin: 0;
@@ -402,7 +505,7 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), .darkModeToggle > button {
+.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button, .darkModeToggle > button {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea.active:nth-child(1) {
@@ -421,7 +524,7 @@ ul {
 .no-wrap {
   white-space: nowrap; }
 
-.editor-container > .toolbar > div:last-child > span::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span::before, .context-menu > ul > li::before {
+.editor-container > .toolbar > div:last-child > span::before, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span::before, .context-menu > ul > li::before, #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > p:first-child::before {
   display: inline-block;
   font-family: 'Font Awesome 5 Free';
   font-style: normal;

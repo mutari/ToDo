@@ -9,13 +9,14 @@ Array.prototype.removeClass = function(param) {
 }
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
-String.prototype.indicesOf = function(searchStr, caseSensitive) { 
+String.prototype.indicesOf = function(searchStr, caseSensitive, startIndex) { 
     let str = this
     let searchStrLen = searchStr.length
     if (searchStrLen === 0) {
         return []
     }
-    let startIndex = 0, index, indices = []
+    startIndex = startIndex ? startIndex : 0
+    let index, indices = []
     if (!caseSensitive) {
         str = str.toLowerCase()
         searchStr = searchStr.toLowerCase()
@@ -91,13 +92,12 @@ document.addEventListener("dblclick", e => {
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
-
     if(queryTarget('.active-editor')) {
         if(id === 'write' && editor.shouldWriteButtonEnable) editor.write()
         else if(id === 'preview') editor.preview()
-        else if(id === 'save') editor.deactivate(true)
-        else if(id === 'cancel') editor.deactivate()
-
+        else if(id === 'save') return editor.deactivate(true)
+        else if(id === 'cancel') return editor.deactivate()
+        
         const input = queryTarget('.active-editor').children.editor
         if(id === 'bold') tools.wrapSelectedText(input, '*')
         else if(id === 'italic') tools.wrapSelectedText(input, '|')
@@ -108,14 +108,15 @@ document.addEventListener( 'mousedown', e => {
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
     const id = targetId(e)
-    if([13, 27].includes(key)) {
+    if([9, 13, 27].includes(key)) {
         if(id === 'textarea') {
             e.preventDefault()
             if(key === 13) toggleTextarea(e, false, true) //key 13 enter
             else if(key === 27) toggleTextarea(e, false) //key 27 esc
-        } else if(id === 'editor' && key === 27) {
+        } else if(id === 'editor' && [9, 27].includes(key)) {
             e.preventDefault()
-            editor.deactivate()
+            if(key === 9) Format.addTabAtCursor(e.target) // key 9 tab
+            if(key === 27) editor.deactivate()
         }
     }
     if(parentId(e) === 'frameNav') 

@@ -9,13 +9,14 @@ Array.prototype.removeClass = function(param) {
 }
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
-String.prototype.indicesOf = function(searchStr, caseSensitive) { 
+String.prototype.indicesOf = function(searchStr, caseSensitive, startIndex) { 
     let str = this
     let searchStrLen = searchStr.length
     if (searchStrLen === 0) {
         return []
     }
-    let startIndex = 0, index, indices = []
+    startIndex = startIndex ? startIndex : 0
+    let index, indices = []
     if (!caseSensitive) {
         str = str.toLowerCase()
         searchStr = searchStr.toLowerCase()
@@ -91,13 +92,12 @@ document.addEventListener("dblclick", e => {
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
-
     if(queryTarget('.active-editor')) {
         if(id === 'write' && editor.shouldWriteButtonEnable) editor.write()
         else if(id === 'preview') editor.preview()
-        else if(id === 'save') editor.deactivate(true)
-        else if(id === 'cancel') editor.deactivate()
-
+        else if(id === 'save') return editor.deactivate(true)
+        else if(id === 'cancel') return editor.deactivate()
+        
         const input = queryTarget('.active-editor').children.editor
         if(id === 'bold') tools.wrapSelectedText(input, '*')
         else if(id === 'italic') tools.wrapSelectedText(input, '|')
@@ -108,14 +108,15 @@ document.addEventListener( 'mousedown', e => {
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
     const id = targetId(e)
-    if([13, 27].includes(key)) {
+    if([9, 13, 27].includes(key)) {
         if(id === 'textarea') {
             e.preventDefault()
             if(key === 13) toggleTextarea(e, false, true) //key 13 enter
             else if(key === 27) toggleTextarea(e, false) //key 27 esc
-        } else if(id === 'editor' && key === 27) {
+        } else if(id === 'editor' && [9, 27].includes(key)) {
             e.preventDefault()
-            editor.deactivate()
+            if(key === 9) Format.addTabAtCursor(e.target) // key 9 tab
+            if(key === 27) editor.deactivate()
         }
     }
     if(parentId(e) === 'frameNav') 
@@ -992,7 +993,7 @@ function Editor(e) {
 	}
 
 	this.format = text => {
-		const {cleaned, formated} = Sanitize.cleanAndFormat(text)
+		const {cleaned, formated} = tools.cleanAndFormat(text)
 		textarea.value = cleaned
 		formatedArea.innerHTML = formated
 	}
@@ -1012,14 +1013,13 @@ function Editor(e) {
 	}
 
 	const containerOnClick = e => {
-		e.stopPropagation()
-		tools.resizeAreaToFitContent(textarea)
+		e.stopPropagation() //stop deactivation of editor while inside container
 	}
 	
 	container.addEventListener('click', containerOnClick)
 	container.classList.add('active-editor')
 	tools.resizeAreaToFitContent(textarea)
-	if(init) tools.focusAndPutCursorAtEnd(textarea)
+	tools.focusAndPutCursorAtEnd(textarea)
 }
 function Form() {
 
@@ -1063,6 +1063,147 @@ function Form() {
             password: `Your email or password is incorrect`,
         }
     })
+}
+class Format {
+	static replaceAllRequestedSymbolsWithSpanTags = input => {
+		const translations = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+        ]
+        
+		let output = ''
+		let classes
+		let notSymbol = true
+		const charArr = input.split('')
+		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
+
+		charArr.map(char => {
+			notSymbol = true
+			translations.map(data => {
+				if(char !== data.symbol) return
+				notSymbol = false
+				classes = ''
+
+				if(!data.live) {
+					setActiveClasses()
+					data.live = true
+				} else {
+					data.live = false
+					setActiveClasses()
+				}
+
+				if(classes) {
+					if(data.live) classes += data.class
+					output += `</span><span class="${classes}">`
+				} else if(data.live) output += `<span class="${data.class}">`
+				else output += `</span>`
+			})
+			if(notSymbol) output += char
+		})
+		return output
+	}
+
+	static replaceAllRequestedSymbolsWithSpanTags2 = input => {
+		const symbolsDatas = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+		]
+		const combinationsDatas = [
+			{
+				combo: '* ',
+				replacement: '\&#8226 ',
+			},
+		]
+        
+		let output = '', classes = '', isSymbol, index = 0
+		const charArr = input.split('')
+		
+		while(index < charArr.length) {
+			isSymbol = false
+			symbolsDatas.forEach(symbolData => {
+				if(charArr[index] === symbolData.symbol) {
+					isSymbol = true
+					if(symbolData.isAlive) {
+						if(charArr[index-1] === ' ') addToOutput(charArr[index])
+						else {
+							addToOutput(tags(false))
+							removeClass(symbolData.class)
+							symbolData.isAlive = false
+						}
+					} else {
+						if(charArr[index+1] === ' ') addToOutput(charArr[index])
+						else {
+							addClass(symbolData.class)
+							addToOutput(tags(true, symbolData.class))
+							symbolData.isAlive = true
+						}
+					}
+				}
+			})
+			if(!isSymbol) addToOutput(charArr[index])
+			index++
+		}
+
+		index = 0
+		combinationsDatas.forEach(combinationData => {
+			while ((index = output.indexOf(combinationData.combo, index)) > -1) {
+				output = output.replace(combinationData.combo, combinationData.replacement)
+				index += combinationData.combo.length
+			}
+				
+		})
+
+		return output
+
+
+		function addToOutput(text) { output += text }
+		function tags(opening, className) {
+			return opening ? 
+				classes.indicesOf(' ').length === 1 ? `<span class="${className}">` : `</span><span class="${classes}">`
+				: `</span>`
+		}
+		function addClass(className){
+			classes += `${className} `
+		}
+		function removeClass(className) {
+			classes = classes.replace(`${className} `, '')
+		}
+	}
+
+	static addTabAtCursor(target) {
+		const tab = '\t'
+		const {startIndex, endIndex} = tools.getSelectedText(target)
+		target.value = target.value.replaceBetween(tab, startIndex, endIndex)
+		tools.putCursorAtIndex(target, startIndex+1)
+	}
 }
 function Frame(frame) {
 	this.previousText
@@ -1184,65 +1325,12 @@ function Render() {
  }
 class Sanitize {
     static removeBlacklistedChars = text => {
-        const blacklist = [`<`, `>`, `'`, `"`, '`']
-		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
-		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
+		console.log('hej')
+		const blacklist = [`<`, `>`, `'`, `"`, '`']
+		
+		text.split('').forEach(char => blacklist.forEach(symbol => char === symbol ? text = text.replace(char, '') : ''))
 		return text
     }
-
-
-
-    static replaceAllRequestedSymbolsWithSpanTags = input => {
-		const translations = [
-			{
-				symbol: '*',
-				class: 'bold',
-			},
-			{
-				symbol: '|',
-				class: 'italic',
-			},
-			{
-				symbol: '_',
-				class: 'underline',
-			},
-			{
-				symbol: '~',
-				class: 'strikeThrough',
-			},
-        ]
-        
-		let output = ''
-		let classes
-		let notSymbol = true
-		const charArr = input.split('')
-		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
-
-		charArr.map(char => {
-			notSymbol = true
-			translations.map(data => {
-				if(char !== data.symbol) return
-				notSymbol = false
-				classes = ''
-
-				if(!data.live) {
-					setActiveClasses()
-					data.live = true
-				} else {
-					data.live = false
-					setActiveClasses()
-				}
-
-				if(classes) {
-					if(data.live) classes += data.class
-					output += `</span><span class="${classes}">`
-				} else if(data.live) output += `<span class="${data.class}">`
-				else output += `</span>`
-			})
-			if(notSymbol) output += char
-		})
-		return output
-	}
 }
 function Server() {
 	this.fetch = async dest => {
@@ -1343,9 +1431,10 @@ function Themplates() {
 							<button><span></span></button>
 						</div>
 						<div id="subtasks">
-							${task.subtasks.map(subtask => this.subtask(subtask))}
+							${task.subtasks.map(subtask => this.subtask(subtask)).join('')}
 							<div id="addSubtask">
 								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
+								<button />
 							</div>
 						</div>
 					</div>
@@ -1410,21 +1499,21 @@ function Tools() {
 	}
 	this.cancelThrottle = () => throttle ? clearTimeout(throttle) : ''
 	
-	this.getSelectedText = element => window.getSelection ? [
-		element.value.substring(element.selectionStart, element.selectionEnd), 
-		element.selectionStart, 
-		element.selectionEnd
-	] : ''
+	this.getSelectedText = element => window.getSelection ? {
+		selectedText: element.value.substring(element.selectionStart, element.selectionEnd), 
+		startIndex: element.selectionStart, 
+		endIndex: element.selectionEnd
+	} : ''
 
 	this.wrapSelectedText = (input, symbol) => {
 		if(!input.dataset.enablewrite) return
-		const [selectedText, startIndex, endIndex] = this.getSelectedText(input)
+		const {selectedText, startIndex, endIndex} = this.getSelectedText(input)
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
 	this.cleanAndFormat = text => {
 		text = Sanitize.removeBlacklistedChars(text)
-		const formated = Sanitize.replaceAllRequestedSymbolsWithSpanTags(text)
+		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -1483,6 +1572,10 @@ function Tools() {
 			target.setSelectionRange(len, len)
 		}, 1)
 		target.scrollTop = 999999
+	}
+
+	this.putCursorAtIndex = (target, index) => {
+		target.setSelectionRange(index, index)
 	}
 }
 

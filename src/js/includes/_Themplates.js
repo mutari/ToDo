@@ -57,9 +57,10 @@ function Themplates() {
 							<button><span></span></button>
 						</div>
 						<div id="subtasks">
-							${task.subtasks.map(subtask => this.subtask(subtask))}
+							${task.subtasks.map(subtask => this.subtask(subtask)).join('')}
 							<div id="addSubtask">
 								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
+								<button />
 							</div>
 						</div>
 					</div>

@@ -13,21 +13,21 @@ function Tools() {
 	}
 	this.cancelThrottle = () => throttle ? clearTimeout(throttle) : ''
 	
-	this.getSelectedText = element => window.getSelection ? [
-		element.value.substring(element.selectionStart, element.selectionEnd), 
-		element.selectionStart, 
-		element.selectionEnd
-	] : ''
+	this.getSelectedText = element => window.getSelection ? {
+		selectedText: element.value.substring(element.selectionStart, element.selectionEnd), 
+		startIndex: element.selectionStart, 
+		endIndex: element.selectionEnd
+	} : ''
 
 	this.wrapSelectedText = (input, symbol) => {
 		if(!input.dataset.enablewrite) return
-		const [selectedText, startIndex, endIndex] = this.getSelectedText(input)
+		const {selectedText, startIndex, endIndex} = this.getSelectedText(input)
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
 	this.cleanAndFormat = text => {
 		text = Sanitize.removeBlacklistedChars(text)
-		const formated = Sanitize.replaceAllRequestedSymbolsWithSpanTags(text)
+		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -86,5 +86,9 @@ function Tools() {
 			target.setSelectionRange(len, len)
 		}, 1)
 		target.scrollTop = 999999
+	}
+
+	this.putCursorAtIndex = (target, index) => {
+		target.setSelectionRange(index, index)
 	}
 }

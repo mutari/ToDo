@@ -21,7 +21,7 @@ function Editor(e) {
 	}
 
 	this.format = text => {
-		const {cleaned, formated} = Sanitize.cleanAndFormat(text)
+		const {cleaned, formated} = tools.cleanAndFormat(text)
 		textarea.value = cleaned
 		formatedArea.innerHTML = formated
 	}
@@ -41,12 +41,11 @@ function Editor(e) {
 	}
 
 	const containerOnClick = e => {
-		e.stopPropagation()
-		tools.resizeAreaToFitContent(textarea)
+		e.stopPropagation() //stop deactivation of editor while inside container
 	}
 	
 	container.addEventListener('click', containerOnClick)
 	container.classList.add('active-editor')
 	tools.resizeAreaToFitContent(textarea)
-	if(init) tools.focusAndPutCursorAtEnd(textarea)
+	tools.focusAndPutCursorAtEnd(textarea)
 }
