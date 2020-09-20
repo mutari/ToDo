@@ -38,6 +38,7 @@ let frame
 let editor
 let dragAndDrop
 let contextMenu
+let dropdown
 let user = new User('')
 let crud = new CRUD()
 const form = new Form()
@@ -59,6 +60,11 @@ document.addEventListener("click", e => {
 
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    
+    if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
+        
+    }
+
     
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {

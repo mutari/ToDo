@@ -38,6 +38,7 @@ let frame
 let editor
 let dragAndDrop
 let contextMenu
+let dropdown
 let user = new User('')
 let crud = new CRUD()
 const form = new Form()
@@ -59,6 +60,11 @@ document.addEventListener("click", e => {
 
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+    
+    if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
+        
+    }
+
     
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
@@ -970,6 +976,15 @@ function DragAndDrop() {
     }
     addDndEventListener(this.frame)
 }
+function Dropdown(e, type, id) {
+	const button = e.target
+	render.dropdown(button, type, id)
+	
+	this.deactivate = () => {
+		render.eject('.dropdown')
+		dropdown = ''
+	}
+}
 function Editor(e) {
 	if(!e) return
 	const container = e.target
@@ -1321,6 +1336,18 @@ function Render() {
 	this.contextMenu = (id, type) => {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
 	}
+	this.dropdown = async (target, type, id) => {
+		await renderTask()
+		const dropdownHTML = queryTarget('.dropdown')
+		const {posX, posY} = tools.getPostionUnderEventContainer(target)
+		tools.positionAbsoluteBoxAt(dropdownHTML, posX, posY)
+		return Promise.resolve(dropdownHTML)
+
+		function renderTask() {
+			queryTarget('.taskLarge-container').insertAdjacentHTML('beforeend', themplates.dropdown(type, id))
+			return Promise.resolve()
+		}
+	}
 	this.eject = param => queryTarget(param).remove()
  }
 class Sanitize {
@@ -1397,10 +1424,10 @@ function Themplates() {
 			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
 				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
 				<p>In <b>${task.parent}</b></p>
-				<div class="info">
+				<div class="info" data-id="${task.id}">
 					<div class="color">
 						<label>Color</label>
-						<button><span class="circle"></span><span>Yellow</span></button>
+						<button id="colorBtn"><span class="circle"></span><span>Yellow</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
@@ -1409,7 +1436,7 @@ function Themplates() {
 							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
 							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
 							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<button />
+							<button id="membersBtn" />
 						</div>
 					</div>
 					<div class="labels">
@@ -1418,7 +1445,7 @@ function Themplates() {
 							<div>Project-x</div>
 							<div>Design</div>
 							<div>Design</div>
-							<button />
+							<button id="labelsBtn" />
 						</div>
 					</div>
 				</div>
@@ -1482,6 +1509,17 @@ function Themplates() {
 		</nav>
 	`
 
+	this.dropdown = (type, id) => `
+		<div class="dropdown" id="dropdown" data-id="${id}" data-type="${type}">
+			<button onclick="myFunction()" class="dropbtn">Dropdown</button>
+			<div id="myDropdown" class="dropdown-content">
+				<a href="#">Link 1</a>
+				<a href="#">Link 2</a>
+				<a href="#">Link 3</a>
+			</div>
+		</div> 
+	`
+
 	
 }
 function Tools() {
@@ -1542,11 +1580,14 @@ function Tools() {
 			posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
 
-		return {
-			posX: posX,
-			posY: posY
-		}
+		return {posX, posY}
 	}
+	
+	this.getPostionUnderEventContainer = target => ({
+		posX : target.offsetLeft, 
+		posY: target.offsetTop + target.offsetHeight
+	})
+
 	this.positionAbsoluteBoxAt = (target, x, y) => {
         const targetWidth = target.offsetWidth + 4
         const targetHeight = target.offsetHeight + 4

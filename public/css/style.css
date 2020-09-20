@@ -460,6 +460,14 @@
               align-self: center;
               margin: 0 calc( (30px - 25px)/2) 0 0; }
 
+.dropdown {
+  position: absolute;
+  z-index: 9999;
+  display: grid;
+  background: black; }
+  .dropdown > div {
+    display: grid; }
+
 * {
   margin: 0;
   padding: 0;
@@ -495,7 +503,7 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, #render textarea {
+.inactive-link, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, #render textarea, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
   pointer-events: none; }
 
 .active-link, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, .editor-container.active-editor, #render .taskLarge-container > .taskLarge > .active-editor.editor-container, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea:nth-child(1) {

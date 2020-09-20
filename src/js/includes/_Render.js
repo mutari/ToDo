@@ -55,5 +55,17 @@ function Render() {
 	this.contextMenu = (id, type) => {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
 	}
+	this.dropdown = async (target, type, id) => {
+		await renderTask()
+		const dropdownHTML = queryTarget('.dropdown')
+		const {posX, posY} = tools.getPostionUnderEventContainer(target)
+		tools.positionAbsoluteBoxAt(dropdownHTML, posX, posY)
+		return Promise.resolve(dropdownHTML)
+
+		function renderTask() {
+			queryTarget('.taskLarge-container').insertAdjacentHTML('beforeend', themplates.dropdown(type, id))
+			return Promise.resolve()
+		}
+	}
 	this.eject = param => queryTarget(param).remove()
  }

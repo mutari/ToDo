@@ -56,11 +56,14 @@ function Tools() {
 			posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
 
-		return {
-			posX: posX,
-			posY: posY
-		}
+		return {posX, posY}
 	}
+	
+	this.getPostionUnderEventContainer = target => ({
+		posX : target.offsetLeft, 
+		posY: target.offsetTop + target.offsetHeight
+	})
+
 	this.positionAbsoluteBoxAt = (target, x, y) => {
         const targetWidth = target.offsetWidth + 4
         const targetHeight = target.offsetHeight + 4

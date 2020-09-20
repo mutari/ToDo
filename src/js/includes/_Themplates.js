@@ -23,10 +23,10 @@ function Themplates() {
 			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
 				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
 				<p>In <b>${task.parent}</b></p>
-				<div class="info">
+				<div class="info" data-id="${task.id}">
 					<div class="color">
 						<label>Color</label>
-						<button><span class="circle"></span><span>Yellow</span></button>
+						<button id="colorBtn"><span class="circle"></span><span>Yellow</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
@@ -35,7 +35,7 @@ function Themplates() {
 							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
 							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
 							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<button />
+							<button id="membersBtn" />
 						</div>
 					</div>
 					<div class="labels">
@@ -44,7 +44,7 @@ function Themplates() {
 							<div>Project-x</div>
 							<div>Design</div>
 							<div>Design</div>
-							<button />
+							<button id="labelsBtn" />
 						</div>
 					</div>
 				</div>
@@ -106,6 +106,17 @@ function Themplates() {
 				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
 			</ul>
 		</nav>
+	`
+
+	this.dropdown = (type, id) => `
+		<div class="dropdown" id="dropdown" data-id="${id}" data-type="${type}">
+			<button onclick="myFunction()" class="dropbtn">Dropdown</button>
+			<div id="myDropdown" class="dropdown-content">
+				<a href="#">Link 1</a>
+				<a href="#">Link 2</a>
+				<a href="#">Link 3</a>
+			</div>
+		</div> 
 	`
 
 	
