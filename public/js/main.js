@@ -62,9 +62,10 @@ document.addEventListener("click", e => {
     else if(id === 'editor-container') editor = new Editor(e)
     
     if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
-        
-    }
-
+        if(queryTarget('.dropdown')) return dropdown.deactivate()
+        const taskLarge = id === 'colorBtn' ? e.target.parentElement.parentElement : e.target.parentElement.parentElement.parentElement
+        dropdown = new Dropdown(e, id, taskLarge.attributes['data-id'].value)
+    } else if(dropdown) dropdown.deactivate()
     
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
@@ -978,11 +979,26 @@ function DragAndDrop() {
 }
 function Dropdown(e, type, id) {
 	const button = e.target
-	render.dropdown(button, type, id)
-	
+	let dropdownContainer
+	let stopDeactivation = false
+
 	this.deactivate = () => {
+		if(stopDeactivation) return stopDeactivation = false
+		dropdownContainer.removeEventListener('click', onClickInsideDropdown)
 		render.eject('.dropdown')
 		dropdown = ''
+
+	}
+
+	init()
+	async function init() {
+		dropdownContainer = await render.dropdown(button, type, id)
+		if(type !== 'colorBtn') {
+			dropdownContainer.addEventListener('click', onClickInsideDropdown)
+		}
+	}
+	function onClickInsideDropdown() {
+		stopDeactivation = true
 	}
 }
 function Editor(e) {
@@ -1337,13 +1353,13 @@ function Render() {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
 	}
 	this.dropdown = async (target, type, id) => {
-		await renderTask()
+		await renderDropdown()
 		const dropdownHTML = queryTarget('.dropdown')
 		const {posX, posY} = tools.getPostionUnderEventContainer(target)
 		tools.positionAbsoluteBoxAt(dropdownHTML, posX, posY)
 		return Promise.resolve(dropdownHTML)
 
-		function renderTask() {
+		function renderDropdown() {
 			queryTarget('.taskLarge-container').insertAdjacentHTML('beforeend', themplates.dropdown(type, id))
 			return Promise.resolve()
 		}
@@ -1511,12 +1527,14 @@ function Themplates() {
 
 	this.dropdown = (type, id) => `
 		<div class="dropdown" id="dropdown" data-id="${id}" data-type="${type}">
-			<button onclick="myFunction()" class="dropbtn">Dropdown</button>
-			<div id="myDropdown" class="dropdown-content">
-				<a href="#">Link 1</a>
-				<a href="#">Link 2</a>
-				<a href="#">Link 3</a>
-			</div>
+			${type === 'colorBtn' ? `
+				<ul class="colorList">
+					<li id="yellow">Yellow</li>
+					<li id="green">Green</li>
+					<li id="red">Red</li>
+					<li id="blue">Blue</li>
+				</ul>`
+			: ''}
 		</div> 
 	`
 

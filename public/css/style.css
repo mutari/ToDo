@@ -464,9 +464,34 @@
   position: absolute;
   z-index: 9999;
   display: grid;
-  background: black; }
-  .dropdown > div {
-    display: grid; }
+  background-color: #333;
+  border: solid 1px #333;
+    border-box-shadow: 1px 1px 2px #000; }
+  .dropdown > ul.colorList > li {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    font-size: 13px;
+    padding: 5px 10px 5px 5px; }
+    .dropdown > ul.colorList > li::before {
+      display: block;
+      content: '';
+      height: 15px;
+      width: 15px;
+      border-radius: 50%;
+      margin: 0 .75em 0 0; }
+    .dropdown > ul.colorList > li:hover {
+      color: white;
+      background-color: #222; }
+  .dropdown > ul.colorList > li#red::before {
+    background-color: red; }
+  .dropdown > ul.colorList > li#blue::before {
+    background-color: blue; }
+  .dropdown > ul.colorList > li#green::before {
+    background-color: green; }
+  .dropdown > ul.colorList > li#yellow::before {
+    background-color: yellow; }
 
 * {
   margin: 0;
@@ -513,7 +538,7 @@ ul {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button, .darkModeToggle > button {
+.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button, .dropdown > ul.colorList > li, .darkModeToggle > button {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea.active:nth-child(1) {

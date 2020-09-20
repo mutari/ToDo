@@ -56,13 +56,13 @@ function Render() {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
 	}
 	this.dropdown = async (target, type, id) => {
-		await renderTask()
+		await renderDropdown()
 		const dropdownHTML = queryTarget('.dropdown')
 		const {posX, posY} = tools.getPostionUnderEventContainer(target)
 		tools.positionAbsoluteBoxAt(dropdownHTML, posX, posY)
 		return Promise.resolve(dropdownHTML)
 
-		function renderTask() {
+		function renderDropdown() {
 			queryTarget('.taskLarge-container').insertAdjacentHTML('beforeend', themplates.dropdown(type, id))
 			return Promise.resolve()
 		}

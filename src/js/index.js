@@ -62,9 +62,10 @@ document.addEventListener("click", e => {
     else if(id === 'editor-container') editor = new Editor(e)
     
     if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
-        
-    }
-
+        if(queryTarget('.dropdown')) return dropdown.deactivate()
+        const taskLarge = id === 'colorBtn' ? e.target.parentElement.parentElement : e.target.parentElement.parentElement.parentElement
+        dropdown = new Dropdown(e, id, taskLarge.attributes['data-id'].value)
+    } else if(dropdown) dropdown.deactivate()
     
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {

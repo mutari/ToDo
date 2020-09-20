@@ -110,12 +110,14 @@ function Themplates() {
 
 	this.dropdown = (type, id) => `
 		<div class="dropdown" id="dropdown" data-id="${id}" data-type="${type}">
-			<button onclick="myFunction()" class="dropbtn">Dropdown</button>
-			<div id="myDropdown" class="dropdown-content">
-				<a href="#">Link 1</a>
-				<a href="#">Link 2</a>
-				<a href="#">Link 3</a>
-			</div>
+			${type === 'colorBtn' ? `
+				<ul class="colorList">
+					<li id="yellow">Yellow</li>
+					<li id="green">Green</li>
+					<li id="red">Red</li>
+					<li id="blue">Blue</li>
+				</ul>`
+			: ''}
 		</div> 
 	`
 
