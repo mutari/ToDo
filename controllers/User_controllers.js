@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
+const converter = require('../modules/frameConverter')
 
 module.exports = {
     postLogin: async (req, res) => {// självklart kommer lösenord kontrol och så vidare
@@ -11,21 +12,26 @@ module.exports = {
             if (user) data.user = user
             else return res.json({message: "Could not find a user white that email in the database", status: 400})
 
-            //get frame data
-            console.log("befor: .", data)
-
             let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
             if (frame) data.frame = frame
-            else data = await require('../modules/generateStartFrame.js')(req, user, data) //generates a new frame
-
-            console.log("after: .", data)
+            else {
+                data.frame = require('../dataSchema/new_frame')
+                data.frame.members.push(ObjectID(user._id))
+                data.frame.author = ObjectID(user._id)
+                data.user.selected_frame = (await req.db.frameCol.insertOne(data.frame))["ops"][0]["_id"]
+                if(!data.user.selected_frame)
+                    return res.json({message: "frame could not be created", status: 400})
+                data.user.frames.push({id: data.user.selected_frame, title: data.frame.title})
+                let respons = await req.db.userCol.updateOne({email: req.body.email}, {$set: {selected_frame: data.user.selected_frame, frames: data.user.frames}})
+                data.frame = converter.ConvertToOldFrameLayout(data.frame)
+                if(!respons)
+                    return res.json({message: "user could not be updatetd", status: 400})
+            }
             data.token = req.token
-            console.log(data)
-
-            res.json({...data, status: 200})
+            return res.json({...data, status: 200})
         } catch (error) {
             console.error(error)
-            res.json({message: "sign in error", status: 400})
+            return res.json({message: "sign in error", status: 400})
         }
     },
     postSignUp: async (req, res) => {
@@ -52,13 +58,13 @@ module.exports = {
             else return res.json({message: "could not fin user", status: 400})
 
             let frame = await req.db.frameCol.findOne({"_id": ObjectID(user.selected_frame)})
-            if(frame) data.frame = frame;
+            if(frame) data.frame = converter.ConvertToOldFrameLayout(frame);
             else return res.json({message: "could not fin frame", status: 400})
 
-            res.json({...data, status: 200})
+            return res.json({...data, status: 200})
         } catch (error) {
             console.error(error)
-            res.json({message: "get user data error", status: 400})
+            return res.json({message: "get user data error", status: 400})
         }
     },
     postUpdateUser: async (req, res) => {
