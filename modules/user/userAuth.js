@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {
 
-    console.log(req.body)
+    console.log(req.cookies)
 
-    if(req.body.token && req.cookie.tokenSecure) {
+    if(req.body.token && req.cookies.tokenSecure) {
         try {
             let token = jwt.verify(req.body.token, process.env.SECRET)
-            let tokenSecure = jwt.verify(req.cookie.tokenSecure, process.env.SECRET2)
+            let tokenSecure = jwt.verify(req.cookies.tokenSecure, process.env.SECRET2)
 
             delete token.iat; delete token.exp;
             delete tokenSecure.iat; delete tokenSecure.exp;
@@ -15,7 +15,10 @@ module.exports = (req, res, next) => {
             req.token = token 
             req.tokenSecure = tokenSecure
 
-            if(token && tokenSecure) next();
+            if(token && tokenSecure) {
+                next();
+                console.log("test")
+            }
             else res.json({message: "User is not loged in", status: 420})
         }
         catch(err) {
