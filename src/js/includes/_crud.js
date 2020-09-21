@@ -42,7 +42,7 @@ function CRUD() {
         function getIds() {
             let ids = {id: target.attributes['data-id']}
             if(['task', 'box'].includes(type)) ids = {...ids, parentId: target.parentElement.attributes['data-id']}
-            if(type === 'task') ids = {...ids, grandParentId: target.parentElement.attributes['data-id']}
+            if(type === 'task') ids = {...ids, grandParentId: target.parentElement.parentElement.attributes['data-id']}
             return tools.ifAttributesGetValues(ids)
         }
         
