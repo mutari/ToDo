@@ -15,14 +15,13 @@ module.exports = (req, res, next) => {
 
             if(token && tokenSecure) {
                 next();
-                console.log("test")
             }
-            else res.json({message: "User is not loged in", status: 420})
+            else res.json({message: "User is not loged in *", status: 420})
         }
         catch(err) {
-            res.json({message: "User is not loged in", status: 420})
+            res.json({message: "User is not loged in -", status: 420})
         }
     }
-    else res.json({message: "User is not loged in", status: 420})
+    else res.json({message: "User is not loged in !", status: 420})
 
 }

@@ -28,9 +28,7 @@ module.exports = {
                     return res.json({message: "user could not be updatetd", status: 400})
             }
             data.token = req.token
-            console.log(data.token)
             res.cookie("tokenSecure",req.tokenSecure,{httpOnly:true,sameSite:"Strict"});
-            console.log(JSON.stringify(data, null, 4))
             return res.json({...data, status: 200})
         } catch (error) {
             console.error(error)

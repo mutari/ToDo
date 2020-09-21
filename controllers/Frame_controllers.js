@@ -35,7 +35,7 @@ module.exports = {
                     { $set: { "boxes.$.text": req.body.data.text }})
             else if(type == 'task')
                 respons = await req.db.frameCol.updateOne(
-                    { "_id": ObjectID(req.body.parentId), "tasks.id": ObjectID(req.body.id) }, 
+                    { "_id": ObjectID(req.body.grandParentId), "tasks.id": ObjectID(req.body.id) }, 
                     { $set: { "tasks.$.text": req.body.data.text }})
 
             if(respons)
