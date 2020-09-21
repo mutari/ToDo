@@ -13,7 +13,7 @@ module.exports = {
             else return res.json({message: "Could not find a user white that email in the database", status: 400})
 
             let frame = await req.db.frameCol.findOne({"_id": user.selected_frame})
-            if (frame) data.frame = frame
+            if (frame) data.frame = converter.ConvertToOldFrameLayout(frame)
             else {
                 data.frame = require('../dataSchema/new_frame')
                 data.frame.members.push(ObjectID(user._id))
@@ -30,6 +30,7 @@ module.exports = {
             data.token = req.token
             console.log(data.token)
             res.cookie("tokenSecure",req.tokenSecure,{httpOnly:true,sameSite:"Strict"});
+            console.log(JSON.stringify(data, null, 4))
             return res.json({...data, status: 200})
         } catch (error) {
             console.error(error)
