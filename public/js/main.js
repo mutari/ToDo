@@ -796,7 +796,6 @@ function CRUD() {
             if(!frame.getData()) return
             let input = this.getData(method, type, e)
             if(!input) throw 'No input where gathered'
-    
             if(method !== 'read') {
                 const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})
                 if(validate.status(response.status) || !response.status) throw ''
@@ -834,8 +833,8 @@ function CRUD() {
         /* DELIGATION FUNCTIONS */
         function getIds() {
             let ids = {id: target.attributes['data-id']}
-            if(type === 'task') ids = {...ids, boxId: target.parentElement.attributes['data-id'], frameId: target.parentElement.parentElement.attributes['data-id']}
-            if(type === 'box') ids = {...ids, frameId: target.parentElement.attributes['data-id']}
+            if(['task', 'box'].includes(type)) ids = {...ids, parentId: target.parentElement.attributes['data-id']}
+            if(type === 'task') ids = {...ids, grandParentId: target.parentElement.parentElement.attributes['data-id']}
             return tools.ifAttributesGetValues(ids)
         }
         

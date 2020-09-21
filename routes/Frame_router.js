@@ -28,4 +28,8 @@ router.post(
         _auth, 
             frameController.postUpdateFramePosition)
 
+router.post(
+    '/frame/test',
+        frameController.test)
+
 module.exports = router

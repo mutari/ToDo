@@ -20,6 +20,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "collection-map": "^1.0.0",
+    "cookie-parser": "^1.4.5",
     "copy-props": "^2.0.4",
     "cors": "^2.8.5",
     "define-properties": "^1.1.3",
