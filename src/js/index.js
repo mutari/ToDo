@@ -142,9 +142,9 @@ document.addEventListener( 'contextmenu', e => {
         contextMenu.toggleMenu(true) 
     }
 })
-document.addEventListener( 'resize', e => {
-    if(!contextMenu) return
-    contextMenu.toggleMenu(false)
+window.addEventListener( 'resize', e => {
+    if(contextMenu) contextMenu.toggleMenu(false)
+    if(dropdown) dropdown.deactivate()
 })
 
 const hoverBetweenBoxes = {

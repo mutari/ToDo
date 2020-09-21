@@ -95,6 +95,7 @@ class Format {
 					} else {
 						if(charArr[index+1] === ' ') addToOutput(charArr[index])
 						else {
+							if(!hasAClose(index, symbolData.symbol)) return addToOutput(charArr[index])
 							addClass(symbolData.class)
 							addToOutput(tags(true, symbolData.class))
 							symbolData.isAlive = true
@@ -129,6 +130,14 @@ class Format {
 		}
 		function removeClass(className) {
 			classes = classes.replace(`${className} `, '')
+		}
+		function hasAClose(index, symbol) {
+			while(index < charArr.length) {
+				if(charArr[index] === symbol)
+					if(charArr[index-1] !== ' ') 
+						return true
+				index++
+			}
 		}
 	}
 

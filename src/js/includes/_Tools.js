@@ -26,7 +26,7 @@ function Tools() {
 	}
 
 	this.cleanAndFormat = text => {
-		text = Sanitize.removeBlacklistedChars(text)
+		text = Sanitize.escapeUnicode(text)
 		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
 		return {cleaned: text, formated: formated}
 	}

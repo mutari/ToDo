@@ -142,9 +142,9 @@ document.addEventListener( 'contextmenu', e => {
         contextMenu.toggleMenu(true) 
     }
 })
-document.addEventListener( 'resize', e => {
-    if(!contextMenu) return
-    contextMenu.toggleMenu(false)
+window.addEventListener( 'resize', e => {
+    if(contextMenu) contextMenu.toggleMenu(false)
+    if(dropdown) dropdown.deactivate()
 })
 
 const hoverBetweenBoxes = {
@@ -1192,6 +1192,7 @@ class Format {
 					} else {
 						if(charArr[index+1] === ' ') addToOutput(charArr[index])
 						else {
+							if(!hasAClose(index, symbolData.symbol)) return addToOutput(charArr[index])
 							addClass(symbolData.class)
 							addToOutput(tags(true, symbolData.class))
 							symbolData.isAlive = true
@@ -1226,6 +1227,14 @@ class Format {
 		}
 		function removeClass(className) {
 			classes = classes.replace(`${className} `, '')
+		}
+		function hasAClose(index, symbol) {
+			while(index < charArr.length) {
+				if(charArr[index] === symbol)
+					if(charArr[index-1] !== ' ') 
+						return true
+				index++
+			}
 		}
 	}
 
@@ -1367,13 +1376,13 @@ function Render() {
 	this.eject = param => queryTarget(param).remove()
  }
 class Sanitize {
-    static removeBlacklistedChars = text => {
-		console.log('hej')
-		const blacklist = [`<`, `>`, `'`, `"`, '`']
-		
-		text.split('').forEach(char => blacklist.forEach(symbol => char === symbol ? text = text.replace(char, '') : ''))
-		return text
-    }
+    static escapeUnicode = text => {
+		const unicodeToEscape = '/[\u00A0-\uffff]/g'
+		return text.replace(unicodeToEscape, getUnicode())
+		function getUnicode() {
+			return "\\u" + ("000" + c.charCodeAt().toString(16)).slice(-4)
+		}
+	}
 }
 function Server() {
 	this.fetch = async dest => {
@@ -1568,7 +1577,7 @@ function Tools() {
 	}
 
 	this.cleanAndFormat = text => {
-		text = Sanitize.removeBlacklistedChars(text)
+		text = Sanitize.escapeUnicode(text)
 		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
 		return {cleaned: text, formated: formated}
 	}
