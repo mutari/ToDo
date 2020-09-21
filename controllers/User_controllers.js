@@ -28,6 +28,8 @@ module.exports = {
                     return res.json({message: "user could not be updatetd", status: 400})
             }
             data.token = req.token
+            console.log(data.token)
+            res.cookie("tokenSecure",req.tokenSecure,{httpOnly:true,sameSite:"Strict"});
             return res.json({...data, status: 200})
         } catch (error) {
             console.error(error)
@@ -71,18 +73,18 @@ module.exports = {
         try {
             let user = await req.db.userCol.updateOne({"_id": ObjectID(req.token.id)}, {"$set": req.body})
 
-            if(user) res.json({message: "user updated", status: 200})
-            else res.json({message: "User did not update", status: 400})
+            if(user) return res.json({message: "user updated", status: 200})
+            return res.json({message: "User did not update", status: 400})
         } catch (error) {
             console.error(error)
-            res.json({message: "update user data error", status: 400})
+            return res.json({message: "update user data error", status: 400})
         }
     },
     postDeleteUser: async (req, res) => {
         try {
             let respons = req.db.userCol.removeOne({"_id": ObjectID(req.token.id)})
-            if(respons) res.json({message: "user removed", status: 200})
-            else res.json({message: "User did not get removed", status: 400})
+            if(respons) return res.json({message: "user removed", status: 200})
+            return res.json({message: "User did not get removed", status: 400})
         } catch (error) {
             console.error(error)
         }

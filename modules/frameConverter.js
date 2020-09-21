@@ -20,7 +20,10 @@ module.exports = {
 
         delete frame.tasks
         delete frame.subtasks
-        
+        /*
+        str = JSON.stringify(frame, null, 4)
+        console.log(str)
+        */
         return frame
     
     }

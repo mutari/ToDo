@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require("express")
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const mongo = require('mongodb').MongoClient;
 
 (async () => {
@@ -20,6 +21,11 @@ const mongo = require('mongodb').MongoClient;
         app.use(bodyParser.urlencoded({extended: true}))
         app.use(bodyParser.json())
         app.use(express.static(__dirname + "/public"))
+        app.use(cookieParser())
+        app.use((req, res, next) => {
+            console.log(req.path)
+            next()
+        })
         app.use((req, res, next) => {
             req.db = {userCol: userCol, frameCol: frameCol} 
             next();
