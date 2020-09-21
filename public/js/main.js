@@ -9,13 +9,14 @@ Array.prototype.removeClass = function(param) {
 }
 String.prototype.replaceBetween = function(content, start, end) { return this.substring(0, start) + content + this.substring(end) }
 String.prototype.replaceAt = function(index, replacement) { return this.substr(0, index) + replacement + this.substr(index + replacement.length) }
-String.prototype.indicesOf = function(searchStr, caseSensitive) { 
+String.prototype.indicesOf = function(searchStr, caseSensitive, startIndex) { 
     let str = this
     let searchStrLen = searchStr.length
     if (searchStrLen === 0) {
         return []
     }
-    let startIndex = 0, index, indices = []
+    startIndex = startIndex ? startIndex : 0
+    let index, indices = []
     if (!caseSensitive) {
         str = str.toLowerCase()
         searchStr = searchStr.toLowerCase()
@@ -37,6 +38,7 @@ let frame
 let editor
 let dragAndDrop
 let contextMenu
+let dropdown
 let user = new User('')
 let crud = new CRUD()
 const form = new Form()
@@ -59,6 +61,12 @@ document.addEventListener("click", e => {
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
     
+    if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
+        if(queryTarget('.dropdown')) return dropdown.deactivate()
+        const taskLarge = id === 'colorBtn' ? e.target.parentElement.parentElement : e.target.parentElement.parentElement.parentElement
+        dropdown = new Dropdown(e, id, taskLarge.attributes['data-id'].value)
+    } else if(dropdown) dropdown.deactivate()
+    
     if(contextMenu) {
         if(grandParentId(e) === 'context-menu') {
             const dataType = e.target.parentElement.attributes['data-type']
@@ -77,13 +85,12 @@ document.addEventListener("click", e => {
 
     if(id === 'task') crud.run('read', id, e)
     else if(id === 'taskLarge-container') render.eject(`#${id}`)
-    else if(id === 'boxAdd') {
+    else if(id === 'boxAdd' && queryTarget('.hover')) {
         crud.run('create', 'box', e)
         hoverBetweenBoxes.remove(e)
     }
 
-    if(id === 'dark') toggleDarkmode(true)
-    else if(id === 'light') toggleDarkmode(false)
+    if(id === 'darkmode') toggleDarkmode()
 })
 document.addEventListener("dblclick", e => {
     const id = targetId(e)
@@ -92,13 +99,12 @@ document.addEventListener("dblclick", e => {
 })
 document.addEventListener( 'mousedown', e => {
     const id = targetId(e)
-
     if(queryTarget('.active-editor')) {
         if(id === 'write' && editor.shouldWriteButtonEnable) editor.write()
         else if(id === 'preview') editor.preview()
-        else if(id === 'save') editor.deactivate(true)
-        else if(id === 'cancel') editor.deactivate()
-
+        else if(id === 'save') return editor.deactivate(true)
+        else if(id === 'cancel') return editor.deactivate()
+        
         const input = queryTarget('.active-editor').children.editor
         if(id === 'bold') tools.wrapSelectedText(input, '*')
         else if(id === 'italic') tools.wrapSelectedText(input, '|')
@@ -109,13 +115,15 @@ document.addEventListener( 'mousedown', e => {
 document.addEventListener( 'keydown', e => {
     const key = e.keyCode
     const id = targetId(e)
-    if([13, 27].includes(key)) {
+    if([9, 13, 27].includes(key)) {
         if(id === 'textarea') {
+            e.preventDefault()
             if(key === 13) toggleTextarea(e, false, true) //key 13 enter
             else if(key === 27) toggleTextarea(e, false) //key 27 esc
-        } else if(id === 'editor' && key === 27) {
+        } else if(id === 'editor' && [9, 27].includes(key)) {
             e.preventDefault()
-            editor.deactivate()
+            if(key === 9) Format.addTabAtCursor(e.target) // key 9 tab
+            if(key === 27) editor.deactivate()
         }
     }
     if(parentId(e) === 'frameNav') 
@@ -134,9 +142,9 @@ document.addEventListener( 'contextmenu', e => {
         contextMenu.toggleMenu(true) 
     }
 })
-document.addEventListener( 'resize', e => {
-    if(!contextMenu) return
-    contextMenu.toggleMenu(false)
+window.addEventListener( 'resize', e => {
+    if(contextMenu) contextMenu.toggleMenu(false)
+    if(dropdown) dropdown.deactivate()
 })
 
 const hoverBetweenBoxes = {
@@ -168,10 +176,10 @@ document.addEventListener("mouseout", e => {
 
 
 
-function toggleDarkmode(bool) {
+function toggleDarkmode() {
     const targets = [queryTarget('body'), queryTarget('#frame'), queryTarget('.darkModeToggle')]
     targets.forEach(target => {
-        bool ? target.classList.remove('light') : target.classList.add('light')
+       target.classList.toggle('light')
     })
 }
 
@@ -706,7 +714,7 @@ async function toggleTextarea(e, state, save) {
         
         function reveal() {
             if(queryTarget('textarea.active')) toggleTextarea()
-            tools.focusAndputCursorAtEnd(textarea)
+            tools.focusAndPutCursorAtEnd(textarea)
             textarea.classList.add('active')
         }
         function hide() {
@@ -793,7 +801,7 @@ function CRUD() {
                 if(validate.status(response.status) || !response.status) throw ''
         
                 if(method === 'create') {
-                    if(!response.id) throw 'No server response on creation request'
+                    if(!response.id) throw 'No server response to creation request'
                     input = {...input, createdId: response.id}
                 }
                 if(['create', 'update'].includes(method)) updateStoredValues(method, type, input)
@@ -968,6 +976,30 @@ function DragAndDrop() {
     }
     addDndEventListener(this.frame)
 }
+function Dropdown(e, type, id) {
+	const button = e.target
+	let dropdownContainer
+	let stopDeactivation = false
+
+	this.deactivate = () => {
+		if(stopDeactivation) return stopDeactivation = false
+		dropdownContainer.removeEventListener('click', onClickInsideDropdown)
+		render.eject('.dropdown')
+		dropdown = ''
+
+	}
+
+	init()
+	async function init() {
+		dropdownContainer = await render.dropdown(button, type, id)
+		if(type !== 'colorBtn') {
+			dropdownContainer.addEventListener('click', onClickInsideDropdown)
+		}
+	}
+	function onClickInsideDropdown() {
+		stopDeactivation = true
+	}
+}
 function Editor(e) {
 	if(!e) return
 	const container = e.target
@@ -977,11 +1009,6 @@ function Editor(e) {
 	let beforeWrite
 	this.shouldWriteButtonEnable = false
 
-	this.activate = init => {
-		container.classList.add('active-editor')
-		tools.resizeAreaToFitContent(textarea)
-		if(init) tools.focusAndputCursorAtEnd(textarea)
-	}
 	this.deactivate = save => {
 		const editorContainer = container
 		editorContainer.classList.remove('active-editor')
@@ -989,7 +1016,7 @@ function Editor(e) {
 		if(save) {
 			this.format(textarea.value)
 			tools.setAreaHeight(textarea)
-			return 
+			return
 		}
 		textarea.value = previousText
 		formatedArea.classList.remove('editor')
@@ -1016,13 +1043,13 @@ function Editor(e) {
 	}
 
 	const containerOnClick = e => {
-		e.stopPropagation()
-		this.activate()
-		tools.resizeAreaToFitContent(textarea)
+		e.stopPropagation() //stop deactivation of editor while inside container
 	}
+	
 	container.addEventListener('click', containerOnClick)
-
-	this.activate(true)
+	container.classList.add('active-editor')
+	tools.resizeAreaToFitContent(textarea)
+	tools.focusAndPutCursorAtEnd(textarea)
 }
 function Form() {
 
@@ -1066,6 +1093,156 @@ function Form() {
             password: `Your email or password is incorrect`,
         }
     })
+}
+class Format {
+	static replaceAllRequestedSymbolsWithSpanTags = input => {
+		const translations = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+        ]
+        
+		let output = ''
+		let classes
+		let notSymbol = true
+		const charArr = input.split('')
+		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
+
+		charArr.map(char => {
+			notSymbol = true
+			translations.map(data => {
+				if(char !== data.symbol) return
+				notSymbol = false
+				classes = ''
+
+				if(!data.live) {
+					setActiveClasses()
+					data.live = true
+				} else {
+					data.live = false
+					setActiveClasses()
+				}
+
+				if(classes) {
+					if(data.live) classes += data.class
+					output += `</span><span class="${classes}">`
+				} else if(data.live) output += `<span class="${data.class}">`
+				else output += `</span>`
+			})
+			if(notSymbol) output += char
+		})
+		return output
+	}
+
+	static replaceAllRequestedSymbolsWithSpanTags2 = input => {
+		const symbolsDatas = [
+			{
+				symbol: '*',
+				class: 'bold',
+			},
+			{
+				symbol: '|',
+				class: 'italic',
+			},
+			{
+				symbol: '_',
+				class: 'underline',
+			},
+			{
+				symbol: '~',
+				class: 'strikeThrough',
+			},
+		]
+		const combinationsDatas = [
+			{
+				combo: '* ',
+				replacement: '\&#8226 ',
+			},
+		]
+        
+		let output = '', classes = '', isSymbol, index = 0
+		const charArr = input.split('')
+		
+		while(index < charArr.length) {
+			isSymbol = false
+			symbolsDatas.forEach(symbolData => {
+				if(charArr[index] === symbolData.symbol) {
+					isSymbol = true
+					if(symbolData.isAlive) {
+						if(charArr[index-1] === ' ') addToOutput(charArr[index])
+						else {
+							addToOutput(tags(false))
+							removeClass(symbolData.class)
+							symbolData.isAlive = false
+						}
+					} else {
+						if(charArr[index+1] === ' ') addToOutput(charArr[index])
+						else {
+							if(!hasAClose(index, symbolData.symbol)) return addToOutput(charArr[index])
+							addClass(symbolData.class)
+							addToOutput(tags(true, symbolData.class))
+							symbolData.isAlive = true
+						}
+					}
+				}
+			})
+			if(!isSymbol) addToOutput(charArr[index])
+			index++
+		}
+
+		index = 0
+		combinationsDatas.forEach(combinationData => {
+			while ((index = output.indexOf(combinationData.combo, index)) > -1) {
+				output = output.replace(combinationData.combo, combinationData.replacement)
+				index += combinationData.combo.length
+			}
+				
+		})
+
+		return output
+
+
+		function addToOutput(text) { output += text }
+		function tags(opening, className) {
+			return opening ? 
+				classes.indicesOf(' ').length === 1 ? `<span class="${className}">` : `</span><span class="${classes}">`
+				: `</span>`
+		}
+		function addClass(className){
+			classes += `${className} `
+		}
+		function removeClass(className) {
+			classes = classes.replace(`${className} `, '')
+		}
+		function hasAClose(index, symbol) {
+			while(index < charArr.length) {
+				if(charArr[index] === symbol)
+					if(charArr[index-1] !== ' ') 
+						return true
+				index++
+			}
+		}
+	}
+
+	static addTabAtCursor(target) {
+		const tab = '\t'
+		const {startIndex, endIndex} = tools.getSelectedText(target)
+		target.value = target.value.replaceBetween(tab, startIndex, endIndex)
+		tools.putCursorAtIndex(target, startIndex+1)
+	}
 }
 function Frame(frame) {
 	this.previousText
@@ -1115,12 +1292,6 @@ function Frame(frame) {
 			})),
 		})),
 	}))
-
-	this.toggleTaskLargeScreenPosition = function(e) {
-		y = tools.getScreenHeight()
-		const taskLargeHeight = queryTarget('.taskLarge').height
-		console.log(e)
-	}
 	
 	init()
 	async function init() {
@@ -1145,16 +1316,19 @@ function Render() {
 			return Promise.resolve()
 		}
 	}
+	
 	this.box = async data => {
 		await renderBox()
 		toggleTextarea(5, true)
 		return Promise.resolve()
 		
 		function renderBox() {
-			queryTarget(`.box[data-id="${data.idToRenderAt}"`).insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
+			const parent = queryTarget(`.box[data-id="${data.idToRenderAt}"`)
+			parent.insertAdjacentHTML('afterend', themplates.box({id: 5, title: ' '}))
 			return Promise.resolve()
 		}
 	}
+	
 	this.taskLarge = async (data) => {
 		const boxes = frame.getBoxes()
 		const box = boxes.find(box => box.id == data.boxId)
@@ -1165,7 +1339,6 @@ function Render() {
 			const {formated} = tools.cleanAndFormat(task.description)
 			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
 		}
-		//queryTarget('.taskLarge-container').addEventListener('overflowchanged', frame.toggleTaskLargeScreenPosition, false)
 		return Promise.resolve()
 
 		function renderTaskLarge() {
@@ -1179,15 +1352,37 @@ function Render() {
 		return Promise.resolve()
 
 		function renderTask() {
-			queryTarget(`.box[data-id="${data.id}"]`).insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
+			const parent = queryTarget(`.box[data-id="${data.id}"]`)
+			parent.insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
 			return Promise.resolve()
 		}
 	}
 	this.contextMenu = (id, type) => {
 		queryTarget('main').insertAdjacentHTML('beforeend', themplates.contextMenu(id, type))
 	}
+	this.dropdown = async (target, type, id) => {
+		await renderDropdown()
+		const dropdownHTML = queryTarget('.dropdown')
+		const {posX, posY} = tools.getPostionUnderEventContainer(target)
+		tools.positionAbsoluteBoxAt(dropdownHTML, posX, posY)
+		return Promise.resolve(dropdownHTML)
+
+		function renderDropdown() {
+			queryTarget('.taskLarge-container').insertAdjacentHTML('beforeend', themplates.dropdown(type, id))
+			return Promise.resolve()
+		}
+	}
 	this.eject = param => queryTarget(param).remove()
  }
+class Sanitize {
+    static escapeUnicode = text => {
+		const unicodeToEscape = '/[\u00A0-\uffff]/g'
+		return text.replace(unicodeToEscape, getUnicode())
+		function getUnicode() {
+			return "\\u" + ("000" + c.charCodeAt().toString(16)).slice(-4)
+		}
+	}
+}
 function Server() {
 	this.fetch = async dest => {
 		try {
@@ -1250,55 +1445,62 @@ function Themplates() {
 	`
 	this.taskLarge = task => `
 		<div class="taskLarge-container" id="taskLarge-container">
-			<div>
-				<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-					<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
-					<p>In <b>${task.parent}</b></p>
-					<div class="info">
-						<div class="color">
-							<label>Color</label>
-							<button><span class="circle"></span><span>Yellow</span></button>
+			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
+				<p>In <b>${task.parent}</b></p>
+				<div class="info" data-id="${task.id}">
+					<div class="color">
+						<label>Color</label>
+						<button id="colorBtn"><span class="circle"></span><span>Yellow</span></button>
+					</div>
+					<div class="members">
+						<label>Members</label>
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<button id="membersBtn" />
 						</div>
-						<div class="members">
-							<label>Members</label>
-							<div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-								<button />
-							</div>
+					</div>
+					<div class="labels">
+						<label>Labels</label>
+						<div id="labels">
+							<div>Project-x</div>
+							<div>Design</div>
+							<div>Design</div>
+							<button id="labelsBtn" />
 						</div>
-						<div class="labels">
-							<label>Labels</label>
-							<div id="labels">
-								<div>Project-x</div>
-								<div>Design</div>
-								<div>Design</div>
+					</div>
+				</div>
+				${task.description ? this.editor(task.description) : ''}
+				${task.subtasks.length ? `
+					<div class="subtask-container">
+						<div id="subtaskInfo">
+							<p>Subtasks</p>
+							<p id="numberOfSubtasks">${task.subtasks.length}</p>
+							<button><span></span></button>
+						</div>
+						<div id="subtasks">
+							${task.subtasks.map(subtask => this.subtask(subtask)).join('')}
+							<div id="addSubtask">
+								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
 								<button />
 							</div>
 						</div>
 					</div>
-					${task.description ? this.editor(task.description) : ''}
-				</div>
+				` : ''}
 			</div>
-			<span id="taskShadow"></span>
 		</div>
 	`
-	this.subtask = () => `
+	this.subtask = (subtask) => `
+		<div class="subtask" id="${subtask.id}">
+			<input type="checkbox">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${subtask.text}</textarea>
+			<button><span></span></button>
+		</div>
+	`
 	
-	`
-	this.contextMenu = (id, type) => `
-		<nav class="context-menu" id="context-menu">
-			<ul data-id="${id}" data-type="${type}">
-				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
-				${type === 'box' ? '<li id="create">Add</li>' : ''}
-				<li id="update">Edit</li>
-				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
-			</ul>
-		</nav>
-	`
-
 	this.editor = description => `
 		<div class="editor-container" id="editor-container">
 			<div class="toolbar">
@@ -1320,6 +1522,31 @@ function Themplates() {
 			</div>
 		</div>
 	`
+	this.contextMenu = (id, type) => `
+		<nav class="context-menu" id="context-menu">
+			<ul data-id="${id}" data-type="${type}">
+				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
+				${type === 'box' ? '<li id="create">Add</li>' : ''}
+				<li id="update">Edit</li>
+				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
+			</ul>
+		</nav>
+	`
+
+	this.dropdown = (type, id) => `
+		<div class="dropdown" id="dropdown" data-id="${id}" data-type="${type}">
+			${type === 'colorBtn' ? `
+				<ul class="colorList">
+					<li id="yellow">Yellow</li>
+					<li id="green">Green</li>
+					<li id="red">Red</li>
+					<li id="blue">Blue</li>
+				</ul>`
+			: ''}
+		</div> 
+	`
+
+	
 }
 function Tools() {
 	let throttle
@@ -1336,79 +1563,21 @@ function Tools() {
 	}
 	this.cancelThrottle = () => throttle ? clearTimeout(throttle) : ''
 	
-	this.getSelectedText = element => window.getSelection ? [
-		element.value.substring(element.selectionStart, element.selectionEnd), 
-		element.selectionStart, 
-		element.selectionEnd
-	] : ''
+	this.getSelectedText = element => window.getSelection ? {
+		selectedText: element.value.substring(element.selectionStart, element.selectionEnd), 
+		startIndex: element.selectionStart, 
+		endIndex: element.selectionEnd
+	} : ''
 
 	this.wrapSelectedText = (input, symbol) => {
 		if(!input.dataset.enablewrite) return
-		const [selectedText, startIndex, endIndex] = this.getSelectedText(input)
+		const {selectedText, startIndex, endIndex} = this.getSelectedText(input)
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsWithSpanTags = input => {
-		const translations = [
-			{
-				symbol: '*',
-				class: 'bold',
-			},
-			{
-				symbol: '|',
-				class: 'italic',
-			},
-			{
-				symbol: '_',
-				class: 'underline',
-			},
-			{
-				symbol: '~',
-				class: 'strikeThrough',
-			},
-		]
-		let output = ''
-		let classes
-		let notSymbol = true
-		const charArr = input.split('')
-		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
-
-		charArr.map(char => {
-			notSymbol = true
-			translations.map(data => {
-				if(char !== data.symbol) return
-				notSymbol = false
-				classes = ''
-
-				if(!data.live) {
-					setActiveClasses()
-					data.live = true
-				} else {
-					data.live = false
-					setActiveClasses()
-				}
-
-				if(classes) {
-					if(data.live) classes += data.class
-					output += `</span><span class="${classes}">`
-				} else if(data.live) output += `<span class="${data.class}">`
-				else output += `</span>`
-			})
-			if(notSymbol) output += char
-		})
-		return output
-	}
-
-	this.removeBlacklistedChars = (text) => {
-		const blacklist = [`<`, `>`, `'`, `"`, '`']
-		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
-		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
-		return text
-	}
-
 	this.cleanAndFormat = text => {
-		text = this.removeBlacklistedChars(text)
-		const formated = this.replaceAllRequestedSymbolsWithSpanTags(text)
+		text = Sanitize.escapeUnicode(text)
+		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -1437,11 +1606,14 @@ function Tools() {
 			posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
 
-		return {
-			posX: posX,
-			posY: posY
-		}
+		return {posX, posY}
 	}
+	
+	this.getPostionUnderEventContainer = target => ({
+		posX : target.offsetLeft, 
+		posY: target.offsetTop + target.offsetHeight
+	})
+
 	this.positionAbsoluteBoxAt = (target, x, y) => {
         const targetWidth = target.offsetWidth + 4
         const targetHeight = target.offsetHeight + 4
@@ -1459,14 +1631,18 @@ function Tools() {
 		return arr.length === ids.length ? arr : ''
 	}
 
-	this.focusAndputCursorAtEnd = target => {
+	this.focusAndPutCursorAtEnd = target => {
 		if(document.activeElement !== target) target.focus()
 		let len = target.value.length * 2
 		
 		setTimeout(function() {
-		target.setSelectionRange(len, len);
+			target.setSelectionRange(len, len)
 		}, 1)
 		target.scrollTop = 999999
+	}
+
+	this.putCursorAtIndex = (target, index) => {
+		target.setSelectionRange(index, index)
 	}
 }
 
@@ -1518,6 +1694,7 @@ function User(datas) {
 }
 function Validate() {
     let password
+    this.hasScrollbar = target => target.scrollHeight > target.clientHeight
 
     this.form = (inputs, errorMessages) => {
         for(let key in inputs) {

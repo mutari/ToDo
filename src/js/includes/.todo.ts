@@ -1,7 +1,4 @@
 /**
- * TODO: Based on server respons, login user
- *       ? display latest frame
- * 
  * TODO: Based on if loged in, send previously chosen frame
  *       ? if first login create an init example frame and store it
  * 

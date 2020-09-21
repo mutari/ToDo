@@ -144,133 +144,247 @@ $taskHeight: 400px
 		align-items: center
 		justify-content: center
 		background-color: rgba( black, .5)
-		& > div
-			display: flex
-			align-self: center
+		& > .taskLarge
+			$taskContainerPadding: 20px
+			width: $taskWidth
+			min-height: $taskHeight
+			background-color: #494949
+			border-radius: $boxContentBorderRadius
+			z-index: 2
+			padding: $taskContainerPadding
+			font-size: 18px
 
-			& > .taskLarge
-				$taskContainerPadding: 20px
-				width: $taskWidth
-				min-height: $taskHeight
-				background-color: #494949
-				border-radius: $boxContentBorderRadius
-				z-index: 2
-				padding: $taskContainerPadding
-				font-size: 18px
+			display: grid
+			align-self: safe center
+			grid-auto-columns: calc( #{$taskWidth} - #{$taskContainerPadding}*2 )
+			grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) min-content min-content
+			grid-template-areas: "title" "owner" "info" "description" "subtasks"
 
+			& > textarea:nth-child(1)
+				@extend .active-link
+				@extend .pointer
+				grid-area: title
+				font-size: 28px
+				font-weight: 700
+				margin: 0 0 5px 0
+				&.active
+					@extend .cursor-text
+				
+			& > p:nth-child(2)
+				grid-area: owner
+				color: #E3E3E3
+
+
+			$circleHeight: 25px
+			%circle
+				display: block
+				height: 25px
+				width: 25px
+				border-radius: 50%
+			%circleButton
+				@extend %circle
+				@extend .pointer
+				background-color: rgba(black, .15)
+				color: inherit
 				display: grid
-				grid-auto-columns: calc( #{$taskWidth} - #{$taskContainerPadding}*2 )
-				grid-auto-rows: minmax(40px, min-content) 45px minmax(75px, min-content) auto
-				grid-template-areas: "title" "owner" "info" "description"
+				place-content: center
+				&::after
+					content: '+'
+					font-size: 18px*1.1
+				&:hover
+					background-color: rgba(black, .3)
 
-				& > textarea:nth-child(1)
-					@extend .active-link
-					@extend .pointer
-					grid-area: title
-					font-size: 28px
-					font-weight: 700
-					margin: 0 0 5px 0
-					&.active
-						@extend .cursor-text
-					
-				& > p:nth-child(2)
-					grid-area: owner
-					color: #E3E3E3
+			& > div.info
+				grid-area: info
+				display: flex
+				flex-wrap: wrap
+				gap: 15px
+				margin: 0 0 10px 0
 
-				& > div.info
-					grid-area: info
-					display: flex
-					flex-wrap: wrap
-					gap: 15px
-					margin: 0 0 10px 0
+				& > div
+					& > label
+						margin: 0 0 5px 0
+						height: 20px
 					
-					$circleHeight: 25px
-					%circle
-						display: block
-						height: $circleHeight
-						width: $circleHeight
-						border-radius: 50%
-					%circleButton
-						@extend %circle
+				
+				& > div.color
+					grid-area: color
+					display: grid
+					place-content: start
+					& > button
 						@extend .pointer
-						background-color: rgba(black, .15)
+						padding: 5px
+						border-radius: 5px
+						background-color: transparent
+						display: flex
+						gap: 10px
 						color: inherit
-						&::after
-							content: '+'
-							font-size: 18px*1.1
-						&:hover
-							background-color: rgba(black, .3)
-
-					& > div
-						& > label
-							margin: 0 0 5px 0
-							height: 20px
-						
-					
-					& > div.color
-						grid-area: color
-						display: grid
-						place-content: start
-						& > button
+						align-self: start
+						& > span:nth-child(1)
+							@extend .inactive-link
+							@extend %circle
 							@extend .pointer
-							padding: 5px
-							border-radius: 5px
-							background-color: transparent
-							display: flex
-							gap: 10px
+							height: $circleHeight*3/5
+							width: $circleHeight*3/5
+							background-color: yellow
+						& > span:nth-child(2)
+							@extend .inactive-link
 							color: inherit
-							align-self: start
-							& > span:nth-child(1)
-								@extend %circle
-								@extend .pointer
-								height: $circleHeight*3/5
-								width: $circleHeight*3/5
-								background-color: yellow
-							& > span:nth-child(2)
-								color: inherit
-								align-self: center
-							&:hover
-								background-color: rgba(black, .15)
-								
-					$gap: 2px
-					& > div.members
-						grid-area: members
-						display: grid
-						place-content: start
-						& > div
-							display: flex
-							flex-wrap: wrap
-							gap: $gap
-							& > div.img
-								@extend %circle
-								overflow: hidden
-								display: grid
-								place-content: center
-								& > img
-									height: $circleHeight
-							& > button
-								@extend %circleButton
-								min-width: $circleHeight
+							align-self: center
+						&:hover
+							background-color: rgba(black, .15)
+							
+				$gap: 2px
+				& > div.members
+					grid-area: members
+					display: grid
+					place-content: start
+					& > div
+						display: flex
+						flex-wrap: wrap
+						gap: $gap
+						& > div.img
+							@extend %circle
+							overflow: hidden
+							display: grid
+							place-content: center
+							& > img
+								height: $circleHeight
+						& > button
+							@extend %circleButton
+							min-width: $circleHeight
 
-					& > div.labels
-						grid-area: labels
+				& > div.labels
+					grid-area: labels
+					display: grid
+					place-content: start
+					& > #labels
+						align-self: start
+						display: flex
+						flex-wrap: wrap
+						gap: $gap * 3
+						& > div
+							background-color: rgba(black, .15)
+							padding: 5px 10px
+							border-radius: $boxContentBorderRadius
+							font-size: 12px
+							overflow-wrap: anywhere
+						& > button
+							@extend %circleButton
+							border-radius: 5px
+							
+			& > .editor-container
+				@extend .editor-container
+				grid-area: description
+				margin: 0 0 20px 0
+				& > p
+					padding: 0
+
+			& > .subtask-container
+				display: grid
+				grid-auto-columns: auto
+				grid-auto-rows: 40px min-content
+				grid-template-areas: "info" "subtasks"
+				width: $taskWidth
+				margin: 0 0 0 calc( #{$taskContainerPadding} * -1 )
+
+				$btnOptionHeight: 30px
+				%optionBtn
+					@extend .pointer
+					display: grid
+					place-content: center
+
+					background-color: transparent
+					height: $btnOptionHeight
+					width: $btnOptionHeight
+					padding: 0 0 1px 0
+
+					gap: 2px
+					border-radius: 50%
+					&:hover
+						background-color: rgba( black, .15)
+					& > span, &::after, &::before
+						display: block
+						height: 5px
+						width: 5px
+						border-radius: 50%
+						background-color: rgba( black, .3)
+					&::after, &::before
+						content: ''
+
+				& > div
+
+				& > #subtaskInfo
+					grid-area: info
+					display: grid
+					grid-auto-flow: column
+					grid-template-columns: min-content min-content auto min-content
+					grid-template-areas: "one two . three"
+					align-self: center
+					align-content: center
+					background-color: rgba( black, .3)
+					gap: 1em
+					width: 100%
+					height: 100%
+					padding: 0 $taskContainerPadding
+					& > p:first-child
+						grid-area: one
 						display: grid
-						place-content: start
-						& > #labels
-							align-self: start
-							display: flex
-							flex-wrap: wrap
-							gap: $gap * 3
-							& > div
-								background-color: rgba(black, .15)
-								padding: 5px 10px
-								border-radius: $boxContentBorderRadius
-								font-size: 12px
-								overflow-wrap: anywhere
-							& > button
-								@extend %circleButton
-								border-radius: 5px
-								
-				& > .editor-container
-					@extend .editor-container
-					grid-area: description
+						grid-auto-flow: column
+						align-self: center
+						width: min-content
+						height: min-content
+						&::before
+							@extend %font-awsome
+							content: '\f0ae'
+							font-weight: 700
+							margin: 0 .5em 0 0
+					& > #numberOfSubtasks
+						grid-area: two
+						align-self: center
+						opacity: .6
+					& > button
+						@extend %optionBtn
+						grid-area: three
+						justify-self: end
+
+				& > #subtasks
+					grid-area: subtasks
+					padding: 10px $taskContainerPadding 0 $taskContainerPadding
+					$gap: 7.5px
+					$checkboxSize: 20px
+					& > .subtask
+						display: grid
+						grid-auto-flow: column
+						grid-template-columns: min-content auto min-content
+						grid-template-areas: "one two three"
+						align-items: center
+						gap: $gap
+						margin: 0 0 7.5px 0
+						& > input
+							grid-area: one
+							height: $checkboxSize
+							width: $checkboxSize
+							@-moz-document url-prefix()
+								height: auto
+								width: auto
+						& > textarea
+							grid-area: two
+							padding: 6px 0 0 0
+						& > button
+							@extend %optionBtn
+							grid-area: three
+					& > #addSubtask
+						display: grid
+						grid-auto-flow: column
+						grid-template-columns: calc( #{$checkboxSize} + #{$gap} ) auto min-content
+						@-moz-document url-prefix()
+							grid-template-columns: calc( 13px + #{$gap} ) auto min-content
+						grid-template-areas: ". one two"
+						& > textarea
+							grid-area: one
+						& > button
+							grid-area: two
+							align-self: center
+							@extend %circleButton
+							margin: 0 calc( (#{$btnOptionHeight} - #{$circleHeight})/2 ) 0 0

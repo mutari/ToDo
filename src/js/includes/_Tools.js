@@ -13,79 +13,21 @@ function Tools() {
 	}
 	this.cancelThrottle = () => throttle ? clearTimeout(throttle) : ''
 	
-	this.getSelectedText = element => window.getSelection ? [
-		element.value.substring(element.selectionStart, element.selectionEnd), 
-		element.selectionStart, 
-		element.selectionEnd
-	] : ''
+	this.getSelectedText = element => window.getSelection ? {
+		selectedText: element.value.substring(element.selectionStart, element.selectionEnd), 
+		startIndex: element.selectionStart, 
+		endIndex: element.selectionEnd
+	} : ''
 
 	this.wrapSelectedText = (input, symbol) => {
 		if(!input.dataset.enablewrite) return
-		const [selectedText, startIndex, endIndex] = this.getSelectedText(input)
+		const {selectedText, startIndex, endIndex} = this.getSelectedText(input)
 		input.value = input.value.replaceBetween(`${symbol}${selectedText}${symbol}`, startIndex, endIndex)
 	}
 
-	this.replaceAllRequestedSymbolsWithSpanTags = input => {
-		const translations = [
-			{
-				symbol: '*',
-				class: 'bold',
-			},
-			{
-				symbol: '|',
-				class: 'italic',
-			},
-			{
-				symbol: '_',
-				class: 'underline',
-			},
-			{
-				symbol: '~',
-				class: 'strikeThrough',
-			},
-		]
-		let output = ''
-		let classes
-		let notSymbol = true
-		const charArr = input.split('')
-		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
-
-		charArr.map(char => {
-			notSymbol = true
-			translations.map(data => {
-				if(char !== data.symbol) return
-				notSymbol = false
-				classes = ''
-
-				if(!data.live) {
-					setActiveClasses()
-					data.live = true
-				} else {
-					data.live = false
-					setActiveClasses()
-				}
-
-				if(classes) {
-					if(data.live) classes += data.class
-					output += `</span><span class="${classes}">`
-				} else if(data.live) output += `<span class="${data.class}">`
-				else output += `</span>`
-			})
-			if(notSymbol) output += char
-		})
-		return output
-	}
-
-	this.removeBlacklistedChars = (text) => {
-		const blacklist = [`<`, `>`, `'`, `"`, '`']
-		const threatsToRemove = blacklist.map(threat => text.indicesOf(threat))
-		threatsToRemove.forEach(indices => indices.forEach(index => text = text.replaceAt(index, ' ')))
-		return text
-	}
-
 	this.cleanAndFormat = text => {
-		text = this.removeBlacklistedChars(text)
-		const formated = this.replaceAllRequestedSymbolsWithSpanTags(text)
+		text = Sanitize.escapeUnicode(text)
+		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -114,11 +56,14 @@ function Tools() {
 			posY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop
 		}
 
-		return {
-			posX: posX,
-			posY: posY
-		}
+		return {posX, posY}
 	}
+	
+	this.getPostionUnderEventContainer = target => ({
+		posX : target.offsetLeft, 
+		posY: target.offsetTop + target.offsetHeight
+	})
+
 	this.positionAbsoluteBoxAt = (target, x, y) => {
         const targetWidth = target.offsetWidth + 4
         const targetHeight = target.offsetHeight + 4
@@ -136,13 +81,17 @@ function Tools() {
 		return arr.length === ids.length ? arr : ''
 	}
 
-	this.focusAndputCursorAtEnd = target => {
+	this.focusAndPutCursorAtEnd = target => {
 		if(document.activeElement !== target) target.focus()
 		let len = target.value.length * 2
 		
 		setTimeout(function() {
-		target.setSelectionRange(len, len);
+			target.setSelectionRange(len, len)
 		}, 1)
 		target.scrollTop = 999999
+	}
+
+	this.putCursorAtIndex = (target, index) => {
+		target.setSelectionRange(index, index)
 	}
 }
