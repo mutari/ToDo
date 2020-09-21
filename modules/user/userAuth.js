@@ -2,8 +2,6 @@ const jwt = require('jsonwebtoken')
 
 module.exports = (req, res, next) => {
 
-    console.log(req.cookies)
-
     if(req.body.token && req.cookies.tokenSecure) {
         try {
             let token = jwt.verify(req.body.token, process.env.SECRET)
