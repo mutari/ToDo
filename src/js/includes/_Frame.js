@@ -1,4 +1,6 @@
 function Frame(frame) {
+
+	console.log(JSON.stringify(frame, null, 4))
 	this.previousText
 	this.previousType
 	if(!frame) return queryTarget('#render').innerHTML = ''

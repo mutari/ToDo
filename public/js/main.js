@@ -1245,6 +1245,8 @@ class Format {
 	}
 }
 function Frame(frame) {
+
+	console.log(JSON.stringify(frame, null, 4))
 	this.previousText
 	this.previousType
 	if(!frame) return queryTarget('#render').innerHTML = ''
@@ -1662,6 +1664,8 @@ function User(datas) {
 	init(datas)
 	async function init(datas) {
 		if(datas) {
+			
+			console.log(datas)
 			hide()
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
@@ -1678,7 +1682,9 @@ function User(datas) {
 			}))
 		} else {
 			try {
+				console.log('user', {token: cookie.get('token')})
 				if(cookie.check('token')) datas = await server.postFetch('user', {token: cookie.get('token')})
+				console.log(datas)
 				if(!datas) throw ''
 				user = new User(datas)
 			} catch (error) {
