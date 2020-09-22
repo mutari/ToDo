@@ -1,5 +1,5 @@
 function Render() {
-	this.frame = async data => {
+	this.frame = async (data, boxes) => {
 		await renderFrame()
 		;[...queryTargetAll('#textarea')].forEach(textarea => {
 			tools.resizeAreaToFitContent(textarea)
@@ -7,7 +7,7 @@ function Render() {
 		return Promise.resolve()
 
 		function renderFrame() {
-			queryTarget('#render').innerHTML = themplates.frame(data)
+			queryTarget('#render').innerHTML = themplates.frame(data, boxes)
 			return Promise.resolve()
 		}
 	}
@@ -25,7 +25,7 @@ function Render() {
 	}
 	
 	this.taskLarge = async (data) => {
-		const boxes = frame.getBoxes()
+		const boxes = frame.boxes
 		const box = boxes.find(box => box.id == data.parentId)
 
 		const task = {...box.tasks.find(task => task.id == data.id), parent: box.text}

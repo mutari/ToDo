@@ -798,7 +798,7 @@ function CRUD() {
     this.run = async ({method, type, e, data}) => { //method = crud; type=component; e = event; data = any additional data.
         try {
 
-            if(!frame.getData()) return
+            if(!frame.data) throw'No frame data'
             let input = this.getData(method, type, e, data)
             if(!input) throw 'No input where gathered'
             console.log(input)
@@ -1275,12 +1275,11 @@ class Format {
 		tools.putCursorAtIndex(target, startIndex+1)
 	}
 }
-function Frame(frame) {
+function Frame({_id, text, description, author, members, boxes}) {
+	console.log(boxes)
 	this.previousText
 	this.previousType
-	if(!frame) return queryTarget('#render').innerHTML = ''
-	
-	this.getData = () => data
+	if(!_id) return queryTarget('#render').innerHTML = ''
 	this.getBoxes = () => boxes
 	
 	this.addTask = data => boxes.find(box => data.parentId == box.id)
@@ -1292,49 +1291,72 @@ function Frame(frame) {
 		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 
-	const data = {
-		id: frame._id,
-		text: frame.text,
-		description: frame.description,
-		author: frame.author,
-		members: frame.members.map(member => ({
+	this.data = {
+		id: _id,
+		text,
+		description,
+		author,
+		members: members.map(member => ({
 			id: member.id,
 			text: member.text,
 			profileImgLink: member.profileImgLink,
 		})),
 	}
-	let boxes = frame.boxes.map(box => ({
-		id: box.id,
-		text: box.text,
-		color: box.color,
-		tasks: box.tasks.map(task => ({
-			id: task.id,
-			text: task.text,
-			description: task.description,
-			color: task.color,
-			date: task.date,
-			labels: task.labels,
-			members: task.members.map(member => member.id),
-			subtasks: task.subtasks.map(subtask => ({
-				id: subtask.id,
-				text: subtask.text,
-				member: subtask.member,
+	this.boxes = boxes.map(({id, text, color, posId, tasks}) => ({
+		id,
+		text,
+		color,
+		posId,
+		tasks: tasks.map(({id, text, description, color, posId, date, labels, members, subtasks}) => ({
+			id,
+			text,
+			description,
+			color,
+			posId,
+			date,
+			labels,
+			members: members.map(member => member.id),
+			subtasks: subtasks.map(({id, text, posId, member}) => ({
+				id,
+				text,
+				posId,
+				member,
 			})),
 		})),
 	}))
 	
-	init()
-	async function init() {
+	this.init = async () => {
 		try {
-			await render.frame({data, boxes})
+			await render.frame(this.data, this.boxes)
 			dragAndDrop = new DragAndDrop()
 		} catch (error) {
 			console.log(error)
 		}
 	}
+	this.init()
+
+	this.frameScreenshot = () => {
+		let {attributes, children} = queryTarget('#frame')
+		return {
+			id: attributes['data-id'].value,
+			boxes: [...children].map(({attributes}) => ({
+				id: attributes['data-id'].value,
+				posId: attributes['data-pos'].value,
+				tasks: [...queryTargetAll(`[data-id="${attributes['data-id'].value}"] .task`)].map(({attributes, children}) => ({
+					id: attributes['data-id'].value,
+					posId: attributes['data-pos'].value,
+					subtasks: children.hiddenSubtask ? [...children.hiddenSubtask.children].map(({attributes})=>({
+						id: attributes['data-id'].value,
+						posId: attributes['data-pos'].value,
+					})) : [],
+				}))
+			}))
+		}
+	}
+	console.log(JSON.stringify(this.frameScreenshot(), null, 4))
 }
 function Render() {
-	this.frame = async data => {
+	this.frame = async (data, boxes) => {
 		await renderFrame()
 		;[...queryTargetAll('#textarea')].forEach(textarea => {
 			tools.resizeAreaToFitContent(textarea)
@@ -1342,7 +1364,7 @@ function Render() {
 		return Promise.resolve()
 
 		function renderFrame() {
-			queryTarget('#render').innerHTML = themplates.frame(data)
+			queryTarget('#render').innerHTML = themplates.frame(data, boxes)
 			return Promise.resolve()
 		}
 	}
@@ -1360,7 +1382,7 @@ function Render() {
 	}
 	
 	this.taskLarge = async (data) => {
-		const boxes = frame.getBoxes()
+		const boxes = frame.boxes
 		const box = boxes.find(box => box.id == data.parentId)
 
 		const task = {...box.tasks.find(task => task.id == data.id), parent: box.text}
@@ -1455,34 +1477,35 @@ function Server() {
 	const getUrl = dest => `${fetchUrl}/ToDo${action[dest]}` //https://98.128.142.46/
 }
 function Themplates() {
-	this.frame = frame => `
-		<nav class="frameNav" id="frameNav" data-id="${frame.data.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${frame.data.text}</textarea>
+	this.frame = ({id, text}, boxes) => `
+		<nav class="frameNav" id="frameNav" data-id="${id}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${text}</textarea>
 		</nav>
-		<div class="frame" id="frame" data-id="${frame.data.id}">${frame.boxes ? frame.boxes.map(box => this.box(box)).join('') : ''}</div>
+		<div class="frame" id="frame" data-id="${id}">${boxes ? boxes.map(box => this.box(box)).join('') : ''}</div>
 	`
-	this.box = box => `
-		<ul class="box" id="box" draggable="true" data-id="${box.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${box.text}</textarea>
+	this.box = ({id, tasks, text, posId}) => `
+		<ul class="box" id="box" draggable="true" data-id="${id}" data-pos="${posId}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${text}</textarea>
 			<button id="create" data-type="task">+</button>
-			${box.tasks ? box.tasks.map(task => this.task(task)).join('') : ''}
-			<span id="boxAdd" data-partnerId="${box.id}" />
+			${tasks ? tasks.map(task => this.task(task)).join('') : ''}
+			<span id="boxAdd" data-partnerId="${id}" />
 		</ul>
 	`
-	this.task = task => `
-		<li class="task" id="task" draggable="true"  data-id="${task.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${task.text}</textarea>
+	this.task = ({id, text, color, posId, subtasks}) => `
+		<li class="task ${color !== 'default' ? `color-${color}` : ''}" id="task" draggable="true"  data-id="${id}" data-pos="${posId}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${text}</textarea>
+			${subtasks && subtasks.length ? `<div style="display: none" id="hiddenSubtask">${subtasks.map(subtask=>this.subtask(subtask))}</div>` : ''}
 		</li>
 	`
-	this.taskLarge = task => `
-		<div class="taskLarge-container" id="taskLarge-container">
-			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
-				<p>In <b>${task.parent}</b></p>
-				<div class="info" data-id="${task.id}">
+	this.taskLarge = ({color, parent, id, text, description, subtasks,}) => `
+		<div class="taskLarge-container ${color !== 'default' ? `color-${color}` : ''}" id="taskLarge-container">
+			<div class="taskLarge" id="taskLarge"  data-id="${id}">
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${text ? text : ''}</textarea>
+				<p>In <b>${parent}</b></p>
+				<div class="info" data-id="${id}">
 					<div class="color">
 						<label>Color</label>
-						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">Yellow</span></button>
+						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">${color}</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
@@ -1504,30 +1527,33 @@ function Themplates() {
 						</div>
 					</div>
 				</div>
-				${task.description ? this.editor(task.description) : ''}
-				${task.subtasks && task.subtasks.length ? `
-					<div class="subtask-container">
-						<div id="subtaskInfo">
-							<p>Subtasks</p>
-							<p id="numberOfSubtasks">${task.subtasks.length}</p>
-							<button><span></span></button>
-						</div>
-						<div id="subtasks">
-							${task.subtasks.map(subtask => this.subtask(subtask)).join('')}
-							<div id="addSubtask">
-								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
-								<button />
-							</div>
-						</div>
-					</div>
-				` : ''}
+				${description ? this.editor(description) : ''}
+				${subtasks && subtasks.length ? this.subtaskContainer(subtasks) : ''}
 			</div>
 		</div>
 	`
-	this.subtask = (subtask) => `
-		<div class="subtask" id="${subtask.id}">
+
+	this.subtaskContainer = subtasks => `
+		<div class="subtask-container">
+			<div id="subtaskInfo">
+				<p>Subtasks</p>
+				<p id="numberOfSubtasks">${subtasks.length}</p>
+				<button><span></span></button>
+			</div>
+			<div id="subtasks">
+				${subtasks.map(subtask => this.subtask(subtask)).join('')}
+				<div id="addSubtask">
+					<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
+					<button />
+				</div>
+			</div>
+		</div>
+	`
+
+	this.subtask = ({id, text, posId}) => `
+		<div class="subtask" data-id="${id}" data-pos="${posId}">
 			<input type="checkbox">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${subtask.text}</textarea>
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${text}</textarea>
 			<button><span></span></button>
 		</div>
 	`

@@ -1,32 +1,33 @@
 function Themplates() {
-	this.frame = frame => `
-		<nav class="frameNav" id="frameNav" data-id="${frame.data.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${frame.data.text}</textarea>
+	this.frame = ({id, text}, boxes) => `
+		<nav class="frameNav" id="frameNav" data-id="${id}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="2">${text}</textarea>
 		</nav>
-		<div class="frame" id="frame" data-id="${frame.data.id}">${frame.boxes ? frame.boxes.map(box => this.box(box)).join('') : ''}</div>
+		<div class="frame" id="frame" data-id="${id}">${boxes ? boxes.map(box => this.box(box)).join('') : ''}</div>
 	`
-	this.box = box => `
-		<ul class="box" id="box" draggable="true" data-id="${box.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${box.text}</textarea>
+	this.box = ({id, tasks, text, posId}) => `
+		<ul class="box" id="box" draggable="true" data-id="${id}" data-pos="${posId}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${text}</textarea>
 			<button id="create" data-type="task">+</button>
-			${box.tasks ? box.tasks.map(task => this.task(task)).join('') : ''}
-			<span id="boxAdd" data-partnerId="${box.id}" />
+			${tasks ? tasks.map(task => this.task(task)).join('') : ''}
+			<span id="boxAdd" data-partnerId="${id}" />
 		</ul>
 	`
-	this.task = task => `
-		<li class="task" id="task" draggable="true"  data-id="${task.id}">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${task.text}</textarea>
+	this.task = ({id, text, color, posId, subtasks}) => `
+		<li class="task ${color !== 'default' ? `color-${color}` : ''}" id="task" draggable="true"  data-id="${id}" data-pos="${posId}">
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${text}</textarea>
+			${subtasks && subtasks.length ? `<div style="display: none" id="hiddenSubtask">${subtasks.map(subtask=>this.subtask(subtask))}</div>` : ''}
 		</li>
 	`
-	this.taskLarge = task => `
-		<div class="taskLarge-container" id="taskLarge-container">
-			<div class="taskLarge" id="taskLarge"  data-id="${task.id}">
-				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${task.text ? task.text : ''}</textarea>
-				<p>In <b>${task.parent}</b></p>
-				<div class="info" data-id="${task.id}">
+	this.taskLarge = ({color, parent, id, text, description, subtasks,}) => `
+		<div class="taskLarge-container ${color !== 'default' ? `color-${color}` : ''}" id="taskLarge-container">
+			<div class="taskLarge" id="taskLarge"  data-id="${id}">
+				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${text ? text : ''}</textarea>
+				<p>In <b>${parent}</b></p>
+				<div class="info" data-id="${id}">
 					<div class="color">
 						<label>Color</label>
-						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">Yellow</span></button>
+						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">${color}</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
@@ -48,30 +49,33 @@ function Themplates() {
 						</div>
 					</div>
 				</div>
-				${task.description ? this.editor(task.description) : ''}
-				${task.subtasks && task.subtasks.length ? `
-					<div class="subtask-container">
-						<div id="subtaskInfo">
-							<p>Subtasks</p>
-							<p id="numberOfSubtasks">${task.subtasks.length}</p>
-							<button><span></span></button>
-						</div>
-						<div id="subtasks">
-							${task.subtasks.map(subtask => this.subtask(subtask)).join('')}
-							<div id="addSubtask">
-								<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
-								<button />
-							</div>
-						</div>
-					</div>
-				` : ''}
+				${description ? this.editor(description) : ''}
+				${subtasks && subtasks.length ? this.subtaskContainer(subtasks) : ''}
 			</div>
 		</div>
 	`
-	this.subtask = (subtask) => `
-		<div class="subtask" id="${subtask.id}">
+
+	this.subtaskContainer = subtasks => `
+		<div class="subtask-container">
+			<div id="subtaskInfo">
+				<p>Subtasks</p>
+				<p id="numberOfSubtasks">${subtasks.length}</p>
+				<button><span></span></button>
+			</div>
+			<div id="subtasks">
+				${subtasks.map(subtask => this.subtask(subtask)).join('')}
+				<div id="addSubtask">
+					<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" placeholder="Add subtask..."></textarea>
+					<button />
+				</div>
+			</div>
+		</div>
+	`
+
+	this.subtask = ({id, text, posId}) => `
+		<div class="subtask" data-id="${id}" data-pos="${posId}">
 			<input type="checkbox">
-			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${subtask.text}</textarea>
+			<textarea id="textarea" type="text" readonly spellcheck="false" rows="1">${text}</textarea>
 			<button><span></span></button>
 		</div>
 	`

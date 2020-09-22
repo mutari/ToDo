@@ -2,7 +2,7 @@ function CRUD() {
     this.run = async ({method, type, e, data}) => { //method = crud; type=component; e = event; data = any additional data.
         try {
 
-            if(!frame.getData()) return
+            if(!frame.data) throw'No frame data'
             let input = this.getData(method, type, e, data)
             if(!input) throw 'No input where gathered'
             console.log(input)

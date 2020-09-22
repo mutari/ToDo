@@ -1,9 +1,8 @@
-function Frame(frame) {
+function Frame({_id, text, description, author, members, boxes}) {
+	console.log(boxes)
 	this.previousText
 	this.previousType
-	if(!frame) return queryTarget('#render').innerHTML = ''
-	
-	this.getData = () => data
+	if(!_id) return queryTarget('#render').innerHTML = ''
 	this.getBoxes = () => boxes
 	
 	this.addTask = data => boxes.find(box => data.parentId == box.id)
@@ -15,44 +14,67 @@ function Frame(frame) {
 		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
 
-	const data = {
-		id: frame._id,
-		text: frame.text,
-		description: frame.description,
-		author: frame.author,
-		members: frame.members.map(member => ({
+	this.data = {
+		id: _id,
+		text,
+		description,
+		author,
+		members: members.map(member => ({
 			id: member.id,
 			text: member.text,
 			profileImgLink: member.profileImgLink,
 		})),
 	}
-	let boxes = frame.boxes.map(box => ({
-		id: box.id,
-		text: box.text,
-		color: box.color,
-		tasks: box.tasks.map(task => ({
-			id: task.id,
-			text: task.text,
-			description: task.description,
-			color: task.color,
-			date: task.date,
-			labels: task.labels,
-			members: task.members.map(member => member.id),
-			subtasks: task.subtasks.map(subtask => ({
-				id: subtask.id,
-				text: subtask.text,
-				member: subtask.member,
+	this.boxes = boxes.map(({id, text, color, posId, tasks}) => ({
+		id,
+		text,
+		color,
+		posId,
+		tasks: tasks.map(({id, text, description, color, posId, date, labels, members, subtasks}) => ({
+			id,
+			text,
+			description,
+			color,
+			posId,
+			date,
+			labels,
+			members: members.map(member => member.id),
+			subtasks: subtasks.map(({id, text, posId, member}) => ({
+				id,
+				text,
+				posId,
+				member,
 			})),
 		})),
 	}))
 	
-	init()
-	async function init() {
+	this.init = async () => {
 		try {
-			await render.frame({data, boxes})
+			await render.frame(this.data, this.boxes)
 			dragAndDrop = new DragAndDrop()
 		} catch (error) {
 			console.log(error)
 		}
 	}
+	this.init()
+
+	this.frameScreenshot = () => {
+		let {attributes, children} = queryTarget('#frame')
+		return {
+			id: attributes['data-id'].value,
+			boxes: [...children].map(({attributes}) => ({
+				id: attributes['data-id'].value,
+				posId: attributes['data-pos'].value,
+				tasks: [...queryTargetAll(`[data-id="${attributes['data-id'].value}"] .task`)].map(({attributes, children}) => ({
+					id: attributes['data-id'].value,
+					posId: attributes['data-pos'].value,
+					subtasks: children.hiddenSubtask ? [...children.hiddenSubtask.children].map(({attributes})=>({
+						id: attributes['data-id'].value,
+						posId: attributes['data-pos'].value,
+					})) : [],
+				}))
+			}))
+		}
+	}
+	console.log(JSON.stringify(this.frameScreenshot(), null, 4))
 }
