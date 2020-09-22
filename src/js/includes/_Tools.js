@@ -94,4 +94,13 @@ function Tools() {
 	this.putCursorAtIndex = (target, index) => {
 		target.setSelectionRange(index, index)
 	}
+
+	this.removeAllClassNamesContainingStringOfTarget = (el, string) => {
+		Array.isArray(el) ? el.forEach(target => action(target)) : action(el)
+		function action(target) {
+			[...target.classList].forEach(className => className.search(string) === 0 ? target.classList.remove(className) : '')
+		}
+	}
+
+	this.capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1, string.length)
 }

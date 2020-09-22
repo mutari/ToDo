@@ -8,7 +8,6 @@ function Dropdown(e, type, id) {
 		dropdownContainer.removeEventListener('click', onClickInsideDropdown)
 		render.eject('.dropdown')
 		dropdown = ''
-
 	}
 
 	init()

@@ -1,7 +1,7 @@
 @function color($key)
-    @if map-has-key($colors, $key)
-        @return map-get($colors, $key)
+    @if map-has-key($taskColors, $key)
+        @return map-get($taskColors, $key)
     
 
-    @warn "Unknown `#{$key}` in $colors."
+    @warn "Unknown `#{$key}` in $taskColors."
     @return null

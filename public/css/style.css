@@ -317,8 +317,7 @@
             align-self: start; }
             #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1) {
               height: 15px;
-              width: 15px;
-              background-color: yellow; }
+              width: 15px; }
             #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
               color: inherit;
               align-self: center; }
@@ -464,34 +463,94 @@
   position: absolute;
   z-index: 9999;
   display: grid;
-  background-color: #333;
-  border: solid 1px #333;
-    border-box-shadow: 1px 1px 2px #000; }
-  .dropdown > ul.colorList > li {
-    display: grid;
-    grid-auto-flow: column;
-    align-items: center;
-    justify-content: start;
-    font-size: 13px;
-    padding: 5px 10px 5px 5px; }
-    .dropdown > ul.colorList > li::before {
-      display: block;
-      content: '';
-      height: 15px;
-      width: 15px;
-      border-radius: 50%;
-      margin: 0 .75em 0 0; }
-    .dropdown > ul.colorList > li:hover {
-      color: white;
-      background-color: #222; }
-  .dropdown > ul.colorList > li#red::before {
-    background-color: red; }
-  .dropdown > ul.colorList > li#blue::before {
-    background-color: blue; }
-  .dropdown > ul.colorList > li#green::before {
-    background-color: green; }
-  .dropdown > ul.colorList > li#yellow::before {
+    display-box-shadow: 1px 1px 2px #000; }
+  .dropdown > ul.colorList {
+    background-color: #333; }
+    .dropdown > ul.colorList > li {
+      display: grid;
+      grid-auto-flow: column;
+      align-items: center;
+      justify-content: start;
+      font-size: 13px;
+      padding: 5px 10px 5px 5px; }
+      .dropdown > ul.colorList > li::before {
+        display: block;
+        content: '';
+        height: 15px;
+        width: 15px;
+        border-radius: 50%;
+        margin: 0 .75em 0 0; }
+      .dropdown > ul.colorList > li:hover {
+        color: white;
+        background-color: #222; }
+
+#render > .frame > .box > .task.color-yellow {
+  background-color: #B09834; }
+
+#render > .frame > .box > .task.color-green {
+  background-color: #478C34; }
+
+#render > .frame > .box > .task.color-red {
+  background-color: #B52934; }
+
+#render > .frame > .box > .task.color-blue {
+  background-color: #1C3E97; }
+
+#render > .taskLarge-container.color-yellow > .taskLarge {
+  background-color: #B09834; }
+  #render > .taskLarge-container.color-yellow > .taskLarge > div.info > div.color > button > .circle {
     background-color: yellow; }
+
+#render > .taskLarge-container.color-yellow > .dropdown > ul.colorList {
+  background-color: #61541d;
+  border: solid 1px #61541d; }
+  #render > .taskLarge-container.color-yellow > .dropdown > ul.colorList > li:hover {
+    background-color: #3a3211; }
+
+#render > .taskLarge-container.color-green > .taskLarge {
+  background-color: #478C34; }
+  #render > .taskLarge-container.color-green > .taskLarge > div.info > div.color > button > .circle {
+    background-color: green; }
+
+#render > .taskLarge-container.color-green > .dropdown > ul.colorList {
+  background-color: #214218;
+  border: solid 1px #214218; }
+  #render > .taskLarge-container.color-green > .dropdown > ul.colorList > li:hover {
+    background-color: #0e1c0b; }
+
+#render > .taskLarge-container.color-red > .taskLarge {
+  background-color: #B52934; }
+  #render > .taskLarge-container.color-red > .taskLarge > div.info > div.color > button > .circle {
+    background-color: red; }
+
+#render > .taskLarge-container.color-red > .dropdown > ul.colorList {
+  background-color: #62161c;
+  border: solid 1px #62161c; }
+  #render > .taskLarge-container.color-red > .dropdown > ul.colorList > li:hover {
+    background-color: #380d10; }
+
+#render > .taskLarge-container.color-blue > .taskLarge {
+  background-color: #1C3E97; }
+  #render > .taskLarge-container.color-blue > .taskLarge > div.info > div.color > button > .circle {
+    background-color: blue; }
+
+#render > .taskLarge-container.color-blue > .dropdown > ul.colorList {
+  background-color: #0c1b41;
+  border: solid 1px #0c1b41; }
+  #render > .taskLarge-container.color-blue > .dropdown > ul.colorList > li:hover {
+    background-color: #040916; }
+
+#render > .taskLarge-container > .dropdown > ul.colorList > li#color-yellow::before {
+  background-color: yellow; }
+
+#render > .taskLarge-container > .dropdown > ul.colorList > li#color-green::before {
+  background-color: green; }
+
+#render > .taskLarge-container > .dropdown > ul.colorList > li#color-red::before {
+  background-color: red; }
+
+#render > .taskLarge-container > .dropdown > ul.colorList > li#color-blue::before {
+  background-color: blue; }
 
 * {
   margin: 0;

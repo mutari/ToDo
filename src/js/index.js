@@ -60,6 +60,10 @@ document.addEventListener("click", e => {
 
     if(queryTarget('.active-editor')) editor.deactivate()
     else if(id === 'editor-container') editor = new Editor(e)
+
+    if(queryTarget('.dropdown')) {
+        if(parentId(e) === 'colorList') crud.run({method: 'update', type: 'task', data: {color: id}})
+    }
     
     if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
         if(queryTarget('.dropdown')) return dropdown.deactivate()
@@ -71,22 +75,22 @@ document.addEventListener("click", e => {
         if(grandParentId(e) === 'context-menu') {
             const dataType = e.target.parentElement.attributes['data-type']
             if(id === 'update') toggleTextarea(e, true)
-            else if(id === 'read') crud.run('read', 'task', e)
-            else if(dataType && frame) crud.run(id, dataType.value, e)
+            else if(id === 'read') crud.run({method: 'read', type: 'task', e})
+            else if(dataType && frame) crud.run({method: id, type: dataType.value, e})
         }
         contextMenu.toggleMenu(false)
     } else {
         if(id === 'create') {
             const dataType = e.target.attributes['data-type']
-            if(dataType && frame) crud.run(id, dataType.value, e)
+            if(dataType && frame) crud.run({method: id, type: dataType.value, e})
         }
         if(queryTarget('textarea.active') && id !== 'textarea') toggleTextarea(e, false)
     }
 
-    if(id === 'task') crud.run('read', id, e)
+    if(id === 'task') crud.run({method: 'read', type: id, e})
     else if(id === 'taskLarge-container') render.eject(`#${id}`)
     else if(id === 'boxAdd' && queryTarget('.hover')) {
-        crud.run('create', 'box', e)
+        crud.run({method: 'create', type: 'box', e})
         hoverBetweenBoxes.remove(e)
     }
 

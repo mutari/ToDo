@@ -15,7 +15,7 @@ async function toggleTextarea(e, state, save) {
             if(save) {
                 const parent = textarea.parentElement
                 const type = parent.id
-                await crud.run('update', type)
+                await crud.run({method: 'update', type})
                 textarea.innerHTML = textarea.value
                 if(type === 'taskLarge') {
                     const task = queryTarget(`.task[data-id="${textarea.parentElement.attributes['data-id'].value}"]`)

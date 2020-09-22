@@ -17,8 +17,6 @@ function User(datas) {
 	init(datas)
 	async function init(datas) {
 		if(datas) {
-			
-			console.log(datas)
 			hide()
 			if(datas.frame) frame = new Frame(datas.frame)
 			if(datas.token) cookie.create('token', datas.token, 365)
@@ -30,21 +28,18 @@ function User(datas) {
 				email: datas.user.email,
 			}
 			frames = datas.user.frames.map(frame => ({
-				id: frame.id,
-				title: frame.id,
+				id: frame._id,
+				title: frame.text,
 			}))
 		} else {
 			try {
-				console.log('user', {token: cookie.get('token')})
 				if(cookie.check('token')) datas = await server.postFetch('user', {token: cookie.get('token')})
-				console.log(datas)
-				if(!datas) throw ''
+				if(validate.status(datas.status)) throw 'Login with token failed'
 				user = new User(datas)
 			} catch (error) {
-				window.show()
+				console.log(error)
 				const loadingscreen = queryTarget('.loadingscreen')
 				if(loadingscreen) loadingscreen.remove()
-				console.log(error)
 			}
 		}
 	}

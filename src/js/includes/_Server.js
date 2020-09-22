@@ -32,8 +32,10 @@ function Server() {
 	const postOption = data => ({
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			'Access-Control-Allow-Origin': true 
 		},
+		mode : 'cors',
 		body: JSON.stringify(data),
 	})
 	const getUrl = dest => `${fetchUrl}/ToDo${action[dest]}` //https://98.128.142.46/

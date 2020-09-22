@@ -2,11 +2,10 @@
 	position: absolute
 	z-index: 9999
 	display: grid
-	background-color: #333
-	border: solid 1px #333
     box-shadow: 1px 1px 2px #000
 	
 	& > ul.colorList
+		background-color: #333
 		& > li
 			@extend .pointer
 			display: grid
@@ -25,13 +24,3 @@
 			&:hover
 				color: white
 				background-color: #222
-			
-
-		& > li#red::before
-			background-color: red
-		& > li#blue::before
-			background-color: blue
-		& > li#green::before
-			background-color: green
-		& > li#yellow::before
-			background-color: yellow

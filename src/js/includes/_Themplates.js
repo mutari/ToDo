@@ -26,7 +26,7 @@ function Themplates() {
 				<div class="info" data-id="${task.id}">
 					<div class="color">
 						<label>Color</label>
-						<button id="colorBtn"><span class="circle"></span><span>Yellow</span></button>
+						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">Yellow</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
@@ -49,7 +49,7 @@ function Themplates() {
 					</div>
 				</div>
 				${task.description ? this.editor(task.description) : ''}
-				${task.subtasks.length ? `
+				${task.subtasks && task.subtasks.length ? `
 					<div class="subtask-container">
 						<div id="subtaskInfo">
 							<p>Subtasks</p>
@@ -111,11 +111,11 @@ function Themplates() {
 	this.dropdown = (type, id) => `
 		<div class="dropdown" id="dropdown" data-id="${id}" data-type="${type}">
 			${type === 'colorBtn' ? `
-				<ul class="colorList">
-					<li id="yellow">Yellow</li>
-					<li id="green">Green</li>
-					<li id="red">Red</li>
-					<li id="blue">Blue</li>
+				<ul class="colorList" id="colorList">
+					<li id="color-yellow">Yellow</li>
+					<li id="color-green">Green</li>
+					<li id="color-red">Red</li>
+					<li id="color-blue">Blue</li>
 				</ul>`
 			: ''}
 		</div> 

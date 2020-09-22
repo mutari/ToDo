@@ -1,6 +1,4 @@
 function Frame(frame) {
-
-	console.log(JSON.stringify(frame, null, 4))
 	this.previousText
 	this.previousType
 	if(!frame) return queryTarget('#render').innerHTML = ''
@@ -8,15 +6,14 @@ function Frame(frame) {
 	this.getData = () => data
 	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.find(box => data.boxId == box.id)
+	this.addTask = data => boxes.find(box => data.parentId == box.id)
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.find(box => data.boxId == box.id) //! ===
+		let task = boxes.find(box => data.parentId == box.id) //! ===
 			.tasks.find(task => data.id == task.id) //! ===
 		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
 	}
-	
 
 	const data = {
 		id: frame._id,

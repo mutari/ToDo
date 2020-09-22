@@ -46,6 +46,6 @@ function Validate() {
     }
     
     this.status = (status) => { // 200 = all okej, 400 = did not find data, 500 = server fucked up
-        return !(status <= 200 && status >= 0)
+        return !(status <= 200 && status >= 0) // flase = successfull true = failed
     } 
 }

@@ -26,7 +26,8 @@ function Render() {
 	
 	this.taskLarge = async (data) => {
 		const boxes = frame.getBoxes()
-		const box = boxes.find(box => box.id == data.boxId)
+		const box = boxes.find(box => box.id == data.parentId)
+
 		const task = {...box.tasks.find(task => task.id == data.id), parent: box.text}
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
