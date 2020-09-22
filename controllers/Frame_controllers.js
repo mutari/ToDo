@@ -29,14 +29,25 @@ module.exports = {
                 req.body.data.timestampUpdated = new Date().getTime()
                 respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.id)}, {$set: req.body.data})  
             }
-            else if(type == 'box')
-                respons = await req.db.frameCol.updateOne(
-                    { "_id": ObjectID(req.body.parentId), "boxes.id": ObjectID(req.body.id) }, 
-                    { $set: { "boxes.$.text": req.body.data.text }})
-            else if(type == 'task')
-                respons = await req.db.frameCol.updateOne(
-                    { "_id": ObjectID(req.body.grandParentId), "tasks.id": ObjectID(req.body.id) }, 
-                    { $set: { "tasks.$.text": req.body.data.text }})
+            else if(type == 'box') {
+                respons = await req.db.frameCol.findOne({ "_id": ObjectID(req.body.parentId) })
+                respons.boxes = respons.boxes.map(e => {
+                    if(e.id.toString() == req.body.id)
+                        e = Object.assign(e, req.body.data)
+                    return e
+                })
+                console.log(respons.boxes)
+                respons = await req.db.frameCol.updateOne({ "_id": ObjectID(req.body.parentId) }, { $set: respons })
+            }
+            else if(type == 'task') {
+                respons = await req.db.frameCol.findOne({ "_id": ObjectID(req.body.grandParentId) })
+                respons.tasks = respons.tasks.forEach(e => {
+                    if(e.id == req.body.id)
+                        e = {...req.body.data, ...e}
+                    return e
+                })
+                respons = await req.db.frameCol.updateOne({ "_id": ObjectID(req.body.grandParentId) }, { $set: respons })
+            }
 
             if(respons)
                 return res.json({message: type + " update", status: 200})
