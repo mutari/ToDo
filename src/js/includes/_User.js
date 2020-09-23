@@ -34,6 +34,8 @@ function User(datas) {
 		} else {
 			try {
 				if(cookie.check('token')) datas = await server.postFetch('user', {token: cookie.get('token')})
+				console.log(datas)
+
 				if(validate.status(datas.status)) throw 'Login with token failed'
 				user = new User(datas)
 			} catch (error) {

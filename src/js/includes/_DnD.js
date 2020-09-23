@@ -53,6 +53,11 @@ function DragAndDrop() {
             e.target.insertAdjacentHTML('beforeend', dragSrcEl.outerHTML)
             dragSrcEl.remove()
         }
+
+        tools.throttle(function() {
+            const data = frame.screenshot()
+            crud.run({method: 'update', type: 'pos', data})
+        }, 1000)
     }
     
     this.handleDragEnd = e => {

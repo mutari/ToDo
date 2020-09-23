@@ -9,9 +9,12 @@ function Frame({_id, text, description, author, members, boxes}) {
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.find(box => data.parentId == box.id) //! ===
-			.tasks.find(task => data.id == task.id) //! ===
-		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
+		boxes.find(box => data.parentId == box.id) //! ===
+			.tasks.find(task => data.id == task.id).map(({taskKey, taskValue}) => {
+				for(const key in data.data)
+					if(key == taskKey) return {taskKey: data.data[key]}
+				return {taskKey: taskValue}
+			}); //! ===
 	}
 
 	this.data = {
@@ -58,7 +61,7 @@ function Frame({_id, text, description, author, members, boxes}) {
 	}
 	this.init()
 
-	this.frameScreenshot = () => {
+	this.screenshot = () => {
 		let {attributes, children} = queryTarget('#frame')
 		return {
 			id: attributes['data-id'].value,
@@ -76,5 +79,4 @@ function Frame({_id, text, description, author, members, boxes}) {
 			}))
 		}
 	}
-	console.log(JSON.stringify(this.frameScreenshot(), null, 4))
 }

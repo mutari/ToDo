@@ -797,7 +797,6 @@ function Cookie() {
 function CRUD() {
     this.run = async ({method, type, e, data}) => { //method = crud; type=component; e = event; data = any additional data.
         try {
-
             if(!frame.data) throw'No frame data'
             let input = this.getData(method, type, e, data)
             if(!input) throw 'No input where gathered'
@@ -825,7 +824,7 @@ function CRUD() {
     this.getData = function(method, type, e, data) {
 
         /* PROCESS START */
-        let textarea, target
+        let target
 
         contextMenu ? ifContextMenu()
             : method === 'read' ? ifRead()
@@ -833,8 +832,7 @@ function CRUD() {
             : method === 'create' ? ifCreate()
             : ''
         
-        data = {...getIds(), ...data}
-        console.log(data)
+        data = target ? {...getIds(), ...data} : data
 
         return (!data ||  (data.data && data.data.text && data.data.text === frame.previousText)) ? '' : data
         /* PROCESS END */
@@ -868,17 +866,17 @@ function CRUD() {
         }
         function ifUpdate() {
             const textarea = queryTarget('#textarea.active')
+            const taskLarge = queryTarget('.taskLarge')
 
             if(textarea) {
                 target = textarea.parentElement
                 if(type === 'taskLarge') target = queryTarget(`.task[data-id="${target.attributes['data-id'].value}"]`)
-            } else {
-                target = queryTarget('.taskLarge')
-                target = queryTarget(`.task[data-id="${target.attributes['data-id'].value}"]`) 
+            } else if(taskLarge) {
+                target = queryTarget(`.task[data-id="${taskLarge.attributes['data-id'].value}"]`) 
             }
 
-            const id = target.id
-            type = id === 'frameNav' ? 'frame' : id === 'taskLarge' ? 'task': id //Convert DOM specific types into basic types
+            const id = target ? target.id : type
+            type = id === 'frameNav' ? 'frame' : id === 'taskLarge' ? 'task': id //Converts render types into basic types
             data = textarea ? {...data, text: textarea.value} 
                 : data.color ? {...data, color: data.color.split('-').pop()}
                 : data
@@ -989,6 +987,11 @@ function DragAndDrop() {
             e.target.insertAdjacentHTML('beforeend', dragSrcEl.outerHTML)
             dragSrcEl.remove()
         }
+
+        tools.throttle(function() {
+            const data = frame.screenshot()
+            crud.run({method: 'update', type: 'pos', data})
+        }, 1000)
     }
     
     this.handleDragEnd = e => {
@@ -1286,9 +1289,12 @@ function Frame({_id, text, description, author, members, boxes}) {
 		.tasks.push({id: data.id})
 
 	this.updateTask = data => {
-		let task = boxes.find(box => data.parentId == box.id) //! ===
-			.tasks.find(task => data.id == task.id) //! ===
-		for(const key in data.data) Object.assign(task, {[key]: data.data[key]})
+		boxes.find(box => data.parentId == box.id) //! ===
+			.tasks.find(task => data.id == task.id).map(({taskKey, taskValue}) => {
+				for(const key in data.data)
+					if(key == taskKey) return {taskKey: data.data[key]}
+				return {taskKey: taskValue}
+			}); //! ===
 	}
 
 	this.data = {
@@ -1335,7 +1341,7 @@ function Frame({_id, text, description, author, members, boxes}) {
 	}
 	this.init()
 
-	this.frameScreenshot = () => {
+	this.screenshot = () => {
 		let {attributes, children} = queryTarget('#frame')
 		return {
 			id: attributes['data-id'].value,
@@ -1353,7 +1359,6 @@ function Frame({_id, text, description, author, members, boxes}) {
 			}))
 		}
 	}
-	console.log(JSON.stringify(this.frameScreenshot(), null, 4))
 }
 function Render() {
 	this.frame = async (data, boxes) => {
@@ -1747,6 +1752,8 @@ function User(datas) {
 		} else {
 			try {
 				if(cookie.check('token')) datas = await server.postFetch('user', {token: cookie.get('token')})
+				console.log(datas)
+
 				if(validate.status(datas.status)) throw 'Login with token failed'
 				user = new User(datas)
 			} catch (error) {
