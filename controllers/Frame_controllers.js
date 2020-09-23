@@ -41,9 +41,9 @@ module.exports = {
             }
             else if(type == 'task') {
                 respons = await req.db.frameCol.findOne({ "_id": ObjectID(req.body.grandParentId) })
-                respons.tasks = respons.tasks.forEach(e => {
+                respons.tasks = respons.tasks.map(e => {
                     if(e.id == req.body.id)
-                        e = {...req.body.data, ...e}
+                    e = Object.assign(e, req.body.data)
                     return e
                 })
                 respons = await req.db.frameCol.updateOne({ "_id": ObjectID(req.body.grandParentId) }, { $set: respons })
