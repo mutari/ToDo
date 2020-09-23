@@ -26,5 +26,30 @@ module.exports = {
         */
         return frame
     
+    },
+    ConvertToNewFrameLayout: (frame) => {
+        obj = {}
+
+        obj.tasks = []
+        obj.subtasks = []
+        obj.id = frame.id
+        obj.boxes = frame.boxes.map(box => {
+            return { id: box.id, posId: box.posId }
+        })
+        frame.boxes.forEach(box => {
+            box.tasks.forEach(task => {
+                obj.tasks.push({id: task.id, posId: task.posId})
+            })
+        })
+        frame.boxes.forEach(box => {
+            box.tasks.forEach(task => {
+                task.subtasks.forEach(subtask => {
+                    obj.subtasks.push({id: subtask.id, posId: subtask.posId})
+                })
+            })
+        })
+
+        return obj
+
     }
 }

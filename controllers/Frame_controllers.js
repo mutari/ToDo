@@ -1,11 +1,12 @@
 const ObjectID = require('mongodb').ObjectID
+const { boxes } = require('../dataSchema/new_frame');
 const converter = require('../modules/frameConverter');
 
 module.exports = {
     test: async (req, res) => {
         let respons = await req.db.frameCol.findOne({"_id": ObjectID("5f661c54cd392a045fd91a91")})
-        respons = converter.ConvertToOldFrameLayout(respons)
-        console.log(respons)
+        respons = converter.ConvertToNewFrameLayout(req.body.frm)
+        console.log(JSON.stringify(respons, null, 4))
 
     },
     postGetFrame: async (req, res) => {
@@ -72,45 +73,36 @@ module.exports = {
                 respons = await req.db.frameCol.insertOne(frame)
             } 
             else if(type == 'box')
-                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.id)},
-                    {
-                        $push: {
-                            boxes: {
-                                id: newID,
-                                text: "",
-                                color: "gray",
-                                timestampCreated: new Date().getTime()
-                            }
-                        }
-                    })
+                respons = await createAddPosId(req, req.body.id, type, {
+                    id: newID,
+                    text: "",
+                    color: "gray",
+                    timestampCreated: new Date().getTime()
+                })
             else if(type == 'task')
-                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.parentId)},
-                    {
-                        $push: {
-                            tasks: {
-                                id: newID,
-                                text: "",
-                                description: "",
-                                members: [],
-                                color: "gray",
-                                date: new Date().getTime(),
-                                labels: [],
-                                parent: ObjectID(req.body.id),
-                                timestampCreated: new Date().getTime()
-                            }
-                        }
-                    })
+                respons = await createAddPosId(req, req.body.parentId, type, {
+                    id: newID,
+                    text: "",
+                    description: "",
+                    members: [],
+                    color: "gray",
+                    date: new Date().getTime(),
+                    labels: [],
+                    parent: ObjectID(req.body.id),
+                    timestampCreated: new Date().getTime()
+                }, req.body.id)
             else if(type == 'subtask') // box = boxId, task = id
-                respons = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.grandParentId)},
-                    {
-                        $push: {
-                            id: newID,
-                            text: "",
-                            state: false,
-                            members: [],
-                            timestampCreated: new Date().getTime()
-                        }
-                    })
+                respons = await createAddPosId(req, req.body.grandParentId, type, {
+                        id: newID,
+                        text: "",
+                        state: false,
+                        members: [],
+                        timestampCreated: new Date().getTime()
+                    }, req.body.parentId, req.body.id)
+            else if(type == 'pos') {
+                await postUpdateFramePosition(req, res)
+            }
+
             if(respons)
                 return res.json({message: type + " created", status: 200, id: ObjectID(newID)})
             return res.json({message: `could not create ${type} in frame withe id: ${req.body.id}`, status: 400})
@@ -148,24 +140,70 @@ module.exports = {
             console.error(error)
             return res.json({message: "document could not deletet", status: 400})
         }
-    },
-    postUpdateFramePosition: async (req, res) => {
-        try {
-            let respons = await req.db.frameCol.findOne({'_id': ObjectID(req.body.frameId)})
-            if(!respons)
-                return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
-            
-            
+    }
+}
+
+async function postUpdateFramePosition (req, res) {
+    try {
+        let respons = await req.db.frameCol.findOne({'_id': ObjectID(req.body.frameId)})
+        if(!respons)
+            return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
+        
+        ConvertToNewFrameLayout(req.body.data)
 
 
 
 
-            let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
-            if(rep)
-                return res.json({message: type + " updated frame", status: 200})
-        } catch (error) {
-            console.error(error)
-            return res.json({message: "somthing whent wrong when moving pos", status: 400}) 
+        let rep = await req.db.frameCol.updateOne({"_id": ObjectID(req.body.frameId)}, {$set: respons})
+        if(rep)
+            return res.json({message: type + " updated frame", status: 200})
+    } catch (error) {
+        console.error(error)
+        return res.json({message: "somthing whent wrong when moving pos", status: 400}) 
+    }
+}
+
+async function createAddPosId (req, frameId, type, data, boxId, tasksId) {
+    let respons = await req.db.frameCol.findOne({ "_id": ObjectID(frameId) })
+
+    if(type == "box") {
+        id = 0
+        respons.boxes.forEach((box, i) => {
+            if(!req.body.neighbourId)
+                if(box.posId > id)
+                    id = box.posId
+            else {
+                if(box.id == req.body.neighbourId) {
+                    respons.boxes.splice(i + 1, 0, data)
+                }
+            }
+        })
+        if(!req.body.neighbourId) {
+            data.posId = id + 1
+            respons.boxes.push(data)
         }
     }
+    if(type == "task") {
+        id = 0
+        respons.tasks.forEach(tasks => {
+            if(tasks.parent.toString() == boxId && tasks.posId > id)
+                id = tasks.posId
+        })
+        data.posId = id + 1
+        respons.tasks.push(data)
+    }
+    if(type == "subtask") {
+        id = 0
+        respons.tasks.forEach(subtasks => {
+            if(subtasks.parent.toString() == tasksId && subtasks.posId > id)
+                id = subtasks.posId
+        })
+        data.posId = id + 1
+        respons.subtasks.push(data)
+    }
+
+    console.log(JSON.stringify(respons, null, 4))
+
+    respons = await req.db.frameCol.updateOne({ "_id": ObjectID(frameId) }, { $set: respons })
+    return respons
 }
