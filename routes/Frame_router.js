@@ -24,11 +24,6 @@ router.post(
             frameController.postCreateFrame)
 
 router.post(
-    '/frame/update/position', 
-        _auth, 
-            frameController.postUpdateFramePosition)
-
-router.post(
     '/frame/test',
         frameController.test)
 
