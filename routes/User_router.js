@@ -22,4 +22,13 @@ router.post(
         _auth, 
             userControllers.postUpdateUser)
 
+router.post(
+    "/comfirm/send",
+        //_auth,
+            userControllers.postSendComfirmMail)
+
+router.post(
+    "/comfirm/:id",
+        userControllers.postComfirmMail)
+
 module.exports = router
