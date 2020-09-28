@@ -18,7 +18,7 @@ module.exports = {
             if (frame) data.frame = converter.ConvertToOldFrameLayout(frame)
             else {
                 data.frame = require('../dataSchema/new_frame')
-                data.frame.members.push(ObjectID(user._id))
+                data.frame.members.push({id: ObjectID(user._id), name: user.name})
                 data.frame.author = ObjectID(user._id)
                 data.user.selected_frame = (await req.db.frameCol.insertOne(data.frame))["ops"][0]["_id"]
                 if(!data.user.selected_frame)

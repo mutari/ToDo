@@ -22,13 +22,9 @@ const mongo = require('mongodb').MongoClient;
         app.use(bodyParser.json())
         app.use(express.static(__dirname + "/public"))
         app.use(cookieParser())
+        app.use((req, res, next) => { console.log(req.path); next(); })
         app.use((req, res, next) => {
-            console.log(req.path)
-            next()
-        })
-        app.use((req, res, next) => {
-            req.db = {userCol: userCol, frameCol: frameCol} 
-            next();
+            req.db = {userCol: userCol, frameCol: frameCol}; next();
         })
 
         app.use('/ToDo', require('./routes/User_router.js'))

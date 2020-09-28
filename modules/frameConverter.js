@@ -7,6 +7,11 @@ module.exports = {
             box.tasks = []
             frame.tasks.forEach(task => {
                 if(task.parent.toString() == box.id.toString()) {
+                    task.labels = []
+                    frame.labels.forEach(label => {
+                        if(label.parent.toString() == task.id.toString())
+                            task.labels.push(label)
+                    })
                     task.subtasks = []
                     frame.subtasks.forEach(subtasks => {
                         if(subtasks.parent.toString() == task.id.toString()) {

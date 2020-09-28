@@ -1,6 +1,7 @@
 const ObjectID = require('mongodb').ObjectID
 const { boxes } = require('../dataSchema/new_frame');
 const converter = require('../modules/frameConverter');
+let respons;
 
 module.exports = {
     test: async (req, res) => {
@@ -37,7 +38,6 @@ module.exports = {
                         e = Object.assign(e, req.body.data)
                     return e
                 })
-                console.log(respons.boxes)
                 respons = await req.db.frameCol.updateOne({ "_id": ObjectID(req.body.parentId) }, { $set: respons })
             }
             else if(type == 'task') {
@@ -99,12 +99,27 @@ module.exports = {
                         members: [],
                         timestampCreated: new Date().getTime()
                     }, req.body.parentId, req.body.id)
+            else if(type == 'label') {
+                respons = await req.db.frameCol.updateOne(
+                    {
+                        '_id': ObjectID(req.body.grandParentId)
+                    },
+                    {
+                        $addToSet: {
+                            'labels': {parent: req.body.id, text: req.body.text}
+                        }
+                    }
+                )
+                if(!(respons.modifiedCount >= 1))
+                    return res.json({message: `did not add label, label alredy exists`, status: 500})
+            }
             else if(type == 'pos') {
                 await postUpdateFramePosition(req, res)
             }
 
-            if(respons)
-                return res.json({message: type + " created", status: 200, id: ObjectID(newID)})
+            console.log(respons)
+
+            if(respons) return res.json({message: type + " created", status: 200, id: ObjectID(newID)})
             return res.json({message: `could not create ${type} in frame withe id: ${req.body.id}`, status: 400})
         } catch (error) {
             console.error(error)
@@ -207,7 +222,7 @@ async function createAddPosId (req, frameId, type, data, boxId, tasksId) {
         respons.subtasks.push(data)
     }
 
-    console.log(JSON.stringify(respons, null, 4))
+    //console.log(JSON.stringify(respons, null, 4))
 
     respons = await req.db.frameCol.updateOne({ "_id": ObjectID(frameId) }, { $set: respons })
     return respons

@@ -24,7 +24,7 @@ router.post(
 
 router.post(
     "/comfirm/send",
-        //_auth,
+        _auth,
             userControllers.postSendComfirmMail)
 
 router.get(
