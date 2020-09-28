@@ -33,8 +33,13 @@ const css = () => gulp.src('src/views/sass/*.sass')
 const html = () => gulp.src('src/views/pug/*.pug')
     .pipe(pug(pugConfig))
     .pipe(gulp.dest('public'))
-    .pipe(browserSync.stream())
-
+	.pipe(browserSync.stream())
+	
+const test = () => gulp.src('src/js/**/*.js')
+	.pipe(gulp.src('src/test/*.Test.js'))
+	.pipe(concat('main.test.js'))
+	.pipe(gulp.dest('test'))
+	.pipe(browserSync.stream())
 
 gulp.task('watch', 
     gulp.series(
@@ -45,4 +50,11 @@ gulp.task('watch',
             gulp.watch('src/js/**/*.js', scripts)
         }
     )
+)
+
+gulp.task('test',
+	gulp.series((test), () => {
+		gulp.watch('src/js/**/*.js', test)
+		gulp.watch('src/test/*.Test.js', test)
+	})
 )

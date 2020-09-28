@@ -1,32 +1,54 @@
-$taskColors: (yellow: #B09834, green: #478C34, red: #B52934, blue: #1C3E97)
 
-#render
-	& > .frame
-		& > .box
-			& > .task
-                @each $color, $hex in $taskColors
-                    &.color-#{$color}
-                        background-color: $hex
-	& > .taskLarge-container
-        @each $color, $hex in $taskColors
-            &.color-#{$color}
-                & > .taskLarge
-                    background-color: $hex
-                    & > div.info
-                        & > div.color
-                            & > button
-                                & > .circle
-                                    background-color: $color
-                & > .dropdown
-                    & > ul.colorList
-                        background-color: darken($hex, 20%)
-                        border: solid 1px darken($hex, 20%)
-                        & > li
-                            &:hover
-                                background-color: darken($hex, 30%)
-        & > .dropdown
-            & > ul.colorList
-                @each $color, $hex in $taskColors
-                    & > li#color-#{$color}::before
-                        background-color: $color
+@each $color, $hex in $taskColors
+	#render
+		& > .frame
+			& > .box
+				& > .task
+					&.color-#{$color}
+						background-color: $hex
+		& > .taskLarge-container
+			&.color-#{$color}
+				& > .taskLarge
+					background-color: $hex
+					& > .info
+						& > .color
+							& > button
+								& > .circle
+									background-color: $color
+						& > .labels
+							& > #labels
+								& > div
+									& > p
+										background-color: darken($hex, 5%)
+										
+
+				/** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button 
+								background-color: darken($hex, 27.5%) **/
+							
+
+
+
+
+
+
+
+			
+							
+			& > .dropdown
+				& > ul.colorList
+					& > li#color-#{$color}::before
+						background-color: $color
 

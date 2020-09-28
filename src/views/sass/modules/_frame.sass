@@ -175,12 +175,7 @@ $taskHeight: 400px
 				color: #E3E3E3
 
 
-			$circleHeight: 25px
-			%circle
-				display: block
-				height: 25px
-				width: 25px
-				border-radius: 50%
+			
 			%circleButton
 				@extend %circle
 				@extend .pointer
@@ -226,12 +221,13 @@ $taskHeight: 400px
 							@extend .pointer
 							height: $circleHeight*3/5
 							width: $circleHeight*3/5
+							background-color: grey
 						& > span:nth-child(2)
 							@extend .inactive-link
 							color: inherit
 							align-self: center
 						&:hover
-							background-color: rgba(black, .15)
+							background-color: rgba(black, .3)
 							
 				$gap: 2px
 				& > div.members
@@ -242,13 +238,8 @@ $taskHeight: 400px
 						display: flex
 						flex-wrap: wrap
 						gap: $gap
-						& > div.img
-							@extend %circle
-							overflow: hidden
-							display: grid
-							place-content: center
-							& > img
-								height: $circleHeight
+						& > div
+							@extend %circleRemove
 						& > button
 							@extend %circleButton
 							min-width: $circleHeight
@@ -268,6 +259,19 @@ $taskHeight: 400px
 							border-radius: $boxContentBorderRadius
 							font-size: 12px
 							overflow-wrap: anywhere
+							@extend %remove
+							display: grid
+							grid-auto-flow: column
+							& > p
+								z-index: 1
+								padding: 0 3.5px
+							& > span
+								background: transparent !important
+								&::after
+							&:hover
+								& > span
+									&::after
+										padding: 0 2.5px 0 17.5px
 						& > button
 							@extend %circleButton
 							border-radius: 5px

@@ -1,41 +1,46 @@
 function Editor(e) {
 	if(!e) return
-	const container = e.target
-	const textarea = container.children.editor
-	const formatedArea = container.children.formatedContent
-	let previousText = textarea.value
-	let beforeWrite
+	const formatedArea = e.target
+	const textarea = formatedArea.previousElementSibling
+	const container = formatedArea.parentElement
+	this.previousText = textarea.value
+	let beforePreview
 	this.shouldWriteButtonEnable = false
 
-	this.deactivate = save => {
-		const editorContainer = container
-		editorContainer.classList.remove('active-editor')
-		container.removeEventListener('click', containerOnClick)
+	this.deactivate = async save => {
 		if(save) {
-			this.format(textarea.value)
-			tools.setAreaHeight(textarea)
-			return
+			try {
+				const text = textarea.value
+				await crud.run({method: 'update', type: 'description', data: {description: Sanitize.withHTMLCode(text)}})
+				this.format(text)
+			} catch (error) {
+				console.log(error)
+			}
+		} else {
+			textarea.value = this.previousText
+			this.format(this.previousText)
 		}
-		textarea.value = previousText
+		container.classList.remove('active-editor')
+		container.removeEventListener('click', containerOnClick)
+		tools.setAreaHeight(textarea)
 		formatedArea.classList.remove('editor')
 	}
 
 	this.format = text => {
-		const {cleaned, formated} = tools.cleanAndFormat(text)
-		textarea.value = cleaned
+		const {formated} = tools.cleanAndFormat(text)
 		formatedArea.innerHTML = formated
 	}
 
 	this.preview = () => {
 		this.shouldWriteButtonEnable = true
-		beforeWrite = textarea.value
-		this.format(beforeWrite)
+		beforePreview = textarea.value
+		this.format(beforePreview)
 		textarea.classList.add('hide')
 		formatedArea.classList.add('editor')
 	}
 	this.write = () => {
-		textarea.value = beforeWrite
-		formatedArea.innerHTML = previousText
+		textarea.value = beforePreview
+		formatedArea.innerHTML = this.previousText
 		textarea.classList.remove('hide')
 		formatedArea.classList.remove('editor')
 	}
@@ -44,6 +49,7 @@ function Editor(e) {
 		e.stopPropagation() //stop deactivation of editor while inside container
 	}
 	
+	textarea.classList.remove('hide')
 	container.addEventListener('click', containerOnClick)
 	container.classList.add('active-editor')
 	tools.resizeAreaToFitContent(textarea)

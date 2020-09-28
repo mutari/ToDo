@@ -1,3 +1,14 @@
+form#login(method="POST")
+    div
+        label Email * 
+        input#email(type="text")
+        p#emailFeedback
+    div
+        label Password * 
+        input#pw(type="text")
+        p#pwFeedback
+    button#loginBtn Login
+
 form#signUp(method="POST")
     div
         label Name * 
@@ -16,14 +27,3 @@ form#signUp(method="POST")
         input#comfirmPw(type="text")
         p#comfirmPwFeedback
     button sign up
-
-form#login(method="POST")
-    div
-        label Email * 
-        input#email(type="text")
-        p#emailFeedback
-    div
-        label Password * 
-        input#pw(type="text")
-        p#pwFeedback
-    button Login

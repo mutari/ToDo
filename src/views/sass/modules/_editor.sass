@@ -71,7 +71,11 @@
 		white-space: pre-wrap
 	& > p.editor
 		@extend .no-pointer-event
-		padding: 0
+		padding: 10px
+
+	& > p#formatedContent
+		@extend .active-link
+		@extend .pointer
 
 	& > .optionbar
 		display: none

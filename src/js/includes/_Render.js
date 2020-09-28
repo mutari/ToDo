@@ -24,7 +24,7 @@ function Render() {
 		}
 	}
 	
-	this.taskLarge = async (data) => {
+	this.taskLarge = async data => {
 		const boxes = frame.boxes
 		const box = boxes.find(box => box.id == data.parentId)
 
@@ -32,7 +32,7 @@ function Render() {
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
 		if(task.description) {
-			const {formated} = tools.cleanAndFormat(task.description)
+			const {formated} = tools.cleanAndFormat(task.description, true)
 			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
 		}
 		return Promise.resolve()
@@ -50,6 +50,17 @@ function Render() {
 		function renderTask() {
 			const parent = queryTarget(`.box[data-id="${data.id}"]`)
 			parent.insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
+			return Promise.resolve()
+		}
+	}
+	this.label = async data => {
+		await renderLabel()
+		queryTarget('#labelInput').value = ''
+
+		function renderLabel() {
+			const targetTaskLarge = queryTarget('#labels').lastElementChild
+			const label = themplates.label({id: data.createdId, text: data.text})
+			targetTaskLarge.insertAdjacentHTML('beforebegin', label)
 			return Promise.resolve()
 		}
 	}

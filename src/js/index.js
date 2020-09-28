@@ -28,7 +28,6 @@ String.prototype.indicesOf = function(searchStr, caseSensitive, startIndex) {
     return indices
 }
 
-const testData = new TestData()
 const tools = new Tools()
 const server = new Server()
 const cookie = new Cookie()
@@ -39,10 +38,10 @@ let editor
 let dragAndDrop
 let contextMenu
 let dropdown
-let user = new User('')
-let crud = new CRUD()
-const form = new Form()
 const validate = new Validate()
+let user = new User('')
+const crud = new CRUD()
+let form = new Form()
 const announce = new Announce()
 
 document.addEventListener("input", e => {
@@ -56,17 +55,16 @@ document.addEventListener( "submit", e => {
 })
 
 document.addEventListener("click", e => {
-    const id = targetId(e)
-
-    if(queryTarget('.active-editor')) editor.deactivate()
-    else if(id === 'editor-container') editor = new Editor(e)
+	const id = targetId(e)
+	
+	if(queryTarget('.active-editor')) editor.deactivate()
 
     if(queryTarget('.dropdown')) {
         if(parentId(e) === 'colorList') crud.run({method: 'update', type: 'task', data: {color: id}})
     }
     
     if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
-        if(queryTarget('.dropdown')) return dropdown.deactivate()
+        if(queryTarget('.dropdown')) dropdown.deactivate()
         const taskLarge = id === 'colorBtn' ? e.target.parentElement.parentElement : e.target.parentElement.parentElement.parentElement
         dropdown = new Dropdown(e, id, taskLarge.attributes['data-id'].value)
     } else if(dropdown) dropdown.deactivate()
@@ -92,12 +90,14 @@ document.addEventListener("click", e => {
     else if(id === 'boxAdd' && queryTarget('.hover')) {
         crud.run({method: 'create', type: 'box', e})
         hoverBetweenBoxes.remove(e)
-    }
+	} else if(id === 'labelBtn') 
+		crud.run({method: 'create', type: 'label', e})
 
     if(id === 'darkmode') toggleDarkmode()
 })
 document.addEventListener("dblclick", e => {
-    const id = targetId(e)
+	const id = targetId(e)
+    if(id === 'formatedContent' && !queryTarget('.dropdown')) return editor = new Editor(e)
     if(['box', 'frameNav'].includes(id)) toggleTextarea(e, true)
     if(['taskLarge'].includes(parentId(e))) toggleTextarea(e, true)
 })
@@ -128,9 +128,12 @@ document.addEventListener( 'keydown', e => {
             e.preventDefault()
             if(key === 9) Format.addTabAtCursor(e.target) // key 9 tab
             if(key === 27) editor.deactivate()
-        }
-    }
-    if(parentId(e) === 'frameNav') 
+        } if(id === 'labelInput') {
+			if(key === 13) crud.run({method: 'create', type: 'label', e})
+		}
+	}
+	
+    if(parentId(e) === 'frameNav' || id === 'labelInput') 
         if(e.target.value.length > 33 && ![8,16,17,37,38,39,40].includes(key)) e.preventDefault() //8 backspace & 16 shift & 17 ctrl & 37,38,39,40 arrowkeys
 })
 document.addEventListener( 'contextmenu', e => {

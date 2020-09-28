@@ -1,20 +1,37 @@
 function Frame({_id, text, description, author, members, boxes}) {
-	console.log(boxes)
 	this.previousText
 	this.previousType
 	if(!_id) return queryTarget('#render').innerHTML = ''
-	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.find(box => data.parentId == box.id)
-		.tasks.push({id: data.id})
+	
+	this.addLabel = ({id, parentId, grandParentId, data}) => (
+		this.boxes.find(box => (
+			grandParentId == box.id
+		)).tasks.find(task=> (
+			parentId = task.id
+		)).labels.push( {id, ...data} )
+	)
+	this.addTask = ({id, parentId, data}) => (
+		this.boxes.find(box => (
+			parentId == box.id
+		)).tasks.push( {id, ...data} )
+	)
 
-	this.updateTask = data => {
-		boxes.find(box => data.parentId == box.id) //! ===
-			.tasks.find(task => data.id == task.id).map(({taskKey, taskValue}) => {
-				for(const key in data.data)
-					if(key == taskKey) return {taskKey: data.data[key]}
-				return {taskKey: taskValue}
-			}); //! ===
+	this.updateTask = ({data, id, parentId}) => { 
+		for(const key in data) 
+			Object.assign(
+				this.boxes.find(box => (
+					parentId == box.id
+				)).tasks.find(task => (
+					id == task.id
+				))
+				, {[key]: data[key]}
+			)
+	}
+
+	this.updateBox = ({id, data}) => {
+		for(const key in data)
+			Object.assign(this.boxes.find(box => id == box.id), {[key]: data[key]})
 	}
 
 	this.data = {

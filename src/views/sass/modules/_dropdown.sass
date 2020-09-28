@@ -2,7 +2,11 @@
 	position: absolute
 	z-index: 9999
 	display: grid
-    box-shadow: 1px 1px 2px #000
+	max-width: 300px
+    
+	& > ul, & > div
+		box-shadow: 1px 1px 10px rgba(black, .2)
+    	border: 1px solid rgba(black, .9)
 	
 	& > ul.colorList
 		background-color: #333
@@ -24,3 +28,44 @@
 			&:hover
 				color: white
 				background-color: #222
+			&#color-defualt::before
+				background-color: DimGrey
+	& > div
+		background-color: #333
+		padding: 5px 10px
+		display: grid
+		grid-template-areas: "one" "two"
+		& > div
+			padding: 5px 0
+		& > #membersList
+			grid-area: one
+			& > div
+				@extend %circleRemove
+
+
+		& > #input-container
+			grid-area: two
+			display: flex
+			& > input
+				padding: 5px
+				color: white
+				border-radius: 5px 0 0 5px
+				background-color: rgba( black, .3)
+				min-width: calc( 100% - 45px )
+			& > button
+				@extend .pointer
+				padding: 2.5px 7.5px
+				color: white
+				font-size: 18px
+				border-radius: 0 5px 5px 0
+				background-color: rgba( black, .5)
+				&::before
+					content: '+'
+				&:hover
+					background-color: rgba( black, .7)
+
+			& > button#inviteMembersBtn
+				font-size: 12px
+				&::before
+					content: 'Invite'
+

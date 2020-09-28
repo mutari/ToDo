@@ -7,7 +7,8 @@ function User(datas) {
 	this.logOut = () => {
 		cookie.destroy('token')
 		user = new User('')
-		frame = new Frame()
+		frame = new Frame({})
+		show()
 	}
 
 	this.changeFrame = () => {

@@ -19,7 +19,7 @@ function Themplates() {
 			${subtasks && subtasks.length ? `<div style="display: none" id="hiddenSubtask">${subtasks.map(subtask=>this.subtask(subtask))}</div>` : ''}
 		</li>
 	`
-	this.taskLarge = ({color, parent, id, text, description, subtasks,}) => `
+	this.taskLarge = ({color, parent, id, text, description, subtasks, labels, members}) => `
 		<div class="taskLarge-container ${color !== 'default' ? `color-${color}` : ''}" id="taskLarge-container">
 			<div class="taskLarge" id="taskLarge"  data-id="${id}">
 				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${text ? text : ''}</textarea>
@@ -27,24 +27,26 @@ function Themplates() {
 				<div class="info" data-id="${id}">
 					<div class="color">
 						<label>Color</label>
-						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">${color}</span></button>
+						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">${color ? tools.capitalizeFirstLetter(color) : color}</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
 						<div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<span>
+							</div>
+							<div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<span>
+							</div>
 							<button id="membersBtn" />
 						</div>
 					</div>
 					<div class="labels">
 						<label>Labels</label>
 						<div id="labels">
-							<div>Project-x</div>
-							<div>Design</div>
-							<div>Design</div>
+							${labels ? labels.map(label=>this.label(label)) : ''}
 							<button id="labelsBtn" />
 						</div>
 					</div>
@@ -101,10 +103,15 @@ function Themplates() {
 			</div>
 		</div>
 	`
+	this.label = ({text, id}) => `
+		<div data-id="${id}"><p>${text}</p><span></div>
+	`
+
+
 	this.contextMenu = (id, type) => `
-		<nav class="context-menu" id="context-menu">
+		<nav class="context-menu" id="context-menu">${console.log(type)}
 			<ul data-id="${id}" data-type="${type}">
-				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
+				${!['frame', 'frameNav', 'label'].includes(type) ? '<li id="read">View</li>' : ''}
 				${type === 'box' ? '<li id="create">Add</li>' : ''}
 				<li id="update">Edit</li>
 				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
@@ -120,8 +127,45 @@ function Themplates() {
 					<li id="color-green">Green</li>
 					<li id="color-red">Red</li>
 					<li id="color-blue">Blue</li>
+					<li id="color-crimson">Crimson</li>
+					<li id="color-indigo">Indigo</li>
+					<li id="color-defualt">Default</li>
 				</ul>`
 			: ''}
+			<div>
+				${type === 'labelsBtn' ? `
+					<div id="input-container">
+						<input id="labelInput" placeholder="add label...">
+						<button id="labelBtn" />
+					</div>
+					`
+				: ''}
+				${type === 'membersBtn' ? `
+					<div id="membersList">
+						${
+							frame.boxes.find(box => (
+								box.id === queryTarget(`.task[data-id="${id}"]`).parentElement.attributes['data-id'].value
+							)).tasks.find(task => (
+								task.id === id 
+							)).members.map(({id, text, url}) => `
+								<div class="img" data-id="${id}" data-name="${text}">
+									<div class="img"><img src="${url}"></div>
+									<span>${text}</span>
+								</div>
+							`)
+						}
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"></div>
+							<span>
+						</div>
+					</div>
+					<div id="input-container">
+						<input id="membersInput" placeholder="Email...">
+						<button id="inviteMembersBtn" />
+					</div>
+					`
+				: ''}
+			</div>
 		</div> 
 	`
 

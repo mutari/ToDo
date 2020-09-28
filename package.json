@@ -36,6 +36,7 @@
     "fragment-cache": "^0.2.1",
     "get-value": "^2.0.6",
     "glob": "^7.1.6",
+    "gulp-jest": "^4.0.3",
     "has-symbols": "^1.0.1",
     "homedir-polyfill": "^1.0.3",
     "hosted-git-info": "^2.8.8",
@@ -57,6 +58,7 @@
     "isarray": "^1.0.0",
     "isexe": "^2.0.0",
     "isobject": "^3.0.1",
+    "jest-cli": "^26.4.2",
     "json-stable-stringify-without-jsonify": "^1.0.1",
     "jsonwebtoken": "^8.5.1",
     "just-debounce": "^1.0.0",
@@ -107,11 +109,14 @@
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-pug": "^4.0.1",
-    "gulp-sass": "^4.1.0"
+    "gulp-sass": "^4.1.0",
+    "jest": "^26.4.2",
+    "puppeteer": "^5.3.1"
   },
   "scripts": {
     "watch": "npm run gulp && npm run nodemon",
     "gulp": "gulp watch",
-    "nodemon": "nodemon"
+    "nodemon": "nodemon",
+    "test": "jest --watchAll"
   }
 }

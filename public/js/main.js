@@ -28,7 +28,6 @@ String.prototype.indicesOf = function(searchStr, caseSensitive, startIndex) {
     return indices
 }
 
-const testData = new TestData()
 const tools = new Tools()
 const server = new Server()
 const cookie = new Cookie()
@@ -39,10 +38,10 @@ let editor
 let dragAndDrop
 let contextMenu
 let dropdown
-let user = new User('')
-let crud = new CRUD()
-const form = new Form()
 const validate = new Validate()
+let user = new User('')
+const crud = new CRUD()
+let form = new Form()
 const announce = new Announce()
 
 document.addEventListener("input", e => {
@@ -56,17 +55,16 @@ document.addEventListener( "submit", e => {
 })
 
 document.addEventListener("click", e => {
-    const id = targetId(e)
-
-    if(queryTarget('.active-editor')) editor.deactivate()
-    else if(id === 'editor-container') editor = new Editor(e)
+	const id = targetId(e)
+	
+	if(queryTarget('.active-editor')) editor.deactivate()
 
     if(queryTarget('.dropdown')) {
         if(parentId(e) === 'colorList') crud.run({method: 'update', type: 'task', data: {color: id}})
     }
     
     if(['colorBtn', 'membersBtn', 'labelsBtn'].includes(id)) {
-        if(queryTarget('.dropdown')) return dropdown.deactivate()
+        if(queryTarget('.dropdown')) dropdown.deactivate()
         const taskLarge = id === 'colorBtn' ? e.target.parentElement.parentElement : e.target.parentElement.parentElement.parentElement
         dropdown = new Dropdown(e, id, taskLarge.attributes['data-id'].value)
     } else if(dropdown) dropdown.deactivate()
@@ -92,12 +90,14 @@ document.addEventListener("click", e => {
     else if(id === 'boxAdd' && queryTarget('.hover')) {
         crud.run({method: 'create', type: 'box', e})
         hoverBetweenBoxes.remove(e)
-    }
+	} else if(id === 'labelBtn') 
+		crud.run({method: 'create', type: 'label', e})
 
     if(id === 'darkmode') toggleDarkmode()
 })
 document.addEventListener("dblclick", e => {
-    const id = targetId(e)
+	const id = targetId(e)
+    if(id === 'formatedContent' && !queryTarget('.dropdown')) return editor = new Editor(e)
     if(['box', 'frameNav'].includes(id)) toggleTextarea(e, true)
     if(['taskLarge'].includes(parentId(e))) toggleTextarea(e, true)
 })
@@ -128,9 +128,12 @@ document.addEventListener( 'keydown', e => {
             e.preventDefault()
             if(key === 9) Format.addTabAtCursor(e.target) // key 9 tab
             if(key === 27) editor.deactivate()
-        }
-    }
-    if(parentId(e) === 'frameNav') 
+        } if(id === 'labelInput') {
+			if(key === 13) crud.run({method: 'create', type: 'label', e})
+		}
+	}
+	
+    if(parentId(e) === 'frameNav' || id === 'labelInput') 
         if(e.target.value.length > 33 && ![8,16,17,37,38,39,40].includes(key)) e.preventDefault() //8 backspace & 16 shift & 17 ctrl & 37,38,39,40 arrowkeys
 })
 document.addEventListener( 'contextmenu', e => {
@@ -196,486 +199,6 @@ function show() {
     ;[queryTarget('#signUp'), queryTarget('#login')].forEach(target => {
         target.style.display = 'block'
     })
-}
-function TestData() {
-    this.login = {
-        email: 'test123@test123.se',
-        password: 'aaaaaaaa' 
-    }
-    
-    this.signUp1 = { //complete success
-        name: 'Egyuik wewewe',
-        email: 'test123@test123.se',
-        password: 'aaaaaaaa',
-        comfirmPw: 'aaaaaaaa',
-    }
-    this.signUp2 = { // invaidname and email (misses "."), password too short and doesn't match comfirm
-        name: 'Egyuik',
-        email: 'test123@test123se',
-        password: 'aaaaaaa',
-        comfirmPw: 'aaaaaaaa',
-    }
-    this.signUp3 = { // invaidname and email (misses "@"), comfirm doesn't match password
-        name: 'Egyuik',
-        email: 'test123test123.se',
-        password: 'aaaaaaaa',
-        comfirmPw: 'aaaaaaa',
-    }
-    this.cookie = () => { // true; hej; false;
-        cookie.create('name', 'hej', 5)
-        console.log(cookie.check('name'))
-        console.log(cookie.get('name'))
-        cookie.destroy('name')
-        console.log(cookie.check('name'))
-    }
-    this.frameJson = {
-        title: "My first board",
-        description: "My first board",
-        author: "",
-        timestampCreated: "",
-        timestampUpdated: "",
-        members: [],
-        boxes: [
-            {
-                id: 0,
-                name: "To-do", 
-                color: "white",
-                tasks: [
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    }
-                ]
-            },
-            {
-                id: 0,
-                name: "To-do", 
-                color: "white",
-                tasks: [
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    }
-                ]
-            },
-            {
-                id: 0,
-                name: "To-do", 
-                color: "white",
-                tasks: [
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    }
-                ]
-            },
-            {
-                id: 0,
-                name: "To-do", 
-                color: "white",
-                tasks: [
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    }
-                ]
-            },
-            {
-                id: 0,
-                name: "To-do", 
-                color: "white",
-                tasks: [
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    }
-                ]
-            },
-            {
-                id: 0,
-                name: "To-do", 
-                color: "white",
-                tasks: [
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 0,
-                        text: "Create a team board by clicking on 'Boards' > 'Create board' in the top left corner of the screen", 
-                        description: "", 
-                        members: [], 
-                        color: "RED", 
-                        date: "",
-                        subtasks: [], 
-                        labels: ["New-task"]
-                    },
-                    { 
-                        id: 1,
-                        text: "To edit a task simply click on it", 
-                        description: "*Descriptions can be useful to explain a task in more detail.* \n\nYou can *bold* and _emphasize_ important words. You can add bullet lists:\n\n* Item 1\n* Item 2\n* Item 3\n* item 4", 
-                        members: [], 
-                        color: "BLUE", 
-                        date: "",
-                        subtasks: [
-                            {
-                                id: 0,
-                                text: "Create a subtask",
-                                state: "true",
-                                member: []
-                            },
-                            {
-                                id: 1,
-                                text: "Deleat a subtask",
-                                state: "false",
-                                member: []
-                            }
-                        ], 
-                        labels: ["New-task"]
-                    }
-                ]
-            },
-        ],
-    }
 }
 async function toggleTextarea(e, state, save) {
     if(state) {
@@ -805,7 +328,7 @@ function CRUD() {
             if(method !== 'read') {
                 const response = await server.postFetch(method, {type, ...input, token: cookie.get('token')})
                 if(validate.status(response.status) || !response.status) throw 'Request denied'
-        
+				console.log(response)
                 if(method === 'create') {
                     if(!response.id) throw 'No server response to creation request'
                     input = {...input, createdId: response.id}
@@ -832,16 +355,23 @@ function CRUD() {
             : method === 'create' ? ifCreate()
             : ''
         
-        data = target ? {...getIds(), ...data} : data
-
-        return (!data ||  (data.data && data.data.text && data.data.text === frame.previousText)) ? '' : data
+		data = target ? {...getIds(), ...data} : data
+		
+		if(!data) data = ''
+		else if(data.data)
+			if(data.data.text)
+				data = data.type === 'label' && data.data.text ? ''
+					: data.type === 'description' ? data.data.description && data.data.description === editor.previousText
+					: data.data.text && data.data.text === frame.previousText ? ''
+					: data
+		return data
         /* PROCESS END */
 
         /* DELIGATION FUNCTIONS */
         function getIds() {
             let ids = {id: target.attributes['data-id']}
-            if(['task', 'box'].includes(type)) ids = {...ids, parentId: target.parentElement.attributes['data-id']}
-            if(type === 'task') ids = {...ids, grandParentId: target.parentElement.parentElement.attributes['data-id']}
+            if(['task', 'label', 'box'].includes(type)) ids = {...ids, parentId: target.parentElement.attributes['data-id']}
+            if(['task', 'label'].includes(type)) ids = {...ids, grandParentId: target.parentElement.parentElement.attributes['data-id']}
             return tools.ifAttributesGetValues(ids)
         }
         
@@ -851,9 +381,15 @@ function CRUD() {
             if(type === 'task') data = {renderType: 'taskLarge'}
         }
         function ifCreate() {
+			if(type === 'label') {
+				const taskId = queryTarget('.taskLarge').attributes['data-id'].value
+				target = queryTarget(`.task[data-id="${taskId}"`)
+				data = {...data, text: queryTarget('#labelInput').value}
+			}
             if(type === 'task') {
                 target = e.target.parentElement
                 type = 'box'
+                data = {data: {...data, color: 'default'}}
             } else if(type === 'box') {
                 data =  tools.ifAttributesGetValues({idToRenderAt: e.target.parentElement.attributes['data-id']})
                 target = e.target.parentElement.parentElement
@@ -895,12 +431,12 @@ function CRUD() {
 
         return Promise.resolve()
 
-         /* Case dependent preperation */
+         /* Case dependent rendering */
         function ifCreate() {
             if(type === 'frame') {
                 if(response.frame) frame = new Frame(response.frame) //! fake
             } else if(type === 'task') render[type](input)
-            else if(['box', 'subtask'].includes(type)) render[type](input)
+            else if(['box', 'subtask', 'label'].includes(type)) render[type](input)
         }
         function ifRead() {
             if(type === 'frame') {
@@ -909,14 +445,16 @@ function CRUD() {
             else if(['box', 'subtask'].includes(type)) if(response[type]) render[type](input)
         }
         function ifUpdate() {
-            if(data.color) {
+            let {color} = data
+            if(color) {
                 const taskContainer = queryTarget('.taskLarge-container')
                 const taskId = taskContainer.children.taskLarge.attributes['data-id'].value
                 const task = queryTarget(`.task[data-id="${taskId}"]`)
+
                 tools.removeAllClassNamesContainingStringOfTarget([task, taskContainer], 'color-')
-                taskContainer.classList.add(`color-${data.color}`)
-                task.classList.add(`color-${data.color}`)
-                queryTarget('#colorBtn').children.colorBtn_text.innerHTML = tools.capitalizeFirstLetter(data.color)
+                taskContainer.classList.add(`color-${color}`)
+                task.classList.add(`color-${color}`)
+                queryTarget('#colorBtn').children.colorBtn_text.innerHTML = tools.capitalizeFirstLetter(color)
             }
         }
         function ifDelete() {
@@ -927,9 +465,14 @@ function CRUD() {
 
     function updateStoredValues(method, type, {createdId, id, parentId, data}) {
         if(method === 'create') {
-            if(type === 'task') frame.addTask({id: createdId, parentId: id})
+            console.log(data)
+			if(type === 'task') frame.addTask({id: createdId, parentId: id, data})
+			if(type === 'label') frame.addLabel({id: createdId, parentId: id, grandParentId: parentId, data})
         }
-        if(method === 'update') frame.updateTask({id: id, parentId: parentId, data: data})
+        if(method === 'update') {
+            if(type === 'box') frame.updateBox({id, data})
+            if(type === 'task') frame.updateTask({id: id, parentId: parentId, data: data})
+        }
     }
 }
 function DragAndDrop() {
@@ -1036,42 +579,47 @@ function Dropdown(e, type, id) {
 }
 function Editor(e) {
 	if(!e) return
-	const container = e.target
-	const textarea = container.children.editor
-	const formatedArea = container.children.formatedContent
-	let previousText = textarea.value
-	let beforeWrite
+	const formatedArea = e.target
+	const textarea = formatedArea.previousElementSibling
+	const container = formatedArea.parentElement
+	this.previousText = textarea.value
+	let beforePreview
 	this.shouldWriteButtonEnable = false
 
-	this.deactivate = save => {
-		const editorContainer = container
-		editorContainer.classList.remove('active-editor')
-		container.removeEventListener('click', containerOnClick)
+	this.deactivate = async save => {
 		if(save) {
-			this.format(textarea.value)
-			tools.setAreaHeight(textarea)
-			return
+			try {
+				const text = textarea.value
+				await crud.run({method: 'update', type: 'description', data: {description: Sanitize.withHTMLCode(text)}})
+				this.format(text)
+			} catch (error) {
+				console.log(error)
+			}
+		} else {
+			textarea.value = this.previousText
+			this.format(this.previousText)
 		}
-		textarea.value = previousText
+		container.classList.remove('active-editor')
+		container.removeEventListener('click', containerOnClick)
+		tools.setAreaHeight(textarea)
 		formatedArea.classList.remove('editor')
 	}
 
 	this.format = text => {
-		const {cleaned, formated} = tools.cleanAndFormat(text)
-		textarea.value = cleaned
+		const {formated} = tools.cleanAndFormat(text)
 		formatedArea.innerHTML = formated
 	}
 
 	this.preview = () => {
 		this.shouldWriteButtonEnable = true
-		beforeWrite = textarea.value
-		this.format(beforeWrite)
+		beforePreview = textarea.value
+		this.format(beforePreview)
 		textarea.classList.add('hide')
 		formatedArea.classList.add('editor')
 	}
 	this.write = () => {
-		textarea.value = beforeWrite
-		formatedArea.innerHTML = previousText
+		textarea.value = beforePreview
+		formatedArea.innerHTML = this.previousText
 		textarea.classList.remove('hide')
 		formatedArea.classList.remove('editor')
 	}
@@ -1080,6 +628,7 @@ function Editor(e) {
 		e.stopPropagation() //stop deactivation of editor while inside container
 	}
 	
+	textarea.classList.remove('hide')
 	container.addEventListener('click', containerOnClick)
 	container.classList.add('active-editor')
 	tools.resizeAreaToFitContent(textarea)
@@ -1130,58 +679,6 @@ function Form() {
 }
 class Format {
 	static replaceAllRequestedSymbolsWithSpanTags = input => {
-		const translations = [
-			{
-				symbol: '*',
-				class: 'bold',
-			},
-			{
-				symbol: '|',
-				class: 'italic',
-			},
-			{
-				symbol: '_',
-				class: 'underline',
-			},
-			{
-				symbol: '~',
-				class: 'strikeThrough',
-			},
-        ]
-        
-		let output = ''
-		let classes
-		let notSymbol = true
-		const charArr = input.split('')
-		const setActiveClasses = () => translations.map(translation => translation.live ? classes += `${translation.class} ` : '')
-
-		charArr.map(char => {
-			notSymbol = true
-			translations.map(data => {
-				if(char !== data.symbol) return
-				notSymbol = false
-				classes = ''
-
-				if(!data.live) {
-					setActiveClasses()
-					data.live = true
-				} else {
-					data.live = false
-					setActiveClasses()
-				}
-
-				if(classes) {
-					if(data.live) classes += data.class
-					output += `</span><span class="${classes}">`
-				} else if(data.live) output += `<span class="${data.class}">`
-				else output += `</span>`
-			})
-			if(notSymbol) output += char
-		})
-		return output
-	}
-
-	static replaceAllRequestedSymbolsWithSpanTags2 = input => {
 		const symbolsDatas = [
 			{
 				symbol: '*',
@@ -1279,22 +776,39 @@ class Format {
 	}
 }
 function Frame({_id, text, description, author, members, boxes}) {
-	console.log(boxes)
 	this.previousText
 	this.previousType
 	if(!_id) return queryTarget('#render').innerHTML = ''
-	this.getBoxes = () => boxes
 	
-	this.addTask = data => boxes.find(box => data.parentId == box.id)
-		.tasks.push({id: data.id})
+	
+	this.addLabel = ({id, parentId, grandParentId, data}) => (
+		this.boxes.find(box => (
+			grandParentId == box.id
+		)).tasks.find(task=> (
+			parentId = task.id
+		)).labels.push( {id, ...data} )
+	)
+	this.addTask = ({id, parentId, data}) => (
+		this.boxes.find(box => (
+			parentId == box.id
+		)).tasks.push( {id, ...data} )
+	)
 
-	this.updateTask = data => {
-		boxes.find(box => data.parentId == box.id) //! ===
-			.tasks.find(task => data.id == task.id).map(({taskKey, taskValue}) => {
-				for(const key in data.data)
-					if(key == taskKey) return {taskKey: data.data[key]}
-				return {taskKey: taskValue}
-			}); //! ===
+	this.updateTask = ({data, id, parentId}) => { 
+		for(const key in data) 
+			Object.assign(
+				this.boxes.find(box => (
+					parentId == box.id
+				)).tasks.find(task => (
+					id == task.id
+				))
+				, {[key]: data[key]}
+			)
+	}
+
+	this.updateBox = ({id, data}) => {
+		for(const key in data)
+			Object.assign(this.boxes.find(box => id == box.id), {[key]: data[key]})
 	}
 
 	this.data = {
@@ -1386,7 +900,7 @@ function Render() {
 		}
 	}
 	
-	this.taskLarge = async (data) => {
+	this.taskLarge = async data => {
 		const boxes = frame.boxes
 		const box = boxes.find(box => box.id == data.parentId)
 
@@ -1394,7 +908,7 @@ function Render() {
 		await renderTaskLarge()
 		tools.resizeAreaToFitContent(queryTarget(`.taskLarge[data-id="${task.id}"`).children.textarea)
 		if(task.description) {
-			const {formated} = tools.cleanAndFormat(task.description)
+			const {formated} = tools.cleanAndFormat(task.description, true)
 			queryTarget('.editor-container').children.formatedContent.innerHTML = formated
 		}
 		return Promise.resolve()
@@ -1412,6 +926,17 @@ function Render() {
 		function renderTask() {
 			const parent = queryTarget(`.box[data-id="${data.id}"]`)
 			parent.insertAdjacentHTML('beforeend', themplates.task({id: data.createdId, text: ' '}))
+			return Promise.resolve()
+		}
+	}
+	this.label = async data => {
+		await renderLabel()
+		queryTarget('#labelInput').value = ''
+
+		function renderLabel() {
+			const targetTaskLarge = queryTarget('#labels').lastElementChild
+			const label = themplates.label({id: data.createdId, text: data.text})
+			targetTaskLarge.insertAdjacentHTML('beforebegin', label)
 			return Promise.resolve()
 		}
 	}
@@ -1433,9 +958,19 @@ function Render() {
 	this.eject = param => queryTarget(param).remove()
  }
 class Sanitize {
-    static escapeUnicode = text => {
-		const getUnicode = c => "\\u" + ("000" + c.charCodeAt().toString(16)).slice(-4)
-		return text.replace('/[\u00A0-\uffff]/g', getUnicode)
+    static withHTMLCode(string, reverse) {
+		let map = {
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#x27;',
+			"`": '&#96;',
+		}
+
+		reverse ? Object.entries(map).forEach(([key, value]) => string = string.replace(value, key))
+		: string = string.replace(/[<>"'`]/ig, (match)=>(map[match]))
+		
+		return string
 	}
 }
 
@@ -1502,7 +1037,7 @@ function Themplates() {
 			${subtasks && subtasks.length ? `<div style="display: none" id="hiddenSubtask">${subtasks.map(subtask=>this.subtask(subtask))}</div>` : ''}
 		</li>
 	`
-	this.taskLarge = ({color, parent, id, text, description, subtasks,}) => `
+	this.taskLarge = ({color, parent, id, text, description, subtasks, labels, members}) => `
 		<div class="taskLarge-container ${color !== 'default' ? `color-${color}` : ''}" id="taskLarge-container">
 			<div class="taskLarge" id="taskLarge"  data-id="${id}">
 				<textarea id="textarea" type="text" readonly spellcheck="false" rows="1" draggable="false">${text ? text : ''}</textarea>
@@ -1510,24 +1045,26 @@ function Themplates() {
 				<div class="info" data-id="${id}">
 					<div class="color">
 						<label>Color</label>
-						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">${color}</span></button>
+						<button id="colorBtn"><span class="circle"></span><span id="colorBtn_text">${color ? tools.capitalizeFirstLetter(color) : color}</span></button>
 					</div>
 					<div class="members">
 						<label>Members</label>
 						<div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
-							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+							<div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<span>
+							</div>
+							<div>
+								<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80" /></div>
+								<span>
+							</div>
 							<button id="membersBtn" />
 						</div>
 					</div>
 					<div class="labels">
 						<label>Labels</label>
 						<div id="labels">
-							<div>Project-x</div>
-							<div>Design</div>
-							<div>Design</div>
+							${labels ? labels.map(label=>this.label(label)) : ''}
 							<button id="labelsBtn" />
 						</div>
 					</div>
@@ -1584,10 +1121,15 @@ function Themplates() {
 			</div>
 		</div>
 	`
+	this.label = ({text, id}) => `
+		<div data-id="${id}"><p>${text}</p><span></div>
+	`
+
+
 	this.contextMenu = (id, type) => `
-		<nav class="context-menu" id="context-menu">
+		<nav class="context-menu" id="context-menu">${console.log(type)}
 			<ul data-id="${id}" data-type="${type}">
-				${!['frame', 'frameNav'].includes(type) ? '<li id="read">View</li>' : ''}
+				${!['frame', 'frameNav', 'label'].includes(type) ? '<li id="read">View</li>' : ''}
 				${type === 'box' ? '<li id="create">Add</li>' : ''}
 				<li id="update">Edit</li>
 				${!['frame', 'frameNav'].includes(type) ? '<li id="delete">Delete</li>' : ''}
@@ -1603,8 +1145,45 @@ function Themplates() {
 					<li id="color-green">Green</li>
 					<li id="color-red">Red</li>
 					<li id="color-blue">Blue</li>
+					<li id="color-crimson">Crimson</li>
+					<li id="color-indigo">Indigo</li>
+					<li id="color-defualt">Default</li>
 				</ul>`
 			: ''}
+			<div>
+				${type === 'labelsBtn' ? `
+					<div id="input-container">
+						<input id="labelInput" placeholder="add label...">
+						<button id="labelBtn" />
+					</div>
+					`
+				: ''}
+				${type === 'membersBtn' ? `
+					<div id="membersList">
+						${
+							frame.boxes.find(box => (
+								box.id === queryTarget(`.task[data-id="${id}"]`).parentElement.attributes['data-id'].value
+							)).tasks.find(task => (
+								task.id === id 
+							)).members.map(({id, text, url}) => `
+								<div class="img" data-id="${id}" data-name="${text}">
+									<div class="img"><img src="${url}"></div>
+									<span>${text}</span>
+								</div>
+							`)
+						}
+						<div>
+							<div class="img"><img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80"></div>
+							<span>
+						</div>
+					</div>
+					<div id="input-container">
+						<input id="membersInput" placeholder="Email...">
+						<button id="inviteMembersBtn" />
+					</div>
+					`
+				: ''}
+			</div>
 		</div> 
 	`
 
@@ -1638,8 +1217,8 @@ function Tools() {
 	}
 
 	this.cleanAndFormat = text => {
-		text = Sanitize.escapeUnicode(text)
-		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
+		text = Sanitize.withHTMLCode(text)
+		const formated = Format.replaceAllRequestedSymbolsWithSpanTags(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -1671,9 +1250,9 @@ function Tools() {
 		return {posX, posY}
 	}
 	
-	this.getPostionUnderEventContainer = target => ({
+	this.getPostionUnderEventContainer = (target) => ({
 		posX : target.offsetLeft, 
-		posY: target.offsetTop + target.offsetHeight
+		posY: 2 + target.offsetTop + target.offsetHeight,
 	})
 
 	this.positionAbsoluteBoxAt = (target, x, y) => {
@@ -1714,7 +1293,7 @@ function Tools() {
 		}
 	}
 
-	this.capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1, string.length)
+	this.capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1, string.length).toLowerCase()
 }
 
 function User(datas) {
@@ -1725,7 +1304,8 @@ function User(datas) {
 	this.logOut = () => {
 		cookie.destroy('token')
 		user = new User('')
-		frame = new Frame()
+		frame = new Frame({})
+		show()
 	}
 
 	this.changeFrame = () => {

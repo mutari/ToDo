@@ -1,3 +1,41 @@
+#render .taskLarge-container > .taskLarge > div.info > div.members > div > div > div.img, .dropdown > div > #membersList > div > div.img, #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1) {
+  display: block;
+  height: 25px;
+  width: 25px;
+  border-radius: 50%; }
+
+#render .taskLarge-container > .taskLarge > div.info > div.members > div > div > span, .dropdown > div > #membersList > div > span, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div > span {
+  background-color: rgba(0, 0, 0, 0);
+  display: grid;
+  align-items: center;
+  margin: 0 0 0 -10px;
+  border-radius: 0 12.5px 12.5px 0;
+  transition: background-color .1s .1s linear; }
+  #render .taskLarge-container > .taskLarge > div.info > div.members > div > div > span::after, .dropdown > div > #membersList > div > span::after, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div > span::after {
+    content: 'X';
+    display: block;
+    font-size: 10px;
+    padding: 0;
+    transition: padding .2s .1s linear; }
+
+#render .taskLarge-container > .taskLarge > div.info > div.members > div > div:hover > span, .dropdown > div > #membersList > div:hover > span, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div:hover > span {
+  background-color: rgba(0, 0, 0, 0.3); }
+  #render .taskLarge-container > .taskLarge > div.info > div.members > div > div:hover > span::after, .dropdown > div > #membersList > div:hover > span::after, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div:hover > span::after {
+    padding: 0 10px 0 15px; }
+
+#render .taskLarge-container > .taskLarge > div.info > div.members > div > div, .dropdown > div > #membersList > div {
+  display: grid;
+  grid-auto-flow: column;
+  width: min-content;
+  background-color: rgba(0, 0, 0, 0); }
+  #render .taskLarge-container > .taskLarge > div.info > div.members > div > div > div.img, .dropdown > div > #membersList > div > div.img {
+    z-index: 1;
+    overflow: hidden;
+    display: grid;
+    place-content: center; }
+    #render .taskLarge-container > .taskLarge > div.info > div.members > div > div > div.img > img, .dropdown > div > #membersList > div > div.img > img {
+      height: 25px; }
+
 .editor-container, #render .taskLarge-container > .taskLarge > .editor-container {
   word-break: break-all;
   grid-template-columns: auto;
@@ -58,7 +96,7 @@
     padding: 10px;
     white-space: pre-wrap; }
   .editor-container > p.editor, #render .taskLarge-container > .taskLarge > .editor-container > p.editor {
-    padding: 0; }
+    padding: 10px; }
   .editor-container > .optionbar, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar {
     display: none;
     justify-content: right;
@@ -279,11 +317,6 @@
       #render .taskLarge-container > .taskLarge > p:nth-child(2) {
         grid-area: owner;
         color: #E3E3E3; }
-      #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img {
-        display: block;
-        height: 25px;
-        width: 25px;
-        border-radius: 50%; }
       #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button {
         background-color: rgba(0, 0, 0, 0.15);
         color: inherit;
@@ -317,12 +350,13 @@
             align-self: start; }
             #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1) {
               height: 15px;
-              width: 15px; }
+              width: 15px;
+              background-color: grey; }
             #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
               color: inherit;
               align-self: center; }
             #render .taskLarge-container > .taskLarge > div.info > div.color > button:hover {
-              background-color: rgba(0, 0, 0, 0.15); }
+              background-color: rgba(0, 0, 0, 0.3); }
         #render .taskLarge-container > .taskLarge > div.info > div.members {
           grid-area: members;
           display: grid;
@@ -331,12 +365,6 @@
             display: flex;
             flex-wrap: wrap;
             gap: 2px; }
-            #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img {
-              overflow: hidden;
-              display: grid;
-              place-content: center; }
-              #render .taskLarge-container > .taskLarge > div.info > div.members > div > div.img > img {
-                height: 25px; }
             #render .taskLarge-container > .taskLarge > div.info > div.members > div > button {
               min-width: 25px; }
         #render .taskLarge-container > .taskLarge > div.info > div.labels {
@@ -353,7 +381,16 @@
               padding: 5px 10px;
               border-radius: 5px;
               font-size: 12px;
-              overflow-wrap: anywhere; }
+              overflow-wrap: anywhere;
+              display: grid;
+              grid-auto-flow: column; }
+              #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div > p {
+                z-index: 1;
+                padding: 0 3.5px; }
+              #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div > span {
+                background: transparent !important; }
+              #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div:hover > span::after {
+                padding: 0 2.5px 0 17.5px; }
             #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button {
               border-radius: 5px; }
       #render .taskLarge-container > .taskLarge > .editor-container {
@@ -463,7 +500,10 @@
   position: absolute;
   z-index: 9999;
   display: grid;
-    display-box-shadow: 1px 1px 2px #000; }
+  max-width: 300px; }
+  .dropdown > ul, .dropdown > div {
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+      box-shadow-border: 1px solid rgba(0, 0, 0, 0.9); }
   .dropdown > ul.colorList {
     background-color: #333; }
     .dropdown > ul.colorList > li {
@@ -483,74 +523,214 @@
       .dropdown > ul.colorList > li:hover {
         color: white;
         background-color: #222; }
+      .dropdown > ul.colorList > li#color-defualt::before {
+        background-color: DimGrey; }
+  .dropdown > div {
+    background-color: #333;
+    padding: 5px 10px;
+    display: grid;
+    grid-template-areas: "one" "two"; }
+    .dropdown > div > div {
+      padding: 5px 0; }
+    .dropdown > div > #membersList {
+      grid-area: one; }
+    .dropdown > div > #input-container {
+      grid-area: two;
+      display: flex; }
+      .dropdown > div > #input-container > input {
+        padding: 5px;
+        color: white;
+        border-radius: 5px 0 0 5px;
+        background-color: rgba(0, 0, 0, 0.3);
+        min-width: calc( 100% - 45px); }
+      .dropdown > div > #input-container > button {
+        padding: 2.5px 7.5px;
+        color: white;
+        font-size: 18px;
+        border-radius: 0 5px 5px 0;
+        background-color: rgba(0, 0, 0, 0.5); }
+        .dropdown > div > #input-container > button::before {
+          content: '+'; }
+        .dropdown > div > #input-container > button:hover {
+          background-color: rgba(0, 0, 0, 0.7); }
+      .dropdown > div > #input-container > button#inviteMembersBtn {
+        font-size: 12px; }
+        .dropdown > div > #input-container > button#inviteMembersBtn::before {
+          content: 'Invite'; }
 
 #render > .frame > .box > .task.color-yellow {
   background-color: #B09834; }
 
-#render > .frame > .box > .task.color-green {
-  background-color: #478C34; }
-
-#render > .frame > .box > .task.color-red {
-  background-color: #B52934; }
-
-#render > .frame > .box > .task.color-blue {
-  background-color: #1C3E97; }
-
-#render > .taskLarge-container.color-yellow > .taskLarge {
-  background-color: #B09834; }
-  #render > .taskLarge-container.color-yellow > .taskLarge > div.info > div.color > button > .circle {
-    background-color: yellow; }
-
-#render > .taskLarge-container.color-yellow > .dropdown > ul.colorList {
-  background-color: #61541d;
-  border: solid 1px #61541d; }
-  #render > .taskLarge-container.color-yellow > .dropdown > ul.colorList > li:hover {
-    background-color: #3a3211; }
-
-#render > .taskLarge-container.color-green > .taskLarge {
-  background-color: #478C34; }
-  #render > .taskLarge-container.color-green > .taskLarge > div.info > div.color > button > .circle {
-    background-color: green; }
-
-#render > .taskLarge-container.color-green > .dropdown > ul.colorList {
-  background-color: #214218;
-  border: solid 1px #214218; }
-  #render > .taskLarge-container.color-green > .dropdown > ul.colorList > li:hover {
-    background-color: #0e1c0b; }
-
-#render > .taskLarge-container.color-red > .taskLarge {
-  background-color: #B52934; }
-  #render > .taskLarge-container.color-red > .taskLarge > div.info > div.color > button > .circle {
-    background-color: red; }
-
-#render > .taskLarge-container.color-red > .dropdown > ul.colorList {
-  background-color: #62161c;
-  border: solid 1px #62161c; }
-  #render > .taskLarge-container.color-red > .dropdown > ul.colorList > li:hover {
-    background-color: #380d10; }
-
-#render > .taskLarge-container.color-blue > .taskLarge {
-  background-color: #1C3E97; }
-  #render > .taskLarge-container.color-blue > .taskLarge > div.info > div.color > button > .circle {
-    background-color: blue; }
-
-#render > .taskLarge-container.color-blue > .dropdown > ul.colorList {
-  background-color: #0c1b41;
-  border: solid 1px #0c1b41; }
-  #render > .taskLarge-container.color-blue > .dropdown > ul.colorList > li:hover {
-    background-color: #040916; }
+#render > .taskLarge-container.color-yellow {
+  /** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button
+								background-color: darken($hex, 27.5%) **/ }
+  #render > .taskLarge-container.color-yellow > .taskLarge {
+    background-color: #B09834; }
+    #render > .taskLarge-container.color-yellow > .taskLarge > .info > .color > button > .circle {
+      background-color: yellow; }
+    #render > .taskLarge-container.color-yellow > .taskLarge > .info > .labels > #labels > div > p {
+      background-color: #9c872e; }
 
 #render > .taskLarge-container > .dropdown > ul.colorList > li#color-yellow::before {
   background-color: yellow; }
 
+#render > .frame > .box > .task.color-green {
+  background-color: #478C34; }
+
+#render > .taskLarge-container.color-green {
+  /** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button
+								background-color: darken($hex, 27.5%) **/ }
+  #render > .taskLarge-container.color-green > .taskLarge {
+    background-color: #478C34; }
+    #render > .taskLarge-container.color-green > .taskLarge > .info > .color > button > .circle {
+      background-color: green; }
+    #render > .taskLarge-container.color-green > .taskLarge > .info > .labels > #labels > div > p {
+      background-color: #3e792d; }
+
 #render > .taskLarge-container > .dropdown > ul.colorList > li#color-green::before {
   background-color: green; }
+
+#render > .frame > .box > .task.color-red {
+  background-color: #B52934; }
+
+#render > .taskLarge-container.color-red {
+  /** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button
+								background-color: darken($hex, 27.5%) **/ }
+  #render > .taskLarge-container.color-red > .taskLarge {
+    background-color: #B52934; }
+    #render > .taskLarge-container.color-red > .taskLarge > .info > .color > button > .circle {
+      background-color: red; }
+    #render > .taskLarge-container.color-red > .taskLarge > .info > .labels > #labels > div > p {
+      background-color: #a0242e; }
 
 #render > .taskLarge-container > .dropdown > ul.colorList > li#color-red::before {
   background-color: red; }
 
+#render > .frame > .box > .task.color-blue {
+  background-color: #1C3E97; }
+
+#render > .taskLarge-container.color-blue {
+  /** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button
+								background-color: darken($hex, 27.5%) **/ }
+  #render > .taskLarge-container.color-blue > .taskLarge {
+    background-color: #1C3E97; }
+    #render > .taskLarge-container.color-blue > .taskLarge > .info > .color > button > .circle {
+      background-color: blue; }
+    #render > .taskLarge-container.color-blue > .taskLarge > .info > .labels > #labels > div > p {
+      background-color: #183581; }
+
 #render > .taskLarge-container > .dropdown > ul.colorList > li#color-blue::before {
   background-color: blue; }
+
+#render > .frame > .box > .task.color-crimson {
+  background-color: #922039; }
+
+#render > .taskLarge-container.color-crimson {
+  /** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button
+								background-color: darken($hex, 27.5%) **/ }
+  #render > .taskLarge-container.color-crimson > .taskLarge {
+    background-color: #922039; }
+    #render > .taskLarge-container.color-crimson > .taskLarge > .info > .color > button > .circle {
+      background-color: crimson; }
+    #render > .taskLarge-container.color-crimson > .taskLarge > .info > .labels > #labels > div > p {
+      background-color: #7d1b31; }
+
+#render > .taskLarge-container > .dropdown > ul.colorList > li#color-crimson::before {
+  background-color: crimson; }
+
+#render > .frame > .box > .task.color-indigo {
+  background-color: #281759; }
+
+#render > .taskLarge-container.color-indigo {
+  /** .dropdown
+					& > ul.colorList
+						border: solid 1px darken($hex, 25%)
+						background-color: darken($hex, 25%)
+						& > li
+							&:hover
+								background-color: darken($hex, 30%)
+					& > div
+						border: solid 1px darken($hex, 20%)
+						background-color: darken($hex, 20%)
+						& > #input-container
+							& > input
+								background-color: darken($hex, 10%)
+							& > button
+								background-color: darken($hex, 27.5%) **/ }
+  #render > .taskLarge-container.color-indigo > .taskLarge {
+    background-color: #281759; }
+    #render > .taskLarge-container.color-indigo > .taskLarge > .info > .color > button > .circle {
+      background-color: indigo; }
+    #render > .taskLarge-container.color-indigo > .taskLarge > .info > .labels > #labels > div > p {
+      background-color: #1f1245; }
+
+#render > .taskLarge-container > .dropdown > ul.colorList > li#color-indigo::before {
+  background-color: indigo; }
 
 * {
   margin: 0;
@@ -587,17 +767,17 @@ ul {
   width: 100%;
   margin: 0 auto; }
 
-.inactive-link, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, #render textarea, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
+.inactive-link, #render .taskLarge-container > .taskLarge > div.info > div.members > div > div > div.img, .dropdown > div > #membersList > div > div.img, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, #render textarea, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(2) {
   pointer-events: none; }
 
-.active-link, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, .editor-container.active-editor, #render .taskLarge-container > .taskLarge > .active-editor.editor-container, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea:nth-child(1) {
+.active-link, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, .editor-container > p#formatedContent, #render .taskLarge-container > .taskLarge > .editor-container > p#formatedContent, .editor-container.active-editor, #render .taskLarge-container > .taskLarge > .active-editor.editor-container, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea:nth-child(1) {
   pointer-events: auto; }
 
 .stop-scrolling {
   position: fixed;
   padding-right: 17px; }
 
-.pointer, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button, .dropdown > ul.colorList > li, .darkModeToggle > button {
+.pointer, #render .taskLarge-container > .taskLarge > div.info > div.members > div > div > span, .dropdown > div > #membersList > div > span, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > div > span, .editor-container > .toolbar > div:first-child > button, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:first-child > button, .editor-container > .toolbar > div:last-child > span, #render .taskLarge-container > .taskLarge > .editor-container > .toolbar > div:last-child > span, .editor-container > p, #render .taskLarge-container > .taskLarge > .editor-container > p, .editor-container > p#formatedContent, .editor-container > .optionbar > button, #render .taskLarge-container > .taskLarge > .editor-container > .optionbar > button, .context-menu > ul > li, #render > .frame > .box > button, #render > .frame > .box > .task, #render > .frame > .box > span, #render .taskLarge-container > .taskLarge > textarea:nth-child(1), #render .taskLarge-container > .taskLarge > div.info > div.members > div > button, #render .taskLarge-container > .taskLarge > div.info > div.labels > #labels > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > #addSubtask > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button, #render .taskLarge-container > .taskLarge > div.info > div.color > button > span:nth-child(1), #render .taskLarge-container > .taskLarge > .subtask-container > #subtaskInfo > button, #render .taskLarge-container > .taskLarge > .subtask-container > #subtasks > .subtask > button, .dropdown > ul.colorList > li, .dropdown > div > #input-container > button, .darkModeToggle > button {
   cursor: pointer; }
 
 .cursor-text, .editor-container > .editor, #render .taskLarge-container > .taskLarge > .editor-container > .editor, #render textarea.active, #render .taskLarge-container > .taskLarge > textarea.active:nth-child(1) {

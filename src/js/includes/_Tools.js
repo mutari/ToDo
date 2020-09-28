@@ -26,8 +26,8 @@ function Tools() {
 	}
 
 	this.cleanAndFormat = text => {
-		text = Sanitize.escapeUnicode(text)
-		const formated = Format.replaceAllRequestedSymbolsWithSpanTags2(text)
+		text = Sanitize.withHTMLCode(text)
+		const formated = Format.replaceAllRequestedSymbolsWithSpanTags(text)
 		return {cleaned: text, formated: formated}
 	}
 
@@ -59,9 +59,9 @@ function Tools() {
 		return {posX, posY}
 	}
 	
-	this.getPostionUnderEventContainer = target => ({
+	this.getPostionUnderEventContainer = (target) => ({
 		posX : target.offsetLeft, 
-		posY: target.offsetTop + target.offsetHeight
+		posY: 2 + target.offsetTop + target.offsetHeight,
 	})
 
 	this.positionAbsoluteBoxAt = (target, x, y) => {
@@ -102,5 +102,5 @@ function Tools() {
 		}
 	}
 
-	this.capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1, string.length)
+	this.capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1, string.length).toLowerCase()
 }
