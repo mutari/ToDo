@@ -92,8 +92,6 @@ module.exports = {
     },
     postSendComfirmMail: async (req, res) => {
         try {
-            req.token = {}
-            req.token.id = "5f6b95d4e768a70123a1a174";
             let respons = await req.db.userCol.findOne({"_id": ObjectID(req.token.id)})
             let id = jwt.sign({ id: ObjectID(req.token.id) }, process.env.SECRETEMAIL, { expiresIn: 60*5 })
 
@@ -101,24 +99,29 @@ module.exports = {
                 from: email.getEmail,
                 to: respons.email,
                 subject: "Comfirm email",
-                html: `<a href="http://localhost/comfirm/?id=${id}">click med to comfirm email</a>`
+                html: `<a href="http://localhost/ToDo/comfirm?id=${id}">click med to comfirm email</a>`
             }, (err, info) => {
                 if(err) throw err
-                else console.log(info)
+                else console.log('Email sent:', info)
             })
 
-            respons = req.db.userCol.updateOne({"_id": ObjectID(req.token.id)}, { $set: { comfirmEmailID: id } })
+            //respons = req.db.userCol.updateOne({"_id": ObjectID(req.token.id)}, { $set: { comfirmEmailID: id } })
+            if(respons) return res.json({message: "Email sent", status: 200})
+            return res.json({message: "Could not find users", status: 400})
         } catch (error) {
             console.error(error)
+            return res.json({message: "Could not find users", status: 400})
         }
     },
     postComfirmMail: async (req, res) => {
         try {
-            console.log(req.)
-            
-
+            let token = jwt.verify(req.query.id, process.env.SECRETEMAIL)
+            var respons = req.db.userCol.updateOne({'_id': ObjectID(token.id)}, { $set: { isEmailVerified: true } })
+            if(respons) return res.json({message: "user is verified", status: 200})
+            return res.json({message: "User is not verified", status: 400})
         } catch (error) {
-            
+            console.log(error)
+            return res.json({message: "User is not verified", status: 400})
         }
     }
 }
