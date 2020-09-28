@@ -149,7 +149,7 @@ async function postUpdateFramePosition (req, res) {
         if(!respons)
             return res.json({message: `did not find a frame white that id: ${req.body.frameId}`, status: 400})
         
-        ConvertToNewFrameLayout(req.body.data)
+            ConvertToNewFrameLayout(req.body.data)
 
 
 
@@ -168,14 +168,19 @@ async function createAddPosId (req, frameId, type, data, boxId, tasksId) {
 
     if(type == "box") {
         id = 0
+        find = false
         respons.boxes.forEach((box, i) => {
             if(!req.body.neighbourId)
                 if(box.posId > id)
                     id = box.posId
             else {
                 if(box.id == req.body.neighbourId) {
+                    data.id = box.id + 1
                     respons.boxes.splice(i + 1, 0, data)
+                    find = true;
                 }
+                if(find)
+                    box.id += 1
             }
         })
         if(!req.body.neighbourId) {

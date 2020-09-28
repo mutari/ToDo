@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const ObjectID = require('mongodb').ObjectID
 const converter = require('../modules/frameConverter')
+const email = require('../modules/email')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
     postLogin: async (req, res) => {// självklart kommer lösenord kontrol och så vidare
@@ -40,6 +42,7 @@ module.exports = {
                 delete req.body.password
                 req.body.hash = hash
                 req.body.frames = []
+                req.body.comfirmedEmail = false
                 let result = await req.db.userCol.insertOne(req.body)
                 if(result) res.redirect(307, '/ToDo/login')
                 else return res.json({message: "problem inserting into the database", status: 400})
@@ -85,6 +88,40 @@ module.exports = {
             return res.json({message: "User did not get removed", status: 400})
         } catch (error) {
             console.error(error)
+        }
+    },
+    postSendComfirmMail: async (req, res) => {
+        try {
+            let respons = await req.db.userCol.findOne({"_id": ObjectID(req.token.id)})
+            let id = jwt.sign({ id: ObjectID(req.token.id) }, process.env.SECRETEMAIL, { expiresIn: 60*5 })
+
+            email.send({
+                from: email.getEmail,
+                to: respons.email,
+                subject: "Comfirm email",
+                html: `<a href="http://localhost/ToDo/comfirm?id=${id}">click med to comfirm email</a>`
+            }, (err, info) => {
+                if(err) throw err
+                else console.log('Email sent:', info)
+            })
+
+            //respons = req.db.userCol.updateOne({"_id": ObjectID(req.token.id)}, { $set: { comfirmEmailID: id } })
+            if(respons) return res.json({message: "Email sent", status: 200})
+            return res.json({message: "Could not find users", status: 400})
+        } catch (error) {
+            console.error(error)
+            return res.json({message: "Could not find users", status: 400})
+        }
+    },
+    postComfirmMail: async (req, res) => {
+        try {
+            let token = jwt.verify(req.query.id, process.env.SECRETEMAIL)
+            var respons = req.db.userCol.updateOne({'_id': ObjectID(token.id)}, { $set: { isEmailVerified: true } })
+            if(respons) return res.json({message: "user is verified", status: 200})
+            return res.json({message: "User is not verified", status: 400})
+        } catch (error) {
+            console.log(error)
+            return res.json({message: "User is not verified", status: 400})
         }
     }
 }
